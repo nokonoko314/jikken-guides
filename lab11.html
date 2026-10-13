@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013g">
+<link rel="stylesheet" href="assets/style.css?v=20261013h">
 </head>
 <body data-lab="lab11" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -95,7 +95,7 @@
   <div class="code" data-where="ssh" data-label="時間の測り方の例"><pre>long start = System.nanoTime();
 // ここに、測りたい検索の処理
 long end = System.nanoTime();
-System.out.println((end - start) + " ns");</pre></div>
+System.out.println((end - start) + " ns");</pre><pre class="out">15300 ns                          ← 1回だけだとばらつくので、繰り返して平均する（手順3の表）</pre></div>
   <div class="tbl"><table>
     <thead><tr><th>気をつけること</th><th>理由と対策</th></tr></thead>
     <tbody>
@@ -209,6 +209,6 @@ System.out.println((end - start) + " ns");</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013g"></script>
+<script src="assets/app.js?v=20261013h"></script>
 </body>
 </html>

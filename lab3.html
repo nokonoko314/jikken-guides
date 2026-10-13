@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013g">
+<link rel="stylesheet" href="assets/style.css?v=20261013h">
 </head>
 <body data-lab="lab3" data-label-local="サーバで直接入力" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -71,11 +71,28 @@
 <section class="step extra" id="s1" data-title="Javaの環境を確認する">
   <div class="step-head"><div class="num">1</div><div><h2>Javaの環境を確認する</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <div class="code" data-where="win"><pre>java -version
-javac -version</pre></div>
+javac -version</pre><pre class="out">$ java -version
+openjdk version "21.0.8" 2025-07-15 LTS
+OpenJDK Runtime Environment Temurin-21.0.8+9 (build 21.0.8+9-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, sharing)
+$ javac -version
+javac 21.0.8
+（「'java' は、内部コマンドまたは外部コマンド…として認識されていません」と出たら、JDKが入っていない）</pre></div>
   <p>両方ともバージョン（例：<code class="i">21.0.x</code>）が出れば準備完了です。<code class="i">'java' は認識されていません</code> と出たら、JDKを入れます。</p>
-  <div class="code" data-where="win"><pre>winget install EclipseAdoptium.Temurin.21.JDK</pre></div>
+  <div class="code" data-where="win"><pre>winget install EclipseAdoptium.Temurin.21.JDK</pre><pre class="out">Found Eclipse Temurin JDK with Hotspot 21 [EclipseAdoptium.Temurin.21.JDK] Version 21.0.8.9
+This application is licensed to you by its owner.
+Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Downloading https://github.com/adoptium/temurin21-binaries/releases/…
+  ██████████████████████████████   180 MB /  180 MB
+Successfully verified installer hash
+Starting package install...
+Successfully installed</pre></div>
   <p>インストール後、PowerShellを開き直してから、もう一度バージョンを確認します。配布コードを見るとこの授業はNetBeansを使っているので、IDEを使う場合は次も入れます。</p>
-  <div class="code" data-where="win"><pre>winget install Apache.NetBeans</pre></div>
+  <div class="code" data-where="win"><pre>winget install Apache.NetBeans</pre><pre class="out">Found Apache NetBeans [Apache.NetBeans] Version 27
+…
+Successfully verified installer hash
+Starting package install...
+Successfully installed</pre></div>
   <h3>1ファイルだけなら、そのまま実行できる</h3>
   <p>Java 11以降は、<code class="i">javac</code> を使わずに、ソースファイルを直接実行できます。試しながら作るときに便利です。</p>
   <div class="code" data-where="win"><pre>java Maze.java</pre></div>
@@ -293,6 +310,6 @@ OPEN: [B[6], D[7], C[9]]       CLOSED: [S[11], A[9]]
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013g"></script>
+<script src="assets/app.js?v=20261013h"></script>
 </body>
 </html>

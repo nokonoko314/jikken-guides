@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013g">
+<link rel="stylesheet" href="assets/style.css?v=20261013h">
 </head>
 <body data-lab="lab1" data-label-local="サーバで直接入力" data-label-ssh="サーバ（SSH経由・コピペ可）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -114,9 +114,9 @@
     <div class="step-head"><div class="num">4</div><div><h2>ログインとキーボード配列の確認</h2><span class="slide">スライド「キーボードレイアウトの変更」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
     <p>再起動後、<code class="i">login:</code> と出たらステップ3のusernameとパスワードを入力します。パスワードは入力しても画面に何も表示されませんが、正常です。</p>
     <p>キーボードで <kbd>@</kbd> や <kbd>:</kbd> を押して、そのとおりの記号が出れば日本語配列になっています。ずれる場合だけ、次を実行します。</p>
-    <div class="code" data-where="local"><pre>sudo dpkg-reconfigure keyboard-configuration</pre></div>
+    <div class="code" data-where="local"><pre>sudo dpkg-reconfigure keyboard-configuration</pre><pre class="out">（青い設定画面が開く。キーボードの種類 → 配列「Japanese」→ 同じく「Japanese」→ AltGr などは既定のまま Enter。終わるとプロンプトに戻り、何も表示されない）</pre></div>
     <p>出てくる画面では、Generic 105-key PC → Japanese → Japanese → その後はすべてそのまま <kbd>Enter</kbd>。終わったら次のコマンドで反映します。</p>
-    <div class="code" data-where="local"><pre>sudo setupcon</pre></div>
+    <div class="code" data-where="local"><pre>sudo setupcon</pre><pre class="out">（何も表示されずにプロンプトに戻れば成功。キー配列がすぐ切り替わる）</pre></div>
     <p class="why">反映されない場合は <code class="i">sudo reboot</code> で再起動。</p>
   </section>
 
@@ -124,17 +124,35 @@
   <section class="step" id="s5" data-title="ユーザの追加">
     <div class="step-head"><div class="num">5</div><div><h2>ユーザの追加</h2><span class="slide">スライド「本日の作業手順（1）」ユーザの追加</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
     <p>2人1組なので、インストール時に作っていない<strong>相方のユーザ</strong>を追加します。名前は「user2」の部分を変えてください。</p>
-    <div class="code" data-where="local"><pre>sudo adduser user2</pre></div>
+    <div class="code" data-where="local"><pre>sudo adduser user2</pre><pre class="out">info: Adding user `user2' ...
+info: Selecting UID/GID from range 1000 to 59999 ...
+info: Adding new group `user2' (1001) ...
+info: Adding new user `user2' (1001) with group `user2 (1001)' ...
+info: Creating home directory `/home/user2' ...
+info: Copying files from `/etc/skel' ...
+New password:                       ← 入力しても画面には何も出ない
+Retype new password:
+passwd: password updated successfully
+Changing the user information for user2
+Enter the new value, or press ENTER for the default
+        Full Name []:               ← ここから5つは Enter だけでよい
+        Room Number []:
+        Work Phone []:
+        Home Phone []:
+        Other []:
+Is the information correct? [Y/n] y
+info: Adding new user `user2' to supplemental / extra groups `users' ...
+info: Adding user `user2' to group `users' ...</pre></div>
     <p>パスワードを2回入力し、Full Name などの質問はすべて <kbd>Enter</kbd> で空欄、最後に <kbd>Y</kbd>。管理者権限（sudo）も持たせる場合は次も実行します。</p>
     <div class="code" data-where="local"><pre>sudo usermod -aG sudo user2
-groups user2</pre></div>
+groups user2</pre><pre class="out">user2 : user2 sudo users          ← sudo が入っていれば成功</pre></div>
     <p class="why">最後の行の結果に <code class="i">sudo</code> が含まれていれば成功。普段は一般ユーザで作業し、管理作業のときだけ sudo で権限を借りるのがLinuxの基本です。</p>
   </section>
 
   <!-- 6 -->
   <section class="step" id="s6" data-title="IPアドレスを確認">
     <div class="step-head"><div class="num">6</div><div><h2>IPアドレスを確認</h2><span class="slide">スライド「IPアドレスについて」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <div class="code" data-where="local"><pre>hostname -I</pre></div>
+    <div class="code" data-where="local"><pre>hostname -I</pre><pre class="out">192.168.0.142                     ← 最初の数字がサーバのIP（人によって違う）</pre></div>
     <p>表示された数字（例：<code class="i">10.0.5.23</code>）が、このサーバのIPアドレスです。<strong>ページ上部のバーに入力してください</strong>。以降のコマンドに自動で反映されます。</p>
     <p class="why">この部屋はDHCPで自動割り当てなので、再起動するとIPが変わる可能性があります。SSHがつながらなくなったら、まずこのコマンドで確認し直してください。</p>
   </section>
@@ -144,14 +162,43 @@ groups user2</pre></div>
     <div class="step-head"><div class="num">7</div><div><h2>SSHを動かし、ファイアウォールで許可する</h2><span class="slide">スライド「リモートログイン」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
     <p>まずSSHサーバが動いているか確認します。</p>
     <div class="code" data-where="local"><pre>sudo systemctl enable --now ssh
-systemctl status ssh</pre></div>
+systemctl status ssh</pre><pre class="out">$ sudo systemctl enable --now ssh
+Synchronizing state of ssh.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable ssh
+$ systemctl status ssh
+● ssh.service - OpenBSD Secure Shell server
+     Loaded: loaded (/usr/lib/systemd/system/ssh.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-10-06 13:12:05 JST; 4s ago
+TriggeredBy: ● ssh.socket
+       Docs: man:sshd(8)
+             man:sshd_config(5)
+   Main PID: 1342 (sshd)
+…
+（q を押すとプロンプトに戻る）</pre></div>
     <p><code class="i">active (running)</code> と出ればOK（<kbd>q</kbd>で抜ける）。「Unit ssh.service could not be found」と出たら、インストール時にOpenSSHのチェックが漏れています。次で入れてから、上の2行をもう一度実行します。</p>
-    <div class="code" data-where="local"><pre>sudo apt install -y openssh-server</pre></div>
+    <div class="code" data-where="local"><pre>sudo apt install -y openssh-server</pre><pre class="out">Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+openssh-server is already the newest version (1:9.6p1-3ubuntu13.14).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+（入っていなかった場合は、ダウンロードの行が続いて最後に Setting up openssh-server … と出る）</pre></div>
     <h3>ファイアウォール（ufw）</h3>
     <div class="box warn"><strong>必ず allow → enable の順</strong>先にenableすると、SSHの通り道（22番ポート）まで閉じてしまいます。</div>
     <div class="code" data-where="local"><pre>sudo ufw allow OpenSSH
 sudo ufw enable
-sudo ufw status</pre></div>
+sudo ufw status</pre><pre class="out">$ sudo ufw allow OpenSSH
+Rules updated
+Rules updated (v6)
+$ sudo ufw enable
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+Firewall is active and enabled on system startup
+$ sudo ufw status
+Status: active
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)</pre></div>
     <p>enableで <code class="i">Proceed with operation (y|n)?</code> と聞かれたら <kbd>y</kbd>。statusに <code class="i">OpenSSH  ALLOW  Anywhere</code> と出ればOKです。</p>
     <p class="why">スライドの「本来はアクセス制限をかけたほうがいい」の発展として、同じネットワーク内からだけ許可する書き方もあります（例：IPが10.0.5.xなら <code class="i">sudo ufw allow from 10.0.5.0/24 to any port 22</code>）。今回は必須ではありません。</p>
   </section>
@@ -168,7 +215,20 @@ sudo ufw status</pre></div>
     </ol>
     <p>プロンプトが <code class="i"><span class="liveuser">ユーザ名</span>@サーバ名:~$</code> になれば成功です。左側に出るファイル一覧が<strong>SFTP</strong>の画面で、ドラッグ＆ドロップでファイルを送受信できます。</p>
     <h3>PowerShellで接続する場合</h3>
-    <div class="code" data-where="win"><pre>ssh {{USER}}@{{IP}}</pre></div>
+    <div class="code" data-where="win"><pre>ssh {{USER}}@{{IP}}</pre><pre class="out">The authenticity of host '{{IP}} ({{IP}})' can't be established.
+ED25519 key fingerprint is SHA256:Xb3k…（サーバごとに違う文字列）.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '{{IP}}' (ED25519) to the list of known hosts.
+{{USER}}@{{IP}}'s password:          ← 入力しても画面には何も出ない
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-85-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+…
+Last login: Tue Oct 13 13:02:11 2026 from 192.168.0.25
+{{USER}}@server:~$</pre></div>
     <p class="why">初回は <code class="i">Are you sure you want to continue connecting (yes/no/[fingerprint])?</code> と聞かれるので <code class="i">yes</code> と入力。</p>
     <div class="box ok"><strong>ここからコピペできます</strong>MobaXtermでは、コピーしたコマンドを<strong>右クリック</strong>（または <kbd>Shift</kbd>+<kbd>Insert</kbd>）で貼り付けられます。</div>
   </section>
@@ -179,18 +239,42 @@ sudo ufw status</pre></div>
     <p>Python3が入っていることを確認し、pipと仮想環境の道具を入れます。</p>
     <div class="code" data-where="ssh"><pre>python3 --version
 sudo apt update
-sudo apt install -y python3-pip python3-venv python3-tk</pre></div>
+sudo apt install -y python3-pip python3-venv python3-tk</pre><pre class="out">$ python3 --version
+Python 3.12.3
+$ sudo apt update
+Hit:1 http://jp.archive.ubuntu.com/ubuntu noble InRelease
+Get:2 http://jp.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+…
+Reading package lists... Done
+$ sudo apt install -y python3-pip python3-venv python3-tk
+…
+Setting up python3-pip (24.0+dfsg-1ubuntu1.3) ...
+Setting up python3-tk:amd64 (3.12.3-0ubuntu1) ...
+Processing triggers for man-db (2.12.0-4build2) ...</pre></div>
     <p class="why"><code class="i">python3-tk</code> は、グラフをウィンドウで表示するための部品です（ステップ11で使います）。</p>
     <h3>pip installがエラーになることを確認</h3>
-    <div class="code" data-where="ssh"><pre>pip install numpy</pre></div>
+    <div class="code" data-where="ssh"><pre>pip install numpy</pre><pre class="out">error: externally-managed-environment
+
+× This environment is externally managed
+╰─&gt; To install Python packages system-wide, try apt install
+    python3-xyz, where xyz is the package you are trying to
+    install.
+    …
+note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+hint: See PEP 668 for the detailed specification.</pre></div>
     <p><code class="i">error: externally-managed-environment</code> と出ます。Ubuntu 24.04では、OS自身が使うPython環境を守るため、pipでシステムに直接インストールできないようになっています（PEP 668）。<strong>報告のネタになるので、この画面は覚えておきましょう。</strong></p>
     <h3>仮想環境（venv）を作ってpipでインストール</h3>
     <div class="code" data-where="ssh"><pre>python3 -m venv ~/myenv
 source ~/myenv/bin/activate
-pip install numpy matplotlib</pre></div>
+pip install numpy matplotlib</pre><pre class="out">（1行目と2行目は何も出ない。2行目のあと、プロンプトの先頭に (myenv) が付く）
+(myenv) {{USER}}@server:~$ pip install numpy matplotlib
+Collecting numpy
+  Downloading numpy-2.3.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+…
+Successfully installed contourpy-1.3.3 cycler-0.12.1 fonttools-4.60.1 kiwisolver-1.4.9 matplotlib-3.10.6 numpy-2.3.3 packaging-25.0 pillow-11.3.0 pyparsing-3.2.5 python-dateutil-2.9.0.post0 six-1.17.0</pre></div>
     <p>プロンプトの先頭に <code class="i">(myenv)</code> が付けば、仮想環境に入っています。<code class="i">Successfully installed</code> で完了です。</p>
     <h3>ログインのたびに自動で仮想環境に入る設定（おすすめ）</h3>
-    <div class="code" data-where="ssh"><pre>echo 'source ~/myenv/bin/activate' &gt;&gt; ~/.bashrc</pre></div>
+    <div class="code" data-where="ssh"><pre>echo 'source ~/myenv/bin/activate' &gt;&gt; ~/.bashrc</pre><pre class="out">（何も表示されない。次にログインしたとき、最初から (myenv) が付いていれば成功）</pre></div>
     <p class="why">SSHで入り直すたび、また次回（10/13）サーバを起動したときにも <code class="i">activate</code> が必要になるため。この設定をしておけば、ログイン直後から <code class="i">(myenv)</code> の状態になります。</p>
   </section>
 
@@ -207,7 +291,17 @@ y=np.sin(x)
 print(x)
 print(y)</pre></div>
     <p>保存は <kbd>Ctrl</kbd>+<kbd>O</kbd> → <kbd>Enter</kbd>、終了は <kbd>Ctrl</kbd>+<kbd>X</kbd>。そして実行します（<code class="i">python</code> ではなく <code class="i">python3</code>）。</p>
-    <div class="code" data-where="ssh"><pre>python3 sample1.py</pre></div>
+    <div class="code" data-where="ssh"><pre>python3 sample1.py</pre><pre class="out">[-1.00000000e+00 -9.00000000e-01 -8.00000000e-01 -7.00000000e-01
+ -6.00000000e-01 -5.00000000e-01 -4.00000000e-01 -3.00000000e-01
+ -2.00000000e-01 -1.00000000e-01 -2.22044605e-16  1.00000000e-01
+  2.00000000e-01  3.00000000e-01  4.00000000e-01  5.00000000e-01
+  6.00000000e-01  7.00000000e-01  8.00000000e-01  9.00000000e-01]
+[-8.41470985e-01 -7.83326910e-01 -7.17356091e-01 -6.44217687e-01
+ -5.64642473e-01 -4.79425539e-01 -3.89418342e-01 -2.95520207e-01
+ -1.98669331e-01 -9.98334166e-02 -2.22044605e-16  9.98334166e-02
+  1.98669331e-01  2.95520207e-01  3.89418342e-01  4.79425539e-01
+  5.64642473e-01  6.44217687e-01  7.17356091e-01  7.83326910e-01]
+（0 のはずのところが -2.22e-16 になるのは、0.1 を足し続けたときの小数の誤差）</pre></div>
     <p>-1から0.9までの数値の配列（x）と、そのsinの値の配列（y）が表示されれば成功です。</p>
     <p class="why"><code class="i">ModuleNotFoundError: No module named 'numpy'</code> と出たら、仮想環境に入っていません。<code class="i">source ~/myenv/bin/activate</code> を実行してからもう一度。</p>
   </section>
@@ -223,10 +317,14 @@ print(y)</pre></div>
     </ol>
     <p>PowerShellで送る場合は次のとおりです（ダウンロードフォルダにある前提。<code class="i">ファイル名.py</code> を実際の名前に変えてください）。</p>
     <div class="code" data-where="win"><pre>cd $env:USERPROFILE\Downloads
-scp .\ファイル名.py {{USER}}@{{IP}}:~/</pre></div>
+scp .\ファイル名.py {{USER}}@{{IP}}:~/</pre><pre class="out">{{USER}}@{{IP}}'s password:
+ファイル名.py                             100%  245    61.3KB/s   00:00</pre></div>
     <p>サーバ側で実行します。</p>
     <div class="code" data-where="ssh"><pre>ls
-python3 ファイル名.py</pre></div>
+python3 ファイル名.py</pre><pre class="out">$ ls
+myenv  sample1.py  ファイル名.py
+$ python3 ファイル名.py
+（そのプログラムの表示が出る）</pre></div>
     <p>MobaXtermはX11転送という機能で、サーバのウィンドウをWindows側に表示できます。sinのグラフのウィンドウが出れば成功です。</p>
     <h3>B. ウィンドウが出ない場合：画像で保存して取り出す</h3>
     <p>Server版には画面（GUI）がないため、<code class="i">plt.show()</code> では表示されないことがあります。その場合は <code class="i">savefig</code> で画像に保存します。次をまとめてコピーして貼り付ければ、ファイル作成から実行まで一度に終わります。</p>
@@ -239,10 +337,11 @@ plt.plot(x, y)
 plt.savefig("sin.png")
 print("sin.png を保存しました")
 EOF
-python3 ~/plot_sin.py</pre></div>
+python3 ~/plot_sin.py</pre><pre class="out">sin.png を保存しました</pre></div>
     <p>できた <code class="i">sin.png</code> を、MobaXtermの左のファイル一覧からダブルクリック（またはWindowsへドラッグ）して開きます。PowerShellなら次のとおりです。</p>
     <div class="code" data-where="win"><pre>scp {{USER}}@{{IP}}:~/sin.png .
-start .\sin.png</pre></div>
+start .\sin.png</pre><pre class="out">sin.png                                   100%   28KB   1.9MB/s   00:00
+（写真アプリなどで sin.png が開き、サインのグラフが表示される）</pre></div>
     <p class="why">スライドの参考コードはxの範囲が -10〜10、sample1.py は -1〜1 と違う点にも注意。グラフにするとsin波が約3周期見えます。</p>
   </section>
 
@@ -251,7 +350,18 @@ start .\sin.png</pre></div>
     <div class="step-head"><div class="num">12</div><div><h2>公開鍵でログインできるようにする</h2><span class="slide">スライド「証明書によるログインにする」「その他にやること」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
     <p>鍵は<strong>Windows側（ログインする側）で作る</strong>のが基本です。秘密鍵が一度もネットワークを通らないため安全です。</p>
     <h3>① 鍵ペアを作る</h3>
-    <div class="code" data-where="win"><pre>ssh-keygen -t ed25519</pre></div>
+    <div class="code" data-where="win"><pre>ssh-keygen -t ed25519</pre><pre class="out">Generating public/private ed25519 key pair.
+Enter file in which to save the key (C:\Users\あなた/.ssh/id_ed25519):    ← Enter
+Enter passphrase (empty for no passphrase):                           ← Enter（または好きな合言葉）
+Enter same passphrase again:
+Your identification has been saved in C:\Users\あなた/.ssh/id_ed25519
+Your public key has been saved in C:\Users\あなた/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:q0Zf…（毎回違う） あなた@PC名
+The key's randomart image is:
++--[ED25519 256]--+
+|      …          |
++----[SHA256]-----+</pre></div>
     <ul>
       <li>保存場所を聞かれたら、そのまま <kbd>Enter</kbd></li>
       <li><code class="i">Overwrite (y/n)?</code> と出たら、すでに鍵があるので <kbd>n</kbd>（既存の鍵をそのまま使う）</li>
@@ -260,10 +370,19 @@ start .\sin.png</pre></div>
     <p class="why">作られるのは秘密鍵 <code class="i">id_ed25519</code>（人に渡さない）と公開鍵 <code class="i">id_ed25519.pub</code>（サーバに置く）の2つ。場所は <code class="i">C:\Users\Windowsのユーザ名\.ssh\</code> です。</p>
     <h3>② 公開鍵をサーバに登録する</h3>
     <p>最後にサーバのパスワードを聞かれるので入力します。</p>
-    <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh {{USER}}@{{IP}} "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</pre></div>
+    <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh {{USER}}@{{IP}} "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</pre><pre class="out">{{USER}}@{{IP}}'s password:          ← ここで最後のパスワード入力
+（何も表示されずにプロンプトに戻れば、登録できている）</pre></div>
     <p class="why"><code class="i">authorized_keys</code> は「ここに書かれた公開鍵とペアの秘密鍵を持っていれば、ログインを許可する」というリスト。<code class="i">chmod 700/600</code> で自分以外が触れないようにしないと、sshdが鍵ログインを拒否します。</p>
     <h3>③ 鍵でログインできるか確認</h3>
-    <div class="code" data-where="win"><pre>ssh {{USER}}@{{IP}}</pre></div>
+    <div class="code" data-where="win"><pre>ssh {{USER}}@{{IP}}</pre><pre class="out">（パスワードを聞かれずに、次の画面になれば成功）
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-85-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+…
+Last login: Tue Oct 13 13:02:11 2026 from 192.168.0.25
+{{USER}}@server:~$</pre></div>
     <p>サーバのパスワードではなく <code class="i">Enter passphrase for key</code> と聞かれる（パスフレーズなしなら何も聞かれずに入れる）なら成功。<code class="i">exit</code> で抜けます。</p>
     <p>MobaXtermでも鍵を使う場合は、セッションを右クリック →「Edit session」→「Advanced SSH settings」→「Use private key」にチェックし、<code class="i">C:\Users\Windowsのユーザ名\.ssh\id_ed25519</code> を指定します。</p>
     <h3>参考：サーバ側で鍵を作った場合</h3>
@@ -271,11 +390,27 @@ start .\sin.png</pre></div>
     <div class="code" data-where="ssh"><pre>ssh-keygen -t ed25519
 cat ~/.ssh/id_ed25519.pub &gt;&gt; ~/.ssh/authorized_keys
 chmod 700 ~/.ssh
-chmod 600 ~/.ssh/authorized_keys</pre></div>
+chmod 600 ~/.ssh/authorized_keys</pre><pre class="out">Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/{{USER}}/.ssh/id_ed25519):    ← Enter
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/{{USER}}/.ssh/id_ed25519
+Your public key has been saved in /home/{{USER}}/.ssh/id_ed25519.pub
+…
+（残りの3行は何も表示されない）</pre></div>
     <p>秘密鍵をWindowsへダウンロードし、<strong>サーバからは消します</strong>（サーバが乗っ取られたとき、一緒に盗まれないように）。</p>
-    <div class="code" data-where="win"><pre>scp {{USER}}@{{IP}}:~/.ssh/id_ed25519 $env:USERPROFILE\.ssh\id_ed25519_server</pre></div>
-    <div class="code" data-where="ssh"><pre>rm ~/.ssh/id_ed25519</pre></div>
-    <div class="code" data-where="win"><pre>ssh -i $env:USERPROFILE\.ssh\id_ed25519_server {{USER}}@{{IP}}</pre></div>
+    <div class="code" data-where="win"><pre>scp {{USER}}@{{IP}}:~/.ssh/id_ed25519 $env:USERPROFILE\.ssh\id_ed25519_server</pre><pre class="out">{{USER}}@{{IP}}'s password:
+id_ed25519                                100%  411   102.7KB/s   00:00</pre></div>
+    <div class="code" data-where="ssh"><pre>rm ~/.ssh/id_ed25519</pre><pre class="out">（何も表示されない）</pre></div>
+    <div class="code" data-where="win"><pre>ssh -i $env:USERPROFILE\.ssh\id_ed25519_server {{USER}}@{{IP}}</pre><pre class="out">（パスワードを聞かれずに、次の画面になれば成功）
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-85-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+…
+Last login: Tue Oct 13 13:02:11 2026 from 192.168.0.25
+{{USER}}@server:~$</pre></div>
   </section>
 
   <!-- 13 -->
@@ -285,24 +420,27 @@ chmod 600 ~/.ssh/authorized_keys</pre></div>
     <p>Ubuntu 24.04では <code class="i">/etc/ssh/sshd_config.d/</code> の中の設定ファイルが本体より優先され、ファイル名順に<strong>先に読んだ設定が勝ちます</strong>。そこで、先頭に来る名前（00-）のファイルを作って確実に無効化します。</p>
     <div class="code" data-where="ssh"><pre>echo "PasswordAuthentication no" | sudo tee /etc/ssh/sshd_config.d/00-no-password.conf
 sudo sshd -t &amp;&amp; sudo systemctl restart ssh
-sudo sshd -T | grep -i passwordauthentication</pre></div>
+sudo sshd -T | grep -i passwordauthentication</pre><pre class="out">PasswordAuthentication no
+[sudo] password for {{USER}}:
+passwordauthentication no          ← 小文字の no が出れば、パスワードでは入れない設定</pre></div>
     <p>最後の行で <code class="i">passwordauthentication no</code> と出れば設定完了です。<code class="i">sshd -t</code> は設定の文法チェックで、エラーがあると再起動しません。</p>
     <h3>パスワードで入れないことを確認</h3>
-    <div class="code" data-where="win"><pre>ssh -o PubkeyAuthentication=no {{USER}}@{{IP}}</pre></div>
+    <div class="code" data-where="win"><pre>ssh -o PubkeyAuthentication=no {{USER}}@{{IP}}</pre><pre class="out">{{USER}}@{{IP}}: Permission denied (publickey).          ← これが出れば成功（パスワードでは入れない）</pre></div>
     <p><code class="i">Permission denied (publickey).</code> と出て、パスワードを聞かれずに拒否されれば成功です。</p>
     <h3>元に戻したいとき</h3>
     <div class="code" data-where="ssh"><pre>sudo rm /etc/ssh/sshd_config.d/00-no-password.conf
-sudo systemctl restart ssh</pre></div>
+sudo systemctl restart ssh</pre><pre class="out">（何も表示されない。パスワードでも入れる状態に戻る）</pre></div>
   </section>
 
   <!-- 14 -->
   <section class="step" id="s14" data-title="作業ログを保存してシャットダウン">
     <div class="step-head"><div class="num">14</div><div><h2>作業ログを保存してシャットダウン</h2><span class="slide">スライド「実験上の注意」「今回はここまでです」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
     <p>スライドに「作業ログを残すのは基本」とあるので、今日打ったコマンドの履歴を保存して手元に取っておきます。次回やり直すことになっても、これを見ればすぐ再現できます。</p>
-    <div class="code" data-where="ssh"><pre>history &gt; ~/command_log.txt</pre></div>
-    <div class="code" data-where="win"><pre>scp {{USER}}@{{IP}}:~/command_log.txt .</pre></div>
+    <div class="code" data-where="ssh"><pre>history &gt; ~/command_log.txt</pre><pre class="out">（何も表示されない。ホームフォルダに command_log.txt ができる）</pre></div>
+    <div class="code" data-where="win"><pre>scp {{USER}}@{{IP}}:~/command_log.txt .</pre><pre class="out">command_log.txt                           100% 3150   769.0KB/s   00:00</pre></div>
     <p>最後にシャットダウンします。</p>
-    <div class="code" data-where="ssh"><pre>sudo shutdown -h now</pre></div>
+    <div class="code" data-where="ssh"><pre>sudo shutdown -h now</pre><pre class="out">Connection to {{IP}} closed by remote host.
+Connection to {{IP}} closed.</pre></div>
     <p class="why">スライドの「shutdown –h now」は、ハイフンがダッシュ記号（–）になっているので、スライドからコピーすると動きません。上のコマンドを使ってください。いきなり電源を切ると、ディスクへの書き込み待ちのデータが失われ、設定ファイルが壊れることがあります。</p>
   </section>
 
@@ -344,6 +482,6 @@ sudo systemctl restart ssh</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013g"></script>
+<script src="assets/app.js?v=20261013h"></script>
 </body>
 </html>

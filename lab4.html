@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013g">
+<link rel="stylesheet" href="assets/style.css?v=20261013h">
 </head>
 <body data-lab="lab4" data-label-local="サーバ（hirox）" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -77,7 +77,19 @@
 <section class="step extra" id="s1" data-title="Javaとポートの準備">
   <div class="step-head"><div class="num">1</div><div><h2>Javaと通信の準備</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <div class="code" data-where="win"><pre>java -version
-ipconfig</pre></div>
+ipconfig</pre><pre class="out">$ java -version
+openjdk version "21.0.8" 2025-07-15 LTS
+OpenJDK Runtime Environment Temurin-21.0.8+9 (build 21.0.8+9-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, sharing)
+$ ipconfig
+Windows IP 構成
+
+イーサネット アダプター イーサネット:
+
+   接続固有の DNS サフィックス . . . . .:
+   IPv4 アドレス . . . . . . . . . . . .: 192.168.0.25      ← これが自分のPCのIP
+   サブネット マスク . . . . . . . . . .: 255.255.255.0
+   デフォルト ゲートウェイ . . . . . . .: 192.168.0.1</pre></div>
   <p>Javaのバージョンが出ない場合は、第3回の手順1でJDKを入れます。<code class="i">ipconfig</code> の「IPv4 アドレス」が、このPCのIPです。</p>
   <p>サーバとクライアントは、<strong>PowerShellのウィンドウを2つ</strong>開いて、それぞれで動かします。最初は1台のPCの中で、接続先を <code class="i">localhost</code>（自分自身）にして試すのが簡単です。</p>
   <p class="why">ポート番号はスライドの例と同じ <code class="i">1102</code> にしておくと、資料と見比べやすくなります。1024未満のポートは特別な権限が必要になることがあるので避けます。</p>
@@ -207,13 +219,24 @@ HISTORY</pre></div>
   <p>スライドの実行イメージのように、サーバとクライアントを別のPCで動かします。クライアントの接続先を、サーバを動かすPCのIPにします（上のバーに入れると、下のコマンドに反映されます）。</p>
   <h3>Windowsでサーバを動かす場合</h3>
   <p>初回の起動で「Windows セキュリティの重要な警告」が出たら、「アクセスを許可する」を押します。相手から届くかは、クライアント側のPCで確かめられます。</p>
-  <div class="code" data-where="win"><pre>Test-NetConnection {{IP}} -Port 1102</pre></div>
+  <div class="code" data-where="win"><pre>Test-NetConnection {{IP}} -Port 1102</pre><pre class="out">ComputerName     : {{IP}}
+RemoteAddress    : {{IP}}
+RemotePort       : 1102
+InterfaceAlias   : イーサネット
+SourceAddress    : 192.168.0.25
+TcpTestSucceeded : True              ← True ならつながる。False ならサーバが動いていないか、ファイアウォール</pre></div>
   <p><code class="i">TcpTestSucceeded : True</code> なら、サーバまで通信が届いています。<code class="i">False</code> なら、サーバが起動していないか、ファイアウォールで止まっています。</p>
   <h3>第1・2回のサーバ（hirox）でサーバを動かす場合</h3>
   <p>Ubuntuにも Java を入れれば、サーバ役にできます。前回 ufw を有効にしたので、ポートを開ける必要があります。</p>
   <div class="code" data-where="local" data-label="サーバ（hirox）"><pre>sudo apt install -y openjdk-21-jdk-headless
 sudo ufw allow 1102/tcp
-java CalcServer.java</pre></div>
+java CalcServer.java</pre><pre class="out">…
+Setting up openjdk-21-jdk-headless:amd64 (21.0.8+9~us1-0ubuntu1~24.04.1) ...
+$ sudo ufw allow 1102/tcp
+Rules updated
+Rules updated (v6)
+$ java CalcServer.java
+（自分で作ったサーバの表示。例：待ち受けを開始しました。ポート1102）</pre></div>
   <p class="why">ファイル名は自分のサーバのクラス名に合わせます。終わったら <code class="i">sudo ufw delete allow 1102/tcp</code> でポートを閉じておくと安全です。第1・2回で学んだ「ファイアウォールで必要なポートだけ開ける」を、自分のプログラムで体験できます。</p>
 </section>
 
@@ -281,6 +304,6 @@ java CalcServer.java</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013g"></script>
+<script src="assets/app.js?v=20261013h"></script>
 </body>
 </html>

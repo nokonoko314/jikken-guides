@@ -299,3 +299,13 @@ details.pitfall .pf-tag{flex:none;font-size:12px;font-weight:700;color:#fff;back
 details.pitfall .pf-tag.pf-extra{background:var(--tip)}
 details.pitfall:has(.pf-extra){border-color:var(--tip-line);background:var(--tip-soft)}
 details.pitfall:has(.pf-extra)[open]>summary{border-bottom-color:var(--tip-line)}
+/* 実行結果の例 */
+.out-top{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:12.5px;color:var(--term-dim);background:var(--term-bar);border-top:1px solid rgba(255,255,255,.07)}
+.out-top::before{content:"";width:7px;height:7px;border-radius:50%;border:1.5px solid var(--term-dim)}
+.code pre.out{font-size:13px;line-height:1.6;color:var(--term-ink);opacity:.82;background:rgba(0,0,0,.16);padding:10px 16px 12px}
+/* 完了チェック（手順の最後） */
+.step-foot{margin-top:20px;padding-top:14px;border-top:1.5px dashed var(--line);display:flex;justify-content:flex-end}
+.step-foot .done-toggle{margin:0;padding:8px 16px 8px 12px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);font-size:14px;font-weight:500;color:var(--ink)}
+.step-foot .done-toggle:hover{border-color:var(--ok)}
+.step-foot .done-toggle span{display:inline}
+.step.done .step-foot .done-toggle{border-color:var(--ok);color:var(--ok)}

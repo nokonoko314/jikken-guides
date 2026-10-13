@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013g">
+<link rel="stylesheet" href="assets/style.css?v=20261013h">
 </head>
 <body data-lab="lab5" data-label-ssh="Pythonのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -37,7 +37,7 @@
 </section>
 <section class="files" id="files">
   <h2 class="sec">配布資料</h2>
-  <p class="files-note">スライドと課題の画像はLMSから取得してください（スライドはOpenCV 3.4.2 の書き方です。このページは今入る 4.x に合わせています）。このページは、その内容を自分用に解説したものです。</p>
+  <p class="files-note">スライドと課題の画像はLMSから取得してください（スライドはOpenCV 3.4.2 の書き方です。このページは今 pip で入る 4.x 以降に合わせています）。このページは、その内容を自分用に解説したものです。</p>
 </section>
 <details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
 
@@ -46,7 +46,7 @@
   <ul>
     <li>OpenCV（Python）で画像を処理し、「ひよこの数を数える」「錠剤がそろっているか判定する」など、画像から自動で数えたり判定したりする回です。</li>
     <li>レポート③の対象です。ここでは環境構築、関数の使い方、課題ごとの考え方とヒントまでを書き、課題のプログラムそのものは書いていません。</li>
-    <li><strong>スライドは OpenCV 3.4.2 で書かれています。</strong>今 pip で入る 4.x では、一部の関数の戻り値が違います（手順4）。このページは 4.x に合わせて書いています。</li>
+    <li><strong>スライドは OpenCV 3.4.2 で書かれています。</strong>今 pip で入る版（2026年10月時点では 5.0）や 4.x では、一部の関数の戻り値が違います（手順4）。このページは 4.x 以降に合わせて書いています。</li>
   </ul>
   <div class="legend">
     <span class="where w-win">自分のPCのPowerShell</span>
@@ -77,8 +77,15 @@
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install opencv-python numpy matplotlib
-python -c "import cv2; print(cv2.__version__)"</pre></div>
-  <p class="why">最後の行でバージョン（4.x）が出れば準備完了です。<code class="i">Activate.ps1</code> で「スクリプトの実行が無効」と出る場合は、<code class="i">Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> を1回実行してから、もう一度試してください。第1回のサーバで動かすこともできますが、画面に画像を出す <code class="i">cv2.imshow</code> がSSH越しでは使えないので、結果は <code class="i">cv2.imwrite</code> でファイルに保存して確認することになります。</p>
+python -c "import cv2; print(cv2.__version__)"</pre><pre class="out">（1〜3行目は何も表示されない。3行目のあと、プロンプトの先頭に (.venv) が付く）
+(.venv) PS C:\Users\あなた\cg&gt; pip install opencv-python numpy matplotlib
+Collecting opencv-python
+  Downloading opencv_python-5.0.0.93-cp37-abi3-win_amd64.whl (39.6 MB)
+…
+Successfully installed contourpy-1.3.3 cycler-0.12.1 fonttools-4.60.1 kiwisolver-1.4.9 matplotlib-3.11.2 numpy-2.5.4 opencv-python-5.0.0.93 …
+(.venv) PS C:\Users\あなた\cg&gt; python -c "import cv2; print(cv2.__version__)"
+5.0.0</pre></div>
+  <p class="why">最後の行でバージョン（<code class="i">5.0.0</code> や 4.x）が出れば準備完了です。<code class="i">Activate.ps1</code> で「スクリプトの実行が無効」と出る場合は、<code class="i">Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> を1回実行してから、もう一度試してください。第1回のサーバで動かすこともできますが、画面に画像を出す <code class="i">cv2.imshow</code> がSSH越しでは使えないので、結果は <code class="i">cv2.imwrite</code> でファイルに保存して確認することになります。</p>
 </section>
 
 <section class="step" id="s2" data-title="画像を読み込んで保存する">
@@ -89,7 +96,9 @@ img = cv2.imread("hiyoko.png")
 if img is None:
     raise SystemExit("読み込めませんでした（ファイル名・場所を確認）")
 print(img.shape)          # (高さ, 幅, 3)
-cv2.imwrite("out.png", img)</pre></div>
+cv2.imwrite("out.png", img)</pre><pre class="out">(366, 512, 3)                     ← 高さ366・幅512・色3チャンネル（画像によって違う）
+（同じフォルダに out.png ができる。読めなかったときは、次の行と「読み込めませんでした」が出る）
+[ WARN:0@0.010] global loadsave.cpp:278 findDecoder imread_('hiyoko.png'): can't open/read file: check file path/integrity</pre></div>
   <div class="tbl"><table>
     <thead><tr><th>知っておくこと</th><th>内容</th></tr></thead>
     <tbody>
@@ -124,9 +133,9 @@ mask = cv2.inRange(hsv, lower, upper)   # 範囲内が白(255)になる</pre></d
 
 <section class="step" id="s4" data-title="輪郭を取り出して数える">
   <div class="step-head"><div class="num">4</div><div><h2>輪郭を取り出して、数える・測る</h2><span class="slide">スライド「輪郭抽出」〜「OpenCVにおける外接矩形」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <div class="code" data-where="ssh" data-label="OpenCV 4.x での書き方（戻り値は2つ）"><pre>contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-print(len(contours))</pre></div>
-  <p class="why"><strong>スライド（3.4.2）の書き方 <code class="i">img_cont, contours, hierarchy = …</code> のままだと、4.x では <code class="i">ValueError: not enough values to unpack (expected 3, got 2)</code> になります。</strong>4.x では最初の戻り値（輪郭画像）がなくなり、2つだけ返ります。</p>
+  <div class="code" data-where="ssh" data-label="OpenCV 4.x 以降の書き方（戻り値は2つ）"><pre>contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+print(len(contours))</pre><pre class="out">57                                ← 見つかった輪郭の数（ゴミも含む）。この数を面積で絞り込んでいく</pre></div>
+  <p class="why"><strong>スライド（3.4.2）の書き方 <code class="i">img_cont, contours, hierarchy = …</code> のままだと、4.x 以降（5.0 も同じ）では <code class="i">ValueError: not enough values to unpack (expected 3, got 2)</code> になります。</strong>4.x 以降は最初の戻り値（輪郭画像）がなくなり、2つだけ返ります。</p>
   <div class="tbl"><table>
     <thead><tr><th>関数</th><th>わかること</th></tr></thead>
     <tbody>
@@ -209,7 +218,7 @@ print(len(contours))</pre></div>
     </tbody>
   </table></div>
   <p class="why">ラベルの場所を「左から100ピクセル」のように決めると、箱の位置や大きさが変わった画像で外れます。箱の外接矩形を基準に「箱の幅の何割の位置」と決めると、どの画像でも同じ考え方で使えます。</p>
-  <p class="why"><code class="i">minAreaRect</code> が返す角度の決まりは OpenCV のバージョンで変わっています（4.5.1 以降は 0〜90度の範囲）。角度を表示してみて、思った向きと90度ずれていたら、幅と高さを入れ替えて考えます。</p>
+  <p class="why"><code class="i">minAreaRect</code> が返す角度の決まりは OpenCV のバージョンで何度か変わっています。傾いていない長方形でも、版によって 90 度や -90 度と出ることがあります（5.0 で試すと -90 度でした）。角度を表示してみて、思った向きと90度ずれていたら、幅と高さを入れ替えて考えます。</p>
 </section>
 
 <section class="step" id="s11" data-title="発展課題の手がかり">
@@ -232,7 +241,7 @@ print(len(contours))</pre></div>
     <tbody>
       <tr><td><code class="i">ModuleNotFoundError: No module named 'cv2'</code></td><td>仮想環境が有効になっていない、または別のPythonで実行している。<code class="i">.\.venv\Scripts\Activate.ps1</code> をしてから実行。入れるパッケージ名は <code class="i">opencv-python</code></td></tr>
       <tr><td><code class="i">'NoneType' object has no attribute 'shape'</code></td><td>画像が読めていない。ファイル名、置き場所、パスに日本語がないかを確認</td></tr>
-      <tr><td><code class="i">not enough values to unpack (expected 3, got 2)</code></td><td>スライド（3.4.2）の <code class="i">findContours</code> の書き方。4.x では戻り値は2つ</td></tr>
+      <tr><td><code class="i">not enough values to unpack (expected 3, got 2)</code></td><td>スライド（3.4.2）の <code class="i">findContours</code> の書き方。4.x 以降は戻り値は2つ</td></tr>
       <tr><td>輪郭が1つ（画像全体）しか取れない</td><td>白黒が逆。物が白、背景が黒になるように反転する</td></tr>
       <tr><td>数が多すぎる</td><td>小さなノイズまで数えている。面積で除くか、オープニングで消す</td></tr>
       <tr><td>数が少なすぎる</td><td>物どうしがくっついて1つになっている。面積から推定するか、収縮で切り離す</td></tr>
@@ -248,7 +257,7 @@ print(len(contours))</pre></div>
     <thead><tr><th>章</th><th>この回で書くこと</th></tr></thead>
     <tbody>
       <tr><td>3. 原理・理論</td><td>二値化（大津の方法を含む）、色空間（BGRとHSV）、輪郭抽出、外接矩形、空間フィルタリング、マスク処理を、図を使って自分の言葉で</td></tr>
-      <tr><td>4. 使用言語や環境</td><td>Python と OpenCV のバージョン（4.x を使ったならスライドとの違いも）、使ったライブラリ</td></tr>
+      <tr><td>4. 使用言語や環境</td><td>Python と OpenCV のバージョン（スライドの 3.4.2 と違う版なら、その違いも）、使ったライブラリ</td></tr>
       <tr><td>5. 実験内容と結果</td><td>課題ごとに、処理の流れ（図）、途中の画像（二値化・マスク・輪郭描画）、出力した数・長さ・判定</td></tr>
       <tr><td>6. 考察</td><td>閾値やフィルタを変えると結果がどう変わったか、数え間違い・判定ミスの例とその理由、実際の長さに直す方法、別の画像でも通用するか</td></tr>
     </tbody>
@@ -264,6 +273,6 @@ print(len(contours))</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013g"></script>
+<script src="assets/app.js?v=20261013h"></script>
 </body>
 </html>

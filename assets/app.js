@@ -52,8 +52,16 @@
   /* コードブロック */
   var blocks = [].slice.call(document.querySelectorAll('.code'));
   blocks.forEach(function(b){
-    var pre = b.querySelector('pre');
+    var pre = b.querySelector('pre:not(.out)');
     b._tpl = pre.textContent;
+    /* 実行結果の例（pre.out）は、見出しを付けてコマンドの下に置く */
+    b._outs = [].slice.call(b.querySelectorAll('pre.out'));
+    b._outs.forEach(function(o){
+      o._tpl = o.textContent;
+      var ot = document.createElement('div'); ot.className = 'out-top';
+      ot.textContent = o.dataset.label || '実行結果の例';
+      b.insertBefore(ot, o);
+    });
     var w = WHERE[b.dataset.where] || WHERE.ssh;
     var top = document.createElement('div'); top.className = 'code-top';
     var badge = document.createElement('span'); badge.className = 'where ' + w[0]; badge.textContent = b.dataset.label || w[1];
@@ -72,7 +80,7 @@
 
   function render(){
     var v = vals();
-    blocks.forEach(function(b){ b.querySelector('pre').innerHTML = fill(b._tpl, true); });
+    blocks.forEach(function(b){ b.querySelector('pre:not(.out)').innerHTML = fill(b._tpl, true); b._outs.forEach(function(o){ o.innerHTML = fill(o._tpl, true); }); });
     document.querySelectorAll('.liveuser').forEach(function(s){ s.textContent = v.u; });
     document.querySelectorAll('.liveip').forEach(function(s){ s.textContent = v.ip; });
   }
@@ -82,6 +90,14 @@
 
   /* 目次と完了チェック */
   var steps = [].slice.call(document.querySelectorAll('.step:not([data-notoc])'));
+  /* 完了チェックは手順の最後に置く（読み終えてから押せるように） */
+  steps.forEach(function(s){
+    var t = s.querySelector('.step-head .done-toggle');
+    if(!t) return;
+    var foot = document.createElement('div'); foot.className = 'step-foot';
+    var sp = t.querySelector('span'); if(sp) sp.textContent = 'この手順を完了にする';
+    foot.appendChild(t); s.appendChild(foot);
+  });
   var tocs = [document.getElementById('toc'), document.getElementById('toc-inline')].filter(Boolean);
   var state = {}; try{ state = JSON.parse(store.get(LAB + '-done') || '{}') }catch(e){ state = {} }
   steps.forEach(function(s, i){

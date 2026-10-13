@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013g">
+<link rel="stylesheet" href="assets/style.css?v=20261013h">
 </head>
 <body data-lab="lab12" data-label-local="第2回で作ったサーバ" data-label-ssh="コードの書き方の例" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -106,7 +106,10 @@
   <p><strong>配布データ</strong>：LMSのzipに、食べ物の画像が50枚（5種類×10枚）入っています。ファイル名は番号だけで、どれが何の料理かは書かれていません。大きさは横512ピクセル前後で、そろっていません。</p>
   <div class="code" data-where="win"><pre>py -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install opencv-python numpy scikit-learn matplotlib</pre></div>
+pip install opencv-python numpy scikit-learn matplotlib</pre><pre class="out">（1行目は何も表示されない。2行目のあと、プロンプトの先頭に (.venv) が付く）
+(.venv) PS C:\Users\あなた\theme&gt; pip install opencv-python numpy scikit-learn matplotlib
+…
+Successfully installed … matplotlib-3.11.2 numpy-2.5.4 opencv-python-5.0.0.93 scikit-learn-1.9.1 scipy-… threadpoolctl-…</pre></div>
   <div class="tbl"><table>
     <thead><tr><th>段階</th><th>考え方・ヒント</th></tr></thead>
     <tbody>
@@ -166,7 +169,7 @@ pip install opencv-python numpy scikit-learn matplotlib</pre></div>
   <div class="code" data-where="ssh" data-label="Python：座標で切り出す書き方の例（Pillow）"><pre>from PIL import Image
 page = Image.open("dai3syubon/sysy006-001.jpg")
 x1, y1, x2, y2 = 2669, 518, 2832, 680      # pickeddata の1行目
-page.crop((x1, y1, x2, y2)).save("6-F-01-01-01.jpg")</pre></div>
+page.crop((x1, y1, x2, y2)).save("6-F-01-01-01.jpg")</pre><pre class="out">（何も表示されない。同じフォルダに 6-F-01-01-01.jpg（「尚」の1文字）ができる）</pre></div>
   <div class="tbl"><table>
     <thead><tr><th>段階</th><th>考え方・ヒント</th></tr></thead>
     <tbody>
@@ -274,6 +277,6 @@ page.crop((x1, y1, x2, y2)).save("6-F-01-01-01.jpg")</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013g"></script>
+<script src="assets/app.js?v=20261013h"></script>
 </body>
 </html>
