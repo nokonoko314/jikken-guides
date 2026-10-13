@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第6・7回 GUIとイベント処理｜情報工学実験 手順書</title>
+<meta name="description" content="Swing（またはTkinter）で成績検索の画面を作る回の、部品の使い方とイベント処理の考え方。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013d">
+</head>
+<body data-lab="lab6" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の組み立て方</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第6・7回　GUIとイベント処理</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">06</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>GUIとイベント処理</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2026年11月24日（火）または12月1日（火）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>なし（サイバーセキュリティ演習との選択）</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>CSVの成績データを読み込み、氏名を入れて「検索」を押すと成績がダイアログで出る画面を作る。ボタンと処理を結びつける「イベント処理」の仕組みをつかむ。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライドはLMSから取得してください。この回の配布コードはありません。このページは、スライドの内容を自分用に解説したものです。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この解説の使い方</h2>
+  <ul>
+    <li>第6・7回は「サイバーセキュリティ演習」と「GUIとイベント処理」から選ぶ回です。このページは<strong>GUIとイベント処理</strong>の解説です（サイバーセキュリティ演習の資料はまだありません）。</li>
+    <li>この回はレポートがありません。とはいえ課題は自分で作るものなので、ここでは部品の使い方と組み立ての考え方を説明し、プログラム全体は書いていません。</li>
+    <li>使う言語は自由です。スライドではJavaのほか、PythonのTkinterも紹介されています。ここではJava（Swing）を中心に、Pythonの場合も添えます。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-win">自分のPCのPowerShell</span>
+    <span class="where w-ssh">コードの書き方の例</span>
+  </div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">今回の課題</h2>
+  <p class="note">スライド「本日の課題」「課題のGUIイメージ」より。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>内容</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>基本</td><td>CSVの成績データを、起動時（main）に読み込んで、ListかMapに保存する</td><td>2〜3</td></tr>
+      <tr><td>基本</td><td>氏名を入力する欄、「検索」「入力内容クリア」ボタンのある画面を作る</td><td>4</td></tr>
+      <tr><td>基本</td><td>検索ボタンを押したら（イベント処理）、成績をダイアログで表示。見つからないときもダイアログで知らせる</td><td>5〜6</td></tr>
+      <tr><td>応用（必須ではない）</td><td>メニュー、ラジオボタン、コンボボックスを使い、「平均点N点以上の人」の検索も付ける</td><td>7</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step extra" id="s1" data-title="開発環境を用意する">
+  <div class="step-head"><div class="num">1</div><div><h2>開発環境を用意する</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="win"><pre>java -version
+winget install EclipseAdoptium.Temurin.21.JDK
+winget install Apache.NetBeans</pre></div>
+  <p>1行目でバージョンが出れば、2行目は不要です。NetBeansには、部品をマウスで並べて画面を作れる<strong>GUIビルダー</strong>があります（新規作成 →「Swing GUIフォーム」→「JFrameフォーム」）。手で書く場合とビルダーで作る場合で、画面の作り方は違いますが、イベント処理の考え方は同じです。</p>
+  <p class="why">Pythonで作る場合、TkinterはPythonに最初から入っています。<code class="i">python -c "import tkinter; tkinter._test()"</code> で小さな窓が出れば使えます。</p>
+</section>
+
+<section class="step" id="s2" data-title="CSVを読み込む">
+  <div class="step-head"><div class="num">2</div><div><h2>CSVの成績データを読み込む</h2><span class="slide">スライド「本日の課題」プログラムの機能</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>データファイルは別途配布（LMS）です。中身は、第9回のスライドにある次のような表をCSVにしたものと考えられます。届いたら、まずメモ帳で開いて、1行目が見出しか、区切りがカンマかを確かめます。</p>
+  <div class="code" data-where="ssh" data-label="CSVの形の例"><pre>Number,Name,Score1,Score2,Score3,Score4
+1,Michael,75,86,89,31
+2,Emma,74,63,70,48</pre></div>
+  <div class="tbl"><table>
+    <thead><tr><th>やること</th><th>Javaで使えるもの</th></tr></thead>
+    <tbody>
+      <tr><td>全部の行を読む</td><td><code class="i">Files.readAllLines(Path.of("ファイル名"))</code></td></tr>
+      <tr><td>見出し行を飛ばす</td><td>読んだリストの0番目を使わない（ループを1から始める）</td></tr>
+      <tr><td>1行を項目に分ける</td><td><code class="i">line.split(",")</code></td></tr>
+      <tr><td>点数を数にする</td><td><code class="i">Integer.parseInt()</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="box warn"><strong>ファイルが見つからない（NoSuchFileException）</strong>NetBeansで実行すると、プログラムは<strong>プロジェクトのフォルダ</strong>（src の1つ上）を基準にファイルを探します。CSVはそこに置いてください。日本語が文字化けする場合は、CSVの文字コード（Shift_JIS か UTF-8 か）を確認し、読むときに指定します。</div>
+</section>
+
+<section class="step" id="s3" data-title="データの入れ物を決める">
+  <div class="step-head"><div class="num">3</div><div><h2>データの入れ物を決める（List か Map）</h2><span class="slide">スライド「本日の課題」List または Map の構造で保存</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>入れ物</th><th>名前で探すとき</th><th>向いている場面</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">ArrayList</code></td><td>先頭から1人ずつ名前を比べる</td><td>全員を順に見る処理（平均点N点以上の人を探す、など）</td></tr>
+      <tr><td><code class="i">HashMap&lt;String, …&gt;</code></td><td><code class="i">map.get("Michael")</code> で一発で取り出せる</td><td>名前をキーにした検索（この課題の基本）</td></tr>
+    </tbody>
+  </table></div>
+  <p>1人分の成績を、第9回で作る「学生1人を表すクラス」のようにまとめておくと、表示や応用課題が楽になります。どちらを選んだか、その理由を説明できるようにしておくと、報告で話せます。</p>
+  <p class="why"><code class="i">map.get()</code> は、見つからないときに <code class="i">null</code> を返します。手順6の「見つからなかった場合」の判定に、これをそのまま使えます。</p>
+</section>
+
+<section class="step" id="s4" data-title="画面を作る">
+  <div class="step-head"><div class="num">4</div><div><h2>画面（GUI）を作る</h2><span class="slide">スライド「課題のGUIイメージ（1）」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの画面に出てくる部品と、Swing・Tkinterでの名前の対応です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>画面の部品</th><th>Java（Swing）</th><th>Python（Tkinter）</th></tr></thead>
+    <tbody>
+      <tr><td>窓（成績管理ツール）</td><td><code class="i">JFrame</code></td><td><code class="i">Tk()</code></td></tr>
+      <tr><td>「氏名」の文字</td><td><code class="i">JLabel</code></td><td><code class="i">Label</code></td></tr>
+      <tr><td>名前を入れる欄</td><td><code class="i">JTextField</code></td><td><code class="i">Entry</code></td></tr>
+      <tr><td>「検索」「入力内容クリア」</td><td><code class="i">JButton</code></td><td><code class="i">Button</code></td></tr>
+      <tr><td>結果の窓</td><td><code class="i">JOptionPane</code> または <code class="i">JDialog</code></td><td><code class="i">messagebox</code> または <code class="i">Toplevel</code></td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">GUIビルダーを使う場合は、右の「パレット」から部品を窓にドラッグして並べ、プロパティで文字を変えます。部品の変数名（例：<code class="i">nameField</code>、<code class="i">searchButton</code>）を分かりやすく付け直しておくと、次の手順でコードを書きやすくなります。</p>
+</section>
+
+<section class="step" id="s5" data-title="イベント処理を付ける">
+  <div class="step-head"><div class="num">5</div><div><h2>ボタンにイベント処理を付ける</h2><span class="slide">スライド「目次」イベント処理</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>GUIのプログラムは、上から順に一度だけ動いて終わるのではなく、<strong>「ボタンが押された」などの出来事（イベント）が起きるのを待ち、起きたら決めておいた処理を実行する</strong>形で動きます。これをイベント駆動といいます。</p>
+  <div class="code" data-where="ssh" data-label="Java：ボタンに処理を結びつける書き方の例"><pre>searchButton.addActionListener(e -&gt; {
+    String name = nameField.getText();   // 入力された文字を取り出す
+    // ここで検索して、結果をダイアログに出す
+});</pre></div>
+  <div class="code" data-where="ssh" data-label="Python：同じことの書き方の例"><pre>def on_search():
+    name = name_entry.get()   # 入力された文字を取り出す
+    # ここで検索して、結果をダイアログに出す
+
+Button(root, text="検索", command=on_search)</pre></div>
+  <p>「入力内容クリア」は、入力欄を空にするだけです（Swingは <code class="i">setText("")</code>、Tkinterは <code class="i">delete(0, END)</code>）。</p>
+  <p class="why">GUIビルダーでは、ボタンをダブルクリックすると、押されたときに呼ばれるメソッドが自動で作られます。第3回のスライドの「匿名クラス」「ラムダ式」は、まさにこの書き方のためのものです。</p>
+</section>
+
+<section class="step" id="s6" data-title="結果をダイアログで表示する">
+  <div class="step-head"><div class="num">6</div><div><h2>結果をダイアログで表示する</h2><span class="slide">スライド「課題のGUIイメージ」検索すると新しい窓が開く</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>方法</th><th>特徴</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">JOptionPane.showMessageDialog(this, 文字列)</code></td><td>1行で出せる。まず動かすならこれ。見つからなかったときの知らせにも使える</td></tr>
+      <tr><td><code class="i">JDialog</code> を自分で作る</td><td>スライドの画面のように、表（国語・数学・英語・専門）と「閉じる」ボタンを並べられる。<code class="i">JTable</code> を使うと表が作りやすい</td></tr>
+    </tbody>
+  </table></div>
+  <p>まず <code class="i">JOptionPane</code> で「見つかった・見つからなかった」が正しく出ることを確かめてから、余裕があれば <code class="i">JDialog</code> で見た目を整える、という順番がおすすめです。</p>
+  <p class="why">名前の前後に空白が入っていると見つかりません。入力を <code class="i">trim()</code> してから探すと安全です。大文字・小文字を区別しないで探したい場合は、キーを小文字にそろえて保存する方法があります。</p>
+</section>
+
+<section class="step" id="s7" data-title="応用：検索方法を増やす">
+  <div class="step-head"><div class="num">7</div><div><h2>応用：検索方法を増やす（必須ではない）</h2><span class="slide">スライド「課題の応用例」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>部品</th><th>Swing</th><th>使いどころ</th></tr></thead>
+    <tbody>
+      <tr><td>メニュー</td><td><code class="i">JMenuBar</code>、<code class="i">JMenu</code>、<code class="i">JMenuItem</code></td><td>「操作 → 終了」など</td></tr>
+      <tr><td>ラジオボタン</td><td><code class="i">JRadioButton</code> と <code class="i">ButtonGroup</code></td><td>「氏名で検索」「平均点で検索」の切り替え。ButtonGroupに入れると1つしか選べなくなる</td></tr>
+      <tr><td>コンボボックス</td><td><code class="i">JComboBox</code></td><td>平均点の選択や、名前の候補を一覧から選ぶ</td></tr>
+      <tr><td>状態を表示するラベル</td><td><code class="i">JLabel</code></td><td>スライドの「System Message」。ファイルが開けたかを表示する</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">「氏名は先頭文字だけでも良い」は <code class="i">startsWith()</code>、「平均点N点以上」は全員を順に見て条件に合う人を集める処理です。複数人が見つかる場合の表示方法も考える必要があります。</p>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">NoSuchFileException</code></td><td>CSVの置き場所が違う。NetBeansではプロジェクトのフォルダに置く</td></tr>
+      <tr><td>名前が文字化けする／見つからない</td><td>CSVの文字コードと読み込み時の指定が違う。前後の空白や改行も確認</td></tr>
+      <tr><td>ボタンを押しても何も起きない</td><td>イベント処理が結びついていない（addActionListener を書き忘れ、別のボタンに付けている）</td></tr>
+      <tr><td>窓を閉じてもプログラムが終わらない</td><td><code class="i">setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)</code> がない</td></tr>
+      <tr><td><code class="i">NumberFormatException</code></td><td>見出し行を数にしようとしている。1行目を飛ばす</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="report" data-notoc>
+  <div class="step-head"><div class="num">話</div><div><h2>15:00の経過報告（2分）の組み立て方</h2></div></div>
+  <div class="report"><p>①データをどの入れ物（ListかMap）に入れたか、その理由、②画面の部品構成、③イベント処理の仕組み（ボタンと処理の結びつけ方）、④見つからない場合などの扱い、⑤詰まった点と対処、の順に話すとまとまります。</p></div>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab4.html"><span class="pager-k">前の回</span>第4回　ネットワーク通信</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <a class="pager-item" href="lab-hoko.html"><span class="pager-k">次の回</span>補講　IDEの導入・Javaの基礎</a>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013d"></script>
+</body>
+</html>

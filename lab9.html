@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第9回 クラスの作成・継承｜情報工学実験 手順書</title>
+<meta name="description" content="成績を表すクラスを作り、継承・オーバーライド・インタフェースへ進む回の考え方とヒント。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013d">
+</head>
+<body data-lab="lab9" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第9回　クラスの作成・継承</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">09</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>クラスの作成・継承</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2026年12月15日（火）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>なし</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>名列番号・名前・得点を持つクラスを作り、ファイルから読み込んでまとめて扱う。継承で教科を増やし、オーバーライドや抽象クラス・インタフェースの使いどころをつかむ。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライドはLMSから取得してください。このページは、その内容を自分用に解説したものです（スライドの例のうち、interfaceの const と increment() の戻り値は、そのままでは動かないので注意）。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この解説の使い方</h2>
+  <ul>
+    <li>クラスの作り方と、継承によるクラスの拡張を学ぶ回です。スライドの例（成績を表す Seiseki クラス）に沿って、考え方を説明します。</li>
+    <li>スライドの注意事項のとおり、<strong>学生1人の情報を表すクラス</strong>を作ることが条件です（単なる配列では基本課題になりません）。課題のプログラムは自分で書きます。</li>
+    <li>言語は自由ですが、スライドはJavaで説明されているので、ここでもJavaで説明します。</li>
+  </ul>
+  <div class="legend"><span class="where w-ssh">Javaのコード（スライドの例・書き方の例）</span></div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">今回の課題</h2>
+  <p class="note">スライド「基本課題」「追加課題」より。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>内容</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>基本</td><td>番号・名前・4教科の点数を持つ、学生1人を表すクラスを作る</td><td>1〜4</td></tr>
+      <tr><td>基本</td><td>ファイルからデータを読み込めるようにする（必須ではないが、すると楽）</td><td>5</td></tr>
+      <tr><td>基本</td><td>教科数を増やしたクラスを、継承で作る（追加分のデータはランダムでよい）</td><td>6〜7</td></tr>
+      <tr><td>追加</td><td>部屋の予約システム（部屋 → 会議室・教室への継承、人数と日付で候補を出して予約）</td><td>8</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step" id="s1" data-title="クラスとは">
+  <div class="step-head"><div class="num">1</div><div><h2>クラスとは何か</h2><span class="slide">スライド「クラス」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>クラスは、<strong>変数（データ）と、それを扱うメソッド（機能）をひとまとめにした型</strong>です。クラスに属する変数とメソッドを「メンバ」と呼びます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>アクセス修飾子</th><th>どこから使えるか</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">public</code></td><td>どこからでも</td></tr>
+      <tr><td><code class="i">protected</code></td><td>同じパッケージと、継承した子クラスから</td></tr>
+      <tr><td>（何も付けない）</td><td>同じパッケージから</td></tr>
+      <tr><td><code class="i">private</code></td><td>そのクラスの中からだけ</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">変数を private にして、メソッドを通してだけ値を変えられるようにすることを<strong>カプセル化</strong>といいます。スライドの例のように、「1〜5の数しか入れられない」といったチェックを、代入するメソッドの中に書けるのが利点です。</p>
+</section>
+
+<section class="step" id="s2" data-title="変数とメソッドを持たせる">
+  <div class="step-head"><div class="num">2</div><div><h2>変数とメソッドを持たせる</h2><span class="slide">スライド「クラスに要素（メンバ）を持たせよう」〜「要素をまとめて代入／出力」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>NetBeansでは、パッケージを右クリック →「新規」→「Javaクラス」で、クラスのひな型ができます。スライドの例では、名列番号と名前を、まとめて設定するメソッドと、まとめて文字列にするメソッドを作っています。</p>
+  <div class="code" data-where="ssh" data-label="スライドの例（名列番号と名前の部分）"><pre>public class Seiseki {
+    private int number;
+    private String name;
+
+    public void setID(int num, String str) {
+        name = str;
+        number = num;
+    }
+    public String getString() {
+        return number + " " + name;
+    }
+}</pre></div>
+  <p>同じように、4教科の点数を持つ変数と、それをまとめて設定するメソッドを、自分で足します。スライドの「まとめて4教科分データを渡せると良い」は、配列（<code class="i">int[]</code>）で受け取る形などが考えられます。</p>
+  <p class="why">スライドの「メソッドが多すぎない？」のとおり、全部の変数に get と set を付けると、private にした意味が薄れます。「まとめて設定する」「設定するタイミングを決める」「出力の機能をクラスに持たせる」のどれで作ったか、その理由を説明できるようにしておくと良いです。</p>
+</section>
+
+<section class="step" id="s3" data-title="コンストラクタとtoString">
+  <div class="step-head"><div class="num">3</div><div><h2>コンストラクタと toString を作る</h2><span class="slide">スライド「コンストラクタの追加」「printlnは何を表示するの？」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>もの</th><th>役割と決まり</th></tr></thead>
+    <tbody>
+      <tr><td>コンストラクタ</td><td><code class="i">new Seiseki(2, "Emma")</code> のように、作るときに値を渡して初期化する。<strong>名前はクラスと同じで、戻り値を書かない</strong></td></tr>
+      <tr><td><code class="i">toString()</code></td><td><code class="i">System.out.println(オブジェクト)</code> で表示される文字列を決める。<code class="i">@Override</code> を付けて上書きする</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">toString を作る前に <code class="i">println(student1)</code> を実行すると、<code class="i">Seiseki@1b6d3586</code> のような文字が出ます。これは「クラス名＠識別番号」で、すべてのクラスが最初から持っている toString の表示です。スライドの「何と表示されましたか？」はこのことを確かめる問いです。</p>
+</section>
+
+<section class="step" id="s4" data-title="複数の学生をまとめる">
+  <div class="step-head"><div class="num">4</div><div><h2>複数の学生をまとめて扱う</h2><span class="slide">スライド「値を入れていこう」「値を取り出す機能」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>入れ物</th><th>入れる／取り出す</th><th>特徴</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">ArrayList&lt;Seiseki&gt;</code></td><td><code class="i">add</code> ／ <code class="i">get(番号)</code>、拡張for文</td><td>入れた順に並ぶ（スライドではFIFO）</td></tr>
+      <tr><td><code class="i">Stack&lt;Seiseki&gt;</code></td><td><code class="i">push</code> ／ <code class="i">pop</code></td><td>最後に入れたものから出る（LIFO）</td></tr>
+      <tr><td><code class="i">HashMap&lt;String, Seiseki&gt;</code></td><td><code class="i">put(名前, 学生)</code> ／ <code class="i">get("Michael")</code></td><td>名前から一発で取り出せる</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">自分で作ったクラスも、<code class="i">Integer</code> や <code class="i">String</code> と同じように、これらの入れ物にそのまま入れられます。第6・7回（GUI）の成績検索でも、この形がそのまま使えます。</p>
+</section>
+
+<section class="step" id="s5" data-title="ファイルから読み込む">
+  <div class="step-head"><div class="num">5</div><div><h2>ファイルから読み込む</h2><span class="slide">スライド「基本課題」ファイルからデータを読み込めるようにせよ</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの表を、カンマ区切りのテキスト（CSV）にして読み込むと簡単です。メモ帳で次のようなファイルを作り、プロジェクトのフォルダに置きます。</p>
+  <div class="code" data-where="ssh" data-label="seiseki.csv（スライドの表をCSVにしたもの）"><pre>Number,Name,Score1,Score2,Score3,Score4
+1,Michael,75,86,89,31
+2,Emma,74,63,70,48
+3,Hannah,73,95,82,31
+4,Emily,40,30,49,48
+5,Daniel,46,59,47,70</pre></div>
+  <p class="why">読み方は第6・7回の手順2と同じです（<code class="i">Files.readAllLines</code> で読み、<code class="i">split(",")</code> で分け、<code class="i">Integer.parseInt</code> で数にする）。1行から1人分のオブジェクトを作る処理を、コンストラクタや専用のメソッドにまとめると、クラスらしい設計になります。</p>
+</section>
+
+<section class="step" id="s6" data-title="継承でクラスを拡張する">
+  <div class="step-head"><div class="num">6</div><div><h2>継承で教科を増やしたクラスを作る</h2><span class="slide">スライド「継承によるクラスの拡張」「継承の実装の注意点」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>元のクラス（親クラス）の機能をそのまま受け継いで、変数やメソッドを足した新しいクラス（子クラス）を作ります。書き方は <code class="i">class 子クラス extends 親クラス</code> です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>注意点（スライドより）</th><th>どう対処するか</th></tr></thead>
+    <tbody>
+      <tr><td>子クラスから親の <code class="i">private</code> 変数は使えない</td><td>子クラスから使いたい変数は <code class="i">protected</code> にする。スライドの例で <code class="i">score1</code> などに直接触れているのは、private ではないから</td></tr>
+      <tr><td>コンストラクタは継承されない</td><td>親に引数つきのコンストラクタしかないときは、子のコンストラクタの最初の行で <code class="i">super(番号, 名前)</code> のように親のコンストラクタを呼ぶ</td></tr>
+      <tr><td>継承元は1つだけ</td><td>Javaは単一継承。複数の性質を持たせたいときはインタフェースを使う（手順7）</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">追加の教科の点数は「ランダムに追加すればよい」とあるので、<code class="i">new Random().nextInt(101)</code>（0〜100の整数）などで作れます。親クラスの変数として扱えるので、子クラスのオブジェクトを <code class="i">ArrayList&lt;Seiseki&gt;</code> にそのまま入れることもできます（ポリモーフィズム）。</p>
+</section>
+
+<section class="step" id="s7" data-title="オーバーライド・抽象クラス・インタフェース">
+  <div class="step-head"><div class="num">7</div><div><h2>オーバーライド・抽象クラス・インタフェース</h2><span class="slide">スライド「オーバーライド」〜「インターフェース」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>仕組み</th><th>意味</th><th>この課題での使い道</th></tr></thead>
+    <tbody>
+      <tr><td>オーバーライド</td><td>親と同じ名前・同じ引数のメソッドを子で定義すると、子のほうが実行される</td><td>平均点を求めるメソッドを、5教科用に書き直す（スライドの <code class="i">getAverage</code>）</td></tr>
+      <tr><td>抽象クラス</td><td>中身のないメソッド（abstract）を持ち、継承した子が中身を書く。インスタンスは作れない</td><td>「部屋」を抽象クラスにし、予約の可否を子クラスで決める（追加課題）</td></tr>
+      <tr><td>インタフェース</td><td>メソッドの型だけを決め、<code class="i">implements</code> で実装する。複数実装できる</td><td>「予約できる（Reservable）」という性質を、会議室にだけ持たせる</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">スライドのインタフェースの例にある <code class="i">const int I = 1;</code> は、Javaでは書けません（const はJavaのキーワードとして予約されているだけで使えない）。インタフェースの定数は <code class="i">int I = 1;</code> と書けば、自動的に定数になります。また <code class="i">increment()</code> は int を返す宣言なので、実装側に <code class="i">return</code> が必要です。資料どおりに打ってエラーになったら、この2点を確認してください。</p>
+</section>
+
+<section class="step" id="s8" data-title="追加課題：部屋の予約システム">
+  <div class="step-head"><div class="num">8</div><div><h2>追加課題：部屋の予約システム</h2><span class="slide">スライド「追加課題」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>手順6・7の考え方を、自分で設計する課題です。まずクラスの関係を図に書いてから作ると、迷いません。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>考えること</th><th>手がかり</th></tr></thead>
+    <tbody>
+      <tr><td>共通の親クラス</td><td>部屋の名前、収容人数</td></tr>
+      <tr><td>子クラス（1段階目）</td><td>会議室（予約が必要）、教室（予約できない）。違いをどう表すか（オーバーライドか、インタフェースか）</td></tr>
+      <tr><td>予約の記録</td><td>部屋ごとに「予約済みの日付」の一覧を持たせる</td></tr>
+      <tr><td>候補を出す</td><td>人数が収容人数以下、かつ、その日付が空いている、かつ、予約できる部屋だけを選ぶ</td></tr>
+      <tr><td>2段階目（任意）</td><td>プロジェクタなど設備の予約を、別のクラスとして足す</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">has private access in Seiseki</code></td><td>子クラスや外から private の変数に触っている。protected にするか、メソッドを通す</td></tr>
+      <tr><td><code class="i">constructor Seiseki in class Seiseki cannot be applied</code></td><td>親に引数つきのコンストラクタしかない。子のコンストラクタで <code class="i">super(…)</code> を呼ぶ</td></tr>
+      <tr><td><code class="i">Seiseki@1b6d3586</code> のように表示される</td><td>toString をオーバーライドしていない</td></tr>
+      <tr><td><code class="i">method does not override or implement a method from a supertype</code></td><td>@Override を付けたメソッドの名前か引数が、親と違う</td></tr>
+      <tr><td><code class="i">missing return statement</code></td><td>戻り値のあるメソッドに return がない</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab-hoko.html"><span class="pager-k">前の回</span>補講　IDEの導入・Javaの基礎</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <a class="pager-item" href="lab10.html"><span class="pager-k">次の回</span>第10回　クラスタリングの基礎</a>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013d"></script>
+</body>
+</html>

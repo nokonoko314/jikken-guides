@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第11回 検索アルゴリズムとデータ構造｜情報工学実験 手順書</title>
+<meta name="description" content="線形リストと木構造で名前を探し、探索時間を比べる課題の、考え方・測り方・ヒント。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013d">
+</head>
+<body data-lab="lab11" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">レポートの組み立て方</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第11回　検索アルゴリズムとデータ構造</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">11</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>検索アルゴリズムとデータ構造</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2027年1月12日（火）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>レポート⑤　1/19（火）9:00 締切</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>名前のデータを線形リストと木構造に入れ、先頭・最終・任意の要素を探す時間を測る。幅優先探索と深さ優先探索の違いと、データの大きさによる変化を確かめる。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライド、名前のデータ（2種類）、サンプルコード（TreeMaking）はLMSから取得してください（スライドの日付は1月13日ですが、予定表では1月12日です）。このページは、その内容を自分用に解説したものです。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この解説の使い方</h2>
+  <ul>
+    <li>同じ名前のデータを「線形リスト」と「木構造」に入れて、探すのにかかる時間を比べる回です。データ構造によって探索の速さがどう変わるかを、実際に測って確かめます。</li>
+    <li>レポート⑤の対象です。ここでは考え方、時間の測り方、ヒントまでを書き、課題のプログラムそのものは書いていません。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-ssh">Javaのコード（書き方の例）</span>
+  </div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">今回の課題</h2>
+  <p class="note">スライド「本日の課題」「発展課題」より。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>内容</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>課題1</td><td>名前のデータを線形リストに保存し、「ア」「カ」で始まる要素の数を数える</td><td>2</td></tr>
+      <tr><td>課題1</td><td>先頭・最終・任意の要素の3つについて、検索時間を測る。大きさの違う2種類のデータで比べる</td><td>3〜4</td></tr>
+      <tr><td>課題2</td><td>名前の文字をキーにした木構造を作り、幅優先探索と深さ優先探索で検索して、時間をまとめる</td><td>5〜7</td></tr>
+      <tr><td>発展</td><td>ハッシュでの探索時間／バランスをとりながら木を作る方法／最長しりとり</td><td>8</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step" id="s1" data-title="計算量の考え方">
+  <div class="step-head"><div class="num">1</div><div><h2>先に、計算量の見通しを持つ</h2><span class="slide">スライド「データの探索と計算量」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>データ構造</th><th>探し方</th><th>計算量</th><th>特徴</th></tr></thead>
+    <tbody>
+      <tr><td>線形リスト</td><td>先頭から順に比べる（線形探索）</td><td>O(N)</td><td>作るのは簡単。途中への挿入などは負荷が大きい</td></tr>
+      <tr><td>二分木（均衡）</td><td>大小で左右に進む</td><td>O(log N)</td><td>速いが、バランスのよい木を作るのが難しい</td></tr>
+      <tr><td>ハッシュ</td><td>値から置き場所を計算して直接見る</td><td>O(1)</td><td>発展課題</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">O(N) は「データが2倍になると、時間もおよそ2倍」という意味です。課題で2種類のサイズを測るのは、この予想どおりになるかを確かめるためです。測る前に「こうなるはず」と書いておくと、結果との比較がそのまま考察になります。</p>
+</section>
+
+<section class="step" id="s2" data-title="課題1：リストに入れて数える">
+  <div class="step-head"><div class="num">2</div><div><h2>課題1：リストに入れて、「ア」「カ」で始まる数を数える</h2><span class="slide">スライド「本日の課題」課題１</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <ol>
+    <li>配布の名前ファイルを1行ずつ読み、<code class="i">ArrayList&lt;String&gt;</code> に入れる（読み方は第9回のファイル読み込みと同じ）</li>
+    <li>拡張for文で1つずつ取り出し、先頭が「ア」なら、「カ」なら、それぞれ数を増やす</li>
+  </ol>
+  <p>先頭の文字を調べるには <code class="i">startsWith("ア")</code> や <code class="i">charAt(0)</code> が使えます。</p>
+  <p class="why">日本語のファイルを読むときは文字コードの指定が大切です。指定しないと文字化けして、1件も数えられないことがあります。読み込むときに <code class="i">StandardCharsets.UTF_8</code>（ファイルがShift_JISなら <code class="i">Charset.forName("MS932")</code>）を指定してください。</p>
+  <p class="why">「ア」で始まるかどうかは、ひらがなの「あ」や半角の「ｱ」とは別の文字として扱われます。データにそういう名前が混ざっていないか、最初に確かめておくと数え間違いを防げます。</p>
+</section>
+
+<section class="step" id="s3" data-title="時間を正しく測る">
+  <div class="step-head"><div class="num">3</div><div><h2>検索時間を正しく測る</h2><span class="slide">スライド「本日の課題」検索時間を調べてまとめよ</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="ssh" data-label="時間の測り方の例"><pre>long start = System.nanoTime();
+// ここに、測りたい検索の処理
+long end = System.nanoTime();
+System.out.println((end - start) + " ns");</pre></div>
+  <div class="tbl"><table>
+    <thead><tr><th>気をつけること</th><th>理由と対策</th></tr></thead>
+    <tbody>
+      <tr><td>1回だけ測らない</td><td>1回の検索は短すぎて、ばらつきに埋もれる。同じ検索を1000回などまとめて繰り返し、合計を回数で割る</td></tr>
+      <tr><td>最初の何回かは捨てる</td><td>Javaは、動かし始めは遅く、繰り返すうちに最適化されて速くなる（JIT）。測る前に何回か空回しする</td></tr>
+      <tr><td>表示の処理を入れない</td><td><code class="i">println</code> は検索よりずっと遅いので、測る範囲の外に出す</td></tr>
+      <tr><td>何度か測って並べる</td><td>同じ条件で数回測り、平均やばらつきも表に入れる</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why"><code class="i">System.currentTimeMillis()</code> はミリ秒単位なので、短い検索では0になってしまいます。ナノ秒単位の <code class="i">nanoTime()</code> を使います。</p>
+</section>
+
+<section class="step" id="s4" data-title="課題1：3つの位置と2つのサイズで比べる">
+  <div class="step-head"><div class="num">4</div><div><h2>課題1：3つの位置、2つのサイズで比べる</h2><span class="slide">スライド「本日の課題」先頭要素、最終要素、任意の要素</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>検索は、名前を1つ渡して「あるか」を先頭から順に比べる処理です（<code class="i">contains</code> でも、自分で書いたループでもかまいません。どちらを使ったかはレポートに書きます）。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>検索する名前</th><th>予想（線形探索）</th></tr></thead>
+    <tbody>
+      <tr><td>先頭の要素</td><td>1回比べるだけなので、いちばん速い</td></tr>
+      <tr><td>最終の要素</td><td>全部と比べるので、いちばん遅い。データが2倍なら約2倍</td></tr>
+      <tr><td>任意（真ん中あたりなど）</td><td>その位置に比例する</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">「リストにない名前」も1つ測っておくと、最後まで比べてから「ない」とわかるので最終要素とほぼ同じ時間になる、という確認ができ、考察に使えます。</p>
+</section>
+
+<section class="step" id="s5" data-title="課題2：木の形を決める">
+  <div class="step-head"><div class="num">5</div><div><h2>課題2：どんな木にするか決める</h2><span class="slide">スライド「木構造の例（50音でのindex）」「木構造の例（２分木のindex）」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドには2つの例があります。どちらにするか（または別の形にするか）を決めることも、課題の一部です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>形</th><th>作り方</th><th>考えどころ</th></tr></thead>
+    <tbody>
+      <tr><td>50音の索引</td><td>根の下に「ア」「カ」「サ」…の行、その下に「ア」「イ」「ウ」…の段、その下にデータのリスト</td><td>名前の多い行に偏る。スライドのとおり、多いところは2文字目も使ってバランスをとってよい</td></tr>
+      <tr><td>二分木の索引</td><td>スライドの <code class="i">TreeDic</code> のように、各ノードが索引の文字、左右の子、データのリストを持つ</td><td>深さをいくつにするか。1+2+4+8+16＝31、さらに+32＝63 なので、深さ5〜6で何文字ぶんの区切りが作れるか</td></tr>
+      <tr><td>1文字ずつの木（配布サンプル）</td><td>名前の1文字目、2文字目…を順にたどる。単語の終わりに目印のノードを置く</td><td>同じ文字で始まる名前が多いと、途中まで共通の道を通る</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">二分木は「左は小さい、右は大きい」の決まりで作ると、途中で一方だけを調べればよくなるので速くなります。ただし、名前を50音順のまま入れていくと、右へ右へと一直線の木になり、線形リストと同じ速さに戻ってしまいます。これがスライドの「バランスの良い木を作るのが難しい」の意味です。</p>
+</section>
+
+<section class="step" id="s6" data-title="サンプルの木を読む">
+  <div class="step-head"><div class="num">6</div><div><h2>配布サンプル（TreeMaking）を読む</h2><span class="slide">配布コード <code class="i">TreeNode</code>／<code class="i">TreeNodeWithParent</code></span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>部分</th><th>していること</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">addNode(word)</code></td><td>1文字目の子があればそこへ、なければ作って、残りの文字を再帰的に追加。文字がなくなったら終わりの目印（<code class="i">"E"</code>）の子を付ける</td></tr>
+      <tr><td><code class="i">isFound(search)</code></td><td>1文字目が合う子へ進み、残りの文字で再帰。最後まで進んで目印があれば「ある」。<strong>深さ優先探索</strong>の形</td></tr>
+      <tr><td><code class="i">TreeNodeWithParent</code></td><td>親へのつながりを持たせ、今いるノードまでの文字列を表示できる版。どの順にノードを調べたかが出力でわかる</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">終わりの目印を <code class="i">"E"</code> という文字で表しているので、英字の「E」を含む名前を入れると目印と区別がつきません。カタカナだけのデータなら問題になりませんが、自分の木を作るときは、目印を別の方法（真偽値の変数など）で持つほうが安全です。</p>
+</section>
+
+<section class="step" id="s7" data-title="幅優先と深さ優先で探す">
+  <div class="step-head"><div class="num">7</div><div><h2>幅優先探索と深さ優先探索で探して、時間を測る</h2><span class="slide">スライド「探索の手立て」「幅優先探索」「深さ優先探索」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドのとおり、2つの違いは<strong>「探索予定」の表に、展開したノードをどこへ入れるか</strong>だけです。第3回の迷路探索のOPENリストと同じ考え方です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>方法</th><th>展開した子の入れ場所</th><th>Javaで使える入れ物</th></tr></thead>
+    <tbody>
+      <tr><td>幅優先探索</td><td>探索予定の<strong>後ろ</strong>に入れる（浅い段から順に調べる）</td><td><code class="i">ArrayDeque</code> を待ち行列として（<code class="i">addLast</code>／<code class="i">pollFirst</code>）</td></tr>
+      <tr><td>深さ優先探索</td><td>探索予定の<strong>前</strong>に入れる（1本の枝を奥まで調べる）</td><td><code class="i">ArrayDeque</code> をスタックとして（<code class="i">addFirst</code>／<code class="i">pollFirst</code>）、またはサンプルのような再帰</td></tr>
+    </tbody>
+  </table></div>
+  <p>測る名前は、課題1と同じもの（先頭・最終・任意）を使うと、リストと木を同じ表で比べられます。調べたノードの数も数えておくと、時間だけでは見えにくい違いが説明しやすくなります。</p>
+  <p class="why">1文字ずつの木では、正しい文字の子へ進めば答えが出るので、深さ優先が有利になりやすいです。一方、幅優先は浅い段をすべて調べてから下へ進むので、同じ木でも調べるノードの数が大きく変わります。どちらが速いかは木の形と探す名前によって変わるので、結果がそうなった理由を木の形から説明すると考察になります。</p>
+</section>
+
+<section class="step" id="s8" data-title="発展：ハッシュ・均衡木・しりとり">
+  <div class="step-head"><div class="num">8</div><div><h2>発展：ハッシュ、均衡木、最長しりとり</h2><span class="slide">スライド「発展課題」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <ul>
+    <li><strong>ハッシュ</strong>：<code class="i">HashSet&lt;String&gt;</code> に入れて <code class="i">contains</code> で探すだけで O(1) の探索になります。課題1と同じ名前で時間を測り、データのサイズを変えても時間がほとんど変わらないかを確かめます。</li>
+    <li><strong>バランスをとりながら木を作る</strong>：50音順に並べたリストの真ん中を根にし、左半分・右半分の真ん中をそれぞれの子にする、を繰り返すと、偏りのない二分木になります。入れるたびに形を直す方法（AVL木、赤黒木）を調べるのも一つです。Javaの <code class="i">TreeMap</code> は赤黒木でできています。</li>
+    <li><strong>最長しりとり</strong>：名前を「頭の文字→お尻の文字」の矢印と考えると、同じ名前を2度使わずにたどれる最長の道を探す問題になります。全部の並べ方を試すと組み合わせが爆発するので、深さ優先探索で途中で打ち切る工夫が必要です。「ン」で終わる名前や、伸ばし棒（ー）・小さい文字（ャ、ュ）の扱いのルールも決めておきます。</li>
+  </ul>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td>「ア」で始まる数が0になる／名前が文字化けする</td><td>読み込みの文字コードがファイルと違う。UTF-8 か MS932（Shift_JIS）を指定する</td></tr>
+      <tr><td>1件目だけ見つからない</td><td>ファイルの先頭に、目に見えない印（BOM）が付いている。1件目の先頭の文字を取り除く</td></tr>
+      <tr><td>時間が毎回大きく違う／0になる</td><td>1回だけ測っている、または <code class="i">currentTimeMillis</code> を使っている。<code class="i">nanoTime</code> で、繰り返して平均する</td></tr>
+      <tr><td>先頭の要素がいちばん遅い</td><td>最初に測ったものはJITの最適化前で遅い。測る前に空回しする</td></tr>
+      <tr><td><code class="i">StringIndexOutOfBoundsException</code></td><td>空の文字列に <code class="i">substring(0,1)</code> や <code class="i">charAt(0)</code> をした。空行を読み飛ばす</td></tr>
+      <tr><td><code class="i">StackOverflowError</code></td><td>再帰が深すぎる（一直線に偏った木など）。木の形を見直すか、再帰ではなくスタックを使う</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="report" data-notoc>
+  <div class="step-head"><div class="num">書</div><div><h2>レポート⑤の組み立て方</h2><span class="slide">「レポートの提出方法と内容について」6. 内容</span></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>章</th><th>この回で書くこと</th></tr></thead>
+    <tbody>
+      <tr><td>3. 原理・理論</td><td>線形探索と木の探索、計算量（O記法）、幅優先と深さ優先の違いを、図を使って自分の言葉で</td></tr>
+      <tr><td>4. 使用言語や環境</td><td>言語、開発環境、使ったクラス、測った方法（<code class="i">nanoTime</code>、繰り返し回数）</td></tr>
+      <tr><td>5. 実験内容と結果</td><td>「ア」「カ」の件数、作った木の形の図、位置×サイズ×方法ごとの時間の表（グラフにすると比べやすい）</td></tr>
+      <tr><td>6. 考察</td><td>手順1の予想と結果が合ったか、合わなかったらその理由、木の形による違い、発展課題で試したこと</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">締切は1/19（火）9:00です。15:00の経過報告では、①課題1の件数と時間がどこまで出たか、②どんな木にしたか、③幅優先と深さ優先のどちらまで動いたか、④詰まった点と対処、の順に話すとまとまります。</p>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab10.html"><span class="pager-k">前の回</span>第10回　クラスタリングの基礎</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <span class="pager-item empty"><span class="pager-k">次の回</span>準備中</span>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013d"></script>
+</body>
+</html>

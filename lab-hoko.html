@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>補講 IDEの導入・Javaの基礎｜情報工学実験 手順書</title>
+<meta name="description" content="NetBeansの導入と、ArrayList・HashMapを使う補講の課題の考え方。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013d">
+</head>
+<body data-lab="lab-hoko" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>補講　IDEの導入・Javaの基礎</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">補</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>IDEの導入・Javaの基礎</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2026年12月10日（木）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>なし（ソースコードをアップロードして提出）</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>NetBeansでプロジェクトを作り、配布の Sample1 のエラーを直す。ArrayListで2つの得点リストを結合・整列し、HashMapで名前から得点を引く。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライド（資料1〜3）とSample1はLMSから取得してください。このページは、その内容を自分用に解説したものです。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この解説の使い方</h2>
+  <ul>
+    <li>補講は、Javaの開発環境（NetBeans）を入れ、リスト（ArrayList）とマップ（HashMap）を使ってみる回です。次回以降のJavaの回の土台になります。</li>
+    <li>基本課題は、結果を見せたうえで、<strong>ソースコード（プロジェクト）をアップロードして提出</strong>します。ここでは使い方と考え方を説明し、課題のプログラムそのものは書いていません。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-win">自分のPCのPowerShell</span>
+    <span class="where w-ssh">Javaのコード（書き方の例）</span>
+  </div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">今回の課題</h2>
+  <p class="note">スライド「今日の課題」より。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>課題</th><th>内容</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>準備</td><td>NetBeansでプロジェクトを作り、配布の Sample1 を動かしてエラーを直す</td><td>1〜3</td></tr>
+      <tr><td>課題1</td><td>数学（9個）と化学（7個）の得点リストを1つに結合し、小さい順に並べる</td><td>4〜5</td></tr>
+      <tr><td>課題2</td><td>名前と得点をMapに入れ、名前の一覧をアルファベット順に並べて、その順に得点を表示する</td><td>6</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step" id="s1" data-title="JDKとNetBeansを用意する">
+  <div class="step-head"><div class="num">1</div><div><h2>JDKとNetBeansを用意する</h2><span class="slide">資料2「開発環境NetBeans」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>演習室のPCには入っています。自分のPCで作業する場合は、次で入れられます。</p>
+  <div class="code" data-where="win"><pre>winget install EclipseAdoptium.Temurin.21.JDK
+winget install Apache.NetBeans
+java -version</pre></div>
+  <p class="why">スライドの「Javaでの実行までの流れ」のとおり、<code class="i">javac</code>（コンパイラ）が .java を .class（中間コード）にし、<code class="i">java</code>（仮想マシン）がそれを実行します。NetBeansは、この2つを「実行」ボタン1つでまとめて行ってくれる道具です。</p>
+</section>
+
+<section class="step" id="s2" data-title="プロジェクトを作る">
+  <div class="step-head"><div class="num">2</div><div><h2>プロジェクトを作る</h2><span class="slide">資料2「最初のプログラムを作ってみよう！」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <ol>
+    <li>メニュー「ファイル」→「新規プロジェクト」</li>
+    <li>カテゴリ「Java」（新しい版では「Java with Ant」）、プロジェクト「Javaアプリケーション」→ 次へ</li>
+    <li>プロジェクト名：<code class="i">4EJ_Kadai1_(名列番号)</code>、主クラス名：<code class="i">Sample1</code> → 完了</li>
+  </ol>
+  <p class="why">Javaでは、<code class="i">Sample1.java</code> の中に <code class="i">public class Sample1</code> がないとエラーになります（ファイル名とpublicクラス名を一致させる決まり）。大文字・小文字も区別します。NetBeansで作ればここは自動でそろいます。</p>
+</section>
+
+<section class="step" id="s3" data-title="Sample1を動かしてエラーを直す">
+  <div class="step-head"><div class="num">3</div><div><h2>Sample1 を動かして、エラーを直す</h2><span class="slide">資料2「先ほどのプログラムを作ろう」「エラーになる場合」「デバッグ」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの Sample1 を打ち込むと、<strong>わざとエラーになる行</strong>があります。NetBeansでは、エラーの行に赤い印が出て、マウスを乗せると理由が表示されます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>考えること</th><th>ヒント</th></tr></thead>
+    <tbody>
+      <tr><td>どの行がエラーか</td><td><code class="i">if</code> の条件の行。Javaの if には、true/false（boolean）になる式しか書けない</td></tr>
+      <tr><td><code class="i">=</code> は何をする記号か</td><td>Javaでは「代入」。比べるときの記号は別にある（C言語と同じ）</td></tr>
+      <tr><td>何と比べればよいか</td><td>表示する文は「評価『優』の教科数」。優は何点以上か、を考えて比較の記号を選ぶ</td></tr>
+    </tbody>
+  </table></div>
+  <p>直したら「実行」（▶）で動かし、画面下の「出力」に結果が出ることを確かめます。次に、行番号をクリックしてブレークポイント（赤い四角）を置き、「デバッグ」で実行すると、その行で止まって変数の値を確認できます。</p>
+  <p class="why">C言語の <code class="i">if (value = n)</code> はコンパイルが通ってしまい、気づきにくいバグになります。Javaは if に boolean しか書けないので、コンパイルの時点で気づけます。この違いは、Javaの「型がしっかりしている」という特徴の例です。</p>
+</section>
+
+<section class="step" id="s4" data-title="ArrayListを使ってみる">
+  <div class="step-head"><div class="num">4</div><div><h2>ArrayList を使ってみる</h2><span class="slide">資料3「ArrayListクラスを使ってみよう」「どんなメソッドがあるのか？」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドのリストのプログラムを打つと、1行目の <code class="i">ArrayList</code> が赤くなります。電球マークから「インポートを追加」を選ぶと、ファイルの先頭に <code class="i">import java.util.ArrayList;</code> が入って直ります（<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd> でまとめて追加もできます）。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>メソッド</th><th>していること</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">add(値)</code> / <code class="i">addAll(別のリスト)</code></td><td>末尾に1つ追加／別のリストの中身をまとめて追加</td></tr>
+      <tr><td><code class="i">get(番号)</code> / <code class="i">set(番号, 値)</code></td><td>取り出す（消えない）／書き換える</td></tr>
+      <tr><td><code class="i">remove</code> / <code class="i">size()</code> / <code class="i">contains(値)</code></td><td>削除／要素数／含まれているか</td></tr>
+      <tr><td><code class="i">Collections.sort(リスト)</code></td><td>小さい順に並べ替える（<code class="i">import java.util.Collections;</code>）</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">スライドの <code class="i">ArrayList mylist = new ArrayList();</code> は古い書き方で、警告が出ることがあります。今は <code class="i">ArrayList&lt;Integer&gt; mylist = new ArrayList&lt;&gt;();</code> のように、中に入れる型を書くのが普通です。こうしておくと、並べ替えや取り出しで型の間違いが起きません。</p>
+</section>
+
+<section class="step" id="s5" data-title="課題1：結合して並べる">
+  <div class="step-head"><div class="num">5</div><div><h2>課題1：2つのリストを結合して並べる</h2><span class="slide">スライド「今日の課題」／資料3「課題の解決方針」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの「上手なプログラムの秘訣：いろいろ新しいものを作らない」のとおり、結合も並べ替えも、自分で関数を書かずにArrayListとCollectionsの機能で済ませるのがこの課題のねらいです。</p>
+  <ol>
+    <li>数学用と化学用に、ArrayListを2つ作って得点を入れる</li>
+    <li>結合用のリストを作り、2つの中身をまとめて入れる</li>
+    <li>並べ替えて、表示する</li>
+  </ol>
+  <p class="why">結果は 9＋7＝16個になります。同じ点数（例：78、92）が両方にあっても、リストは重複をそのまま残します。重複をなくしたい場合に使う入れ物（Set）との違いを調べると、発展の話題になります。</p>
+</section>
+
+<section class="step" id="s6" data-title="課題2：Mapで名前から探す">
+  <div class="step-head"><div class="num">6</div><div><h2>課題2：Mapで名前から得点を探す</h2><span class="slide">スライド「今日の課題」名前と得点のリストからの検索</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>やること</th><th>使えるもの</th></tr></thead>
+    <tbody>
+      <tr><td>名前→得点の組を入れる</td><td><code class="i">HashMap&lt;String, Integer&gt;</code> と <code class="i">put(名前, 得点)</code></td></tr>
+      <tr><td>名前の一覧を取り出す</td><td><code class="i">map.keySet()</code>（これをArrayListに入れ直すと並べ替えられる）</td></tr>
+      <tr><td>アルファベット順に並べる</td><td><code class="i">Collections.sort(名前のリスト)</code>。文字列は辞書順に並ぶ</td></tr>
+      <tr><td>その順に得点を表示</td><td>拡張for文で名前を1つずつ取り出し、<code class="i">map.get(名前)</code></td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">HashMapは、入れた順も名前順も覚えていません。そのため「名前を取り出して並べ替えてから探す」という手順が必要になります。最初から名前順で持つ <code class="i">TreeMap</code> もあり、両者の違いを調べると第11回（探索とデータ構造）の予習になります。</p>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">cannot find symbol ArrayList</code></td><td>import がない。電球マーク →「インポートを追加」</td></tr>
+      <tr><td><code class="i">incompatible types: int cannot be converted to boolean</code></td><td>if の条件に <code class="i">=</code>（代入）を書いている。比較の記号にする</td></tr>
+      <tr><td><code class="i">class Sample1 is public, should be declared in a file named …</code></td><td>ファイル名とpublicクラス名が違う</td></tr>
+      <tr><td>「出力」に何も出ない</td><td>実行したのが別のプロジェクト。プロジェクトを右クリック →「実行」</td></tr>
+      <tr><td><code class="i">IndexOutOfBoundsException</code></td><td><code class="i">get()</code> の番号がリストの大きさを超えている。番号は0から</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab6.html"><span class="pager-k">前の回</span>第6・7回　GUIとイベント処理</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <a class="pager-item" href="lab9.html"><span class="pager-k">次の回</span>第9回　クラスの作成・継承</a>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013d"></script>
+</body>
+</html>

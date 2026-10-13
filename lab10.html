@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第10回 クラスタリングの基礎｜情報工学実験 手順書</title>
+<meta name="description" content="2次元の点を最短距離法・最長距離法・重心法で分類する課題の、環境・考え方・ヒント。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013d">
+</head>
+<body data-lab="lab10" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">レポートの組み立て方</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第10回　クラスタリングの基礎</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">10</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>クラスタリングの基礎</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2026年12月22日（火）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>レポート④　1/12（火）9:00 締切</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>100個ほどの点を、距離をもとに指定した数のまとまりに分けて色分け表示する。3つの方法で「クラスタ間の距離」の決め方を変え、結果の違いを比べる。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライド、点のデータ（CSV）、サンプルコード、動物データはLMSから取得してください（スライドの日付は2024年11月26日のままです）。このページは、その内容を自分用に解説したものです。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この解説の使い方</h2>
+  <ul>
+    <li>2次元の点（100個ほど）を、距離をもとにいくつかのまとまり（クラスタ）に分け、色分けして表示する回です。分け方を3通り試して、結果の違いを比べます。</li>
+    <li>レポート④の対象です。ここでは環境の準備、考え方、ヒントまでを書き、距離の計算や結合の処理そのものは書いていません。</li>
+    <li>スライドには「3時間目終了後にサンプルコードを配ります。まずは自分の力で作ってみましょう」とあります。手順4までは、サンプルがなくても考えられる内容です。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-ssh">Javaのコード（書き方の例）</span>
+  </div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">今回の課題</h2>
+  <p class="note">スライド「本日の課題」「時間が余った人は・・・」より。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>内容</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>基本</td><td>2次元の点データを、ユーザが指定した数のクラスタに分け、色を分けてプロットする</td><td>1〜6</td></tr>
+      <tr><td>基本</td><td>最短距離法・最長距離法・重心法の3つで分類し、結果の違いを確かめる</td><td>5〜7</td></tr>
+      <tr><td>発展</td><td>動物園の動物データ（多次元）を任意の1方式で分類し、クラスタごとに動物名を表示する（スライドにも「わりとうまくいかない」とあります）</td><td>8</td></tr>
+      <tr><td>余力があれば</td><td>群平均法、K-means法、要素への重みづけ</td><td>8</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step" id="s1" data-title="データの形を知る">
+  <div class="step-head"><div class="num">1</div><div><h2>配られたデータの形を知る</h2><span class="slide">スライド「本日のデータセット」「2次元データについて」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>2次元データはLMSで配布されます。基準点の数Mと、ばらつき（標準偏差）を変えた組み合わせが用意されています。サンプルの <code class="i">Main.java</code> が読む <code class="i">m3sd50.csv</code> は、名前のとおり「基準点3つ・標準偏差50」のデータです。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>基準点の数 M</th><th>点の数</th><th>標準偏差</th></tr></thead>
+    <tbody>
+      <tr><td>2</td><td>100</td><td>50 または 200</td></tr>
+      <tr><td>3</td><td>99</td><td>50 または 200</td></tr>
+      <tr><td>4、5</td><td>100</td><td>100 または 300</td></tr>
+      <tr><td>9</td><td>99</td><td>100 または 300</td></tr>
+    </tbody>
+  </table></div>
+  <p>サンプルの <code class="i">DataReader</code> は、CSVの<strong>1行目を見出しとして読み飛ばし</strong>、各行の<strong>2列目をx、3列目をy</strong>として整数の点（<code class="i">java.awt.Point</code>）にします。座標の範囲はおよそ0〜1000です。</p>
+  <p class="why">標準偏差が小さいデータは点が基準点の近くに固まるので、どの方法でもきれいに分かれやすく、大きいデータは塊どうしが重なるので、方法による違いが出やすくなります。違いを見るなら、同じMで標準偏差だけ違う2つを並べて比べるのがわかりやすいです。</p>
+</section>
+
+<section class="step" id="s2" data-title="サンプルを開いて点を表示する">
+  <div class="step-head"><div class="num">2</div><div><h2>サンプルを開いて、点を表示してみる</h2><span class="slide">スライド「実験上の注意」サンプルコード</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <ol>
+    <li>配布のzipを展開し、NetBeansの「ファイル」→「プロジェクトを開く」でフォルダ（<code class="i">4EJ_kadai10</code>）を選ぶ</li>
+    <li>LMSのCSVを、<strong>プロジェクトのフォルダの直下</strong>（<code class="i">build.xml</code> と同じ場所）に置く</li>
+    <li>そのまま実行すると、<code class="i">main</code> が呼んでいる <code class="i">view_plot</code> で、全部の点が1色で表示される</li>
+  </ol>
+  <div class="tbl"><table>
+    <thead><tr><th>ファイル</th><th>役割</th><th>編集</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">DataReader</code></td><td>CSVを読んで点のリストにする</td><td>不要</td></tr>
+      <tr><td><code class="i">DataPloter</code></td><td>点のリストを受け取り、リストごとに色を変えて描く（<code class="i">addPointList</code> を呼んだ回数だけ色が増える）</td><td>不要</td></tr>
+      <tr><td><code class="i">Claster</code></td><td>クラスタ1つ分。点のリストと重心を持つ。<strong>距離を求めるメソッドが空</strong></td><td>ここを書く</td></tr>
+      <tr><td><code class="i">Main</code></td><td>読み込み → クラスタ作成 → 結合 → 表示の流れ。<strong>結合の部分がTODO</strong></td><td>ここを書く</td></tr>
+      <tr><td><code class="i">DataMaker</code></td><td>テスト用のデータを自分で作るためのもの</td><td>任意</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why"><code class="i">new File("m3sd50.csv")</code> のようにフォルダを書かないと、Javaは「実行したときの作業フォルダ」からファイルを探します。NetBeansではそれがプロジェクトのフォルダなので、<code class="i">src</code> の中に置いても見つかりません。</p>
+</section>
+
+<section class="step" id="s3" data-title="流れをつかむ">
+  <div class="step-head"><div class="num">3</div><div><h2>階層的クラスタリングの流れをつかむ</h2><span class="slide">スライド「最短距離法」「最終的にどうなるの？」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>3つの方法は、どれも次の同じ流れで、違うのは<strong>「クラスタどうしの距離」の決め方だけ</strong>です。</p>
+  <ol>
+    <li>はじめは、点1つ＝クラスタ1つ（100個のクラスタ）とする</li>
+    <li>すべてのクラスタの組について距離を求め、<strong>いちばん近い組</strong>を見つける</li>
+    <li>その2つを1つのクラスタにまとめる（クラスタが1つ減る）</li>
+    <li>クラスタの数が、指定した数になるまで2〜3を繰り返す</li>
+  </ol>
+  <p class="why">スライドのとおり、最後まで続けると全部が1つになります。そのため「指定した個数になったらやめる」のが終わりの条件です。この「近いものから順にまとめていく」やり方を、凝集型の階層的クラスタリングと呼びます。原理の章で調べてまとめる際の手がかりになる言葉です。</p>
+</section>
+
+<section class="step" id="s4" data-title="3つの距離の定義">
+  <div class="step-head"><div class="num">4</div><div><h2>3つの方法で「クラスタ間の距離」をどう決めるか</h2><span class="slide">スライド「クラスタリングの手法」「最長距離法」「重心法」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>方法</th><th>クラスタAとBの距離</th><th>結果の傾向</th></tr></thead>
+    <tbody>
+      <tr><td>最短距離法</td><td>Aの点とBの点の組のうち、<strong>いちばん近い組</strong>の距離</td><td>点が鎖のようにつながると、細長く1つにまとまりやすい（大きな塊1つと、外れた少数の点に分かれることがある）</td></tr>
+      <tr><td>最長距離法</td><td>Aの点とBの点の組のうち、<strong>いちばん遠い組</strong>の距離</td><td>まとまりの大きさがそろいやすく、丸く小さめの塊になりやすい</td></tr>
+      <tr><td>重心法</td><td>Aの重心とBの重心の距離</td><td>両者の中間的な結果になりやすい</td></tr>
+    </tbody>
+  </table></div>
+  <p>点どうしの距離は、ふつうのユークリッド距離（2点の差を2乗して足し、平方根をとったもの）で十分です。Javaでは <code class="i">Point</code> 自体が距離を求める機能を持っているので、APIの説明（<code class="i">java.awt.Point</code> の親クラス）で探してみてください。</p>
+  <p class="why">「いちばん近い組を探す」ときに、平方根をとる前の値（距離の2乗）で比べても、どちらが小さいかは変わりません。点の数が多いと計算量が効いてくるので、こうした工夫は考察に書ける材料になります。</p>
+</section>
+
+<section class="step" id="s5" data-title="Clasterの距離を書く">
+  <div class="step-head"><div class="num">5</div><div><h2>Claster の距離のメソッドを書く</h2><span class="slide">サンプル <code class="i">Claster.java</code></span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>空になっているのは次の2つです。どちらも、最初に <code class="i">Double.MAX_VALUE</code>（いちばん大きい値）を入れてから、小さい値が見つかるたびに置き換える形になっています。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>メソッド</th><th>考え方のヒント</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">getDistance(Point p)</code></td><td>このクラスタの点を1つずつ取り出して p との距離を求め、いちばん小さいものを残す</td></tr>
+      <tr><td><code class="i">getDistance(Claster c)</code></td><td>相手のクラスタの点を1つずつ取り出し、上のメソッドを使えば、最短距離法の距離になる</td></tr>
+    </tbody>
+  </table></div>
+  <p>最長距離法では「いちばん大きいものを残す」ので、初期値も比べ方も逆になります。重心法では、このクラスは重心（<code class="i">center</code>）をすでに計算して持っているので、それを使えます。3つを切り替えられるように、メソッドを3つに分けるか、方法を表す引数を渡す形にしておくと、比較の実験が楽になります。</p>
+  <p class="why">最長距離法で、最初の値を <code class="i">Double.MAX_VALUE</code> のままにして「大きいほうを残す」と、いつまでも初期値が残ってしまいます。最大を探すときの初期値は何にすべきか、考えてみてください。</p>
+  <p class="why">重心は、<code class="i">x / size</code> のように整数どうしで割っているので、小数点以下が切り捨てられます。結果への影響はわずかですが、気づいたら考察で触れられます。</p>
+</section>
+
+<section class="step" id="s6" data-title="Mainで結合のループを書く">
+  <div class="step-head"><div class="num">6</div><div><h2>Main の結合のループを書く</h2><span class="slide">サンプル <code class="i">Main.java</code>「クラスタを結合 TODO ここは自分で書く」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p><code class="i">claster</code> メソッドの中に、コメントアウトされた <code class="i">while</code> の枠があります。その下にある「単にサイズ数に分けるだけのコード」は、表示を試すための仮のもので、<strong>本番では使わない部分</strong>です。</p>
+  <ol>
+    <li><code class="i">main</code> で呼ぶメソッドを、<code class="i">view_plot</code> から <code class="i">claster</code> に変える</li>
+    <li><code class="i">while</code> の中で、すべての組（i番目とj番目、i &lt; j）の距離を求め、いちばん近い組の番号を覚えておく</li>
+    <li>その2つから新しいクラスタを作り（2つを受け取るコンストラクタが用意されています）、元の2つをリストから外して、新しいものを入れる</li>
+    <li>ループを抜けたら、残ったクラスタの数だけ <code class="i">addPointList</code> を呼んで表示する（仮のコードが使っている <code class="i">clistsep</code> ではなく、結合後のリストを使う）</li>
+  </ol>
+  <p class="why">リストから2つ外すとき、先に小さい番号を外すと、後ろの要素の番号が1つずつ前にずれます。大きい番号から先に外すと、この問題は起きません。</p>
+  <p class="why">クラスタの数（<code class="i">maxcount</code>）は「ユーザが指定する」課題なので、固定の3ではなく、実行時に入力させるか、引数で渡せるようにしておくと要件を満たせます。</p>
+  <p class="why">100点から始めると、組の数は約5000、それを約100回繰り返すので、合わせて数十万回の距離計算になります。最短距離法と最長距離法ではクラスタの点どうしを全部比べるので、さらに多くなります。それでも一瞬で終わる規模ですが、点の数が増えるとどうなるかは考察の材料になります。</p>
+</section>
+
+<section class="step" id="s7" data-title="3つの方法を比べる">
+  <div class="step-head"><div class="num">7</div><div><h2>3つの方法を比べて、結果を残す</h2><span class="slide">スライド「実験上の注意」二次元の点の分類結果は画像で示しましょう</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>比較が見やすくなるように、条件をそろえて表にしておくとレポートが書きやすくなります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>そろえること</th><th>変えること</th></tr></thead>
+    <tbody>
+      <tr><td>同じデータファイル、同じクラスタ数（基準点の数Mに合わせるのが自然）</td><td>方法（最短・最長・重心）</td></tr>
+      <tr><td>同じ方法、同じクラスタ数</td><td>標準偏差（小さいデータと大きいデータ）</td></tr>
+    </tbody>
+  </table></div>
+  <p>表示された画面は、<kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> で範囲を選んで画像として残せます。ファイル名に「データ名_方法_クラスタ数」を入れておくと、あとで混ざりません。</p>
+  <p class="why">データは基準点から作られているので「正解のまとまり」がわかっています。それぞれの方法の結果が正解にどれだけ近いか、どの方法がどんなデータで失敗したか（例：最短距離法で、1つの大きな塊と数点だけの塊に分かれた）を、理由とあわせて書くと考察になります。</p>
+</section>
+
+<section class="step" id="s8" data-title="発展：動物データ・別の手法">
+  <div class="step-head"><div class="num">8</div><div><h2>発展：動物データと、別の手法</h2><span class="slide">スライド「本日の課題」発展課題／「時間が余った人は・・・」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p><strong>動物データ</strong>（Kaggle の Zoo Animal Classification、LMSで配布）は、1行が1種類の動物で、毛があるか・卵を産むか・脚の本数などの特徴が並んでいます。分類の答え（種類の番号）も付いています。</p>
+  <ul>
+    <li>点が2次元（x, y）ではなく、特徴の数だけの次元になるので、<code class="i">Point</code> の代わりに数値の配列を持つクラスを用意する</li>
+    <li>距離は、各特徴の差の2乗を全部足して平方根をとる（2次元の式の拡張）</li>
+    <li>名前の列と答えの列は、距離の計算に<strong>入れない</strong>（答えを入れると、答えで分けることになってしまう）</li>
+    <li>結果は、スライドのとおり「クラスタごとに動物名を並べた文字列」で示せばよい。付いている答えと比べると評価できる</li>
+  </ul>
+  <p class="why">脚の本数（0〜8）だけ値の幅が大きく、ほかの特徴（0か1）より距離に強く効いてしまいます。スライドの「要素に重みづけして分類を最適化する」は、この偏りをどう直すかという話につながります。</p>
+  <p><strong>群平均法</strong>は、AとBの点のすべての組の距離の平均をクラスタ間の距離にする方法で、手順5のメソッドを1つ増やすだけで試せます。<strong>K-means法</strong>は考え方が違い、最初にK個の中心を決め、「各点を最も近い中心に割り当てる → 中心を割り当てた点の重心に動かす」を、変化がなくなるまで繰り返します。最初の中心の選び方で結果が変わることも、考察の材料になります。</p>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">FileNotFoundException: m3sd50.csv</code></td><td>CSVの置き場所が違う。プロジェクトのフォルダ直下（<code class="i">src</code> の外）に置く。ファイル名の大文字・小文字も確認</td></tr>
+      <tr><td><code class="i">NumberFormatException</code></td><td>CSVの列の並びや区切りが想定と違う。メモ帳で開き、「見出し1行＋番号,x,y」の形か確かめる</td></tr>
+      <tr><td>全部が1色のまま</td><td><code class="i">main</code> が <code class="i">view_plot</code> を呼んだまま。<code class="i">claster</code> に変える</td></tr>
+      <tr><td>きれいに3等分されるだけで、場所と関係ない</td><td>サンプルの仮のコード（サイズで分けるだけ）を使っている。自分の結合ループの結果を表示する</td></tr>
+      <tr><td>ループが終わらない</td><td>結合したあとに、元の2つをリストから外していない（数が減らない）</td></tr>
+      <tr><td><code class="i">IndexOutOfBoundsException</code></td><td>2つ外すときに番号がずれた。大きい番号から先に外す</td></tr>
+      <tr><td>最長距離法の結果が最短距離法と同じ</td><td>距離のメソッドの切り替えができていない、または最大を探す初期値・比較が逆</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="report" data-notoc>
+  <div class="step-head"><div class="num">書</div><div><h2>レポート④の組み立て方</h2><span class="slide">「レポートの提出方法と内容について」6. 内容</span></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>章</th><th>この回で書くこと</th></tr></thead>
+    <tbody>
+      <tr><td>3. 原理・理論</td><td>クラスタリングとは何か、階層的クラスタリングの流れ、3つの距離の定義を、図を使って自分の言葉で。調べた資料は参考文献に</td></tr>
+      <tr><td>4. 使用言語や環境</td><td>言語、開発環境（NetBeans）、使ったクラス（ArrayList、Point など）</td></tr>
+      <tr><td>5. 実験内容と結果</td><td>プログラムの構成（クラスの役割）、結合の手順（フローチャートなど）、データ×方法ごとの結果画像。ソースコードの全文は載せない</td></tr>
+      <tr><td>6. 考察</td><td>方法ごとの違いが<strong>なぜ</strong>生じたか、標準偏差による違い、うまく分けられなかった例とその理由、発展課題で試したこと</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">締切は1/12（火）9:00です。冬休みをはさむので、結果画像は実験の日のうちに全部そろえておくと安心です。15:00の経過報告では、①距離のメソッドがどこまでできたか、②結合のループが動いたか、③3つの方法でどんな違いが見えたか、④詰まった点と対処、の順に話すとまとまります。</p>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab9.html"><span class="pager-k">前の回</span>第9回　クラスの作成・継承</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <a class="pager-item" href="lab11.html"><span class="pager-k">次の回</span>第11回　検索アルゴリズムとデータ構造</a>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013d"></script>
+</body>
+</html>
