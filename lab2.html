@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>実験第2回 手順書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F5; --grid:rgba(47,91,211,.07); --paper:#FFFFFF; --ink:#1C2A44; --sub:#56627A;
+  --line:#CDD6E2; --cobalt:#2F5BD3; --cobalt-soft:#E3EAFB; --amber:#F2B33D; --amber-soft:#FDF2DA;
+  --red:#C9443A; --red-soft:#FBE7E5; --green:#2E8B57; --code-bg:#1E2738; --code-ink:#E7ECF5; --ph:#FFD479;
+  --font: "BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+  --mono: "JetBrains Mono","BIZ UDGothic",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121826; --grid:rgba(120,150,230,.06); --paper:#1A2234; --ink:#E4E9F2; --sub:#9AA6BD;
+    --line:#2D3850; --cobalt:#7C9CF0; --cobalt-soft:#22305A; --amber:#F2B33D; --amber-soft:#3A2F17;
+    --red:#EF7B70; --red-soft:#3D2222; --green:#5CC28A; --code-bg:#0F1522; --code-ink:#E7ECF5;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121826; --grid:rgba(120,150,230,.06); --paper:#1A2234; --ink:#E4E9F2; --sub:#9AA6BD;
+  --line:#2D3850; --cobalt:#7C9CF0; --cobalt-soft:#22305A; --amber:#F2B33D; --amber-soft:#3A2F17;
+  --red:#EF7B70; --red-soft:#3D2222; --green:#5CC28A; --code-bg:#0F1522; --code-ink:#E7ECF5;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 120px);scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;background-color:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.8;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+a{color:var(--cobalt)}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+/* sticky config bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--paper);border-bottom:2px solid var(--ink)}
+.bar-in{max-width:820px;margin:0 auto;padding:10px 18px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.bar label{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.bar input{font-family:var(--mono);font-size:14px;padding:5px 8px;border:1.5px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:150px}
+.bar input:focus{border-color:var(--cobalt);outline:none}
+.prog{margin-left:auto;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:8px}
+.prog-track{width:90px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);width:0;transition:width .3s}
+.theme-btn{font:inherit;font-size:13px;background:none;border:1.5px solid var(--line);color:var(--ink);border-radius:4px;padding:3px 8px;cursor:pointer}
+
+main{max-width:820px;margin:0 auto;padding:28px 18px 80px}
+
+/* hero */
+.hero{position:relative;padding:28px 0 24px 34px;margin-bottom:8px}
+.hero::before{content:"";position:absolute;left:0;top:30px;width:18px;height:18px;background:var(--amber)}
+.hero::after{content:"";position:absolute;left:8px;top:40px;width:14px;height:14px;background:var(--cobalt);opacity:.85}
+.hero .course{font-size:14px;color:var(--sub);margin:0}
+.hero h1{font-size:clamp(26px,5vw,38px);line-height:1.3;margin:4px 0 12px;letter-spacing:.01em}
+.hero p{margin:0;max-width:62ch;color:var(--sub)}
+
+.howto{background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:16px 20px;margin:20px 0 32px}
+.howto h2{font-size:16px;margin:0 0 8px}
+.howto ul{margin:0;padding-left:1.2em}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+/* toc */
+.toc{background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:14px 20px;margin-bottom:36px}
+.toc h2{font-size:16px;margin:0 0 6px}
+.toc ol{margin:0;padding-left:1.6em;columns:2;column-gap:28px;font-size:14.5px}
+@media (max-width:600px){.toc ol{columns:1}}
+.toc li.done a{color:var(--green);text-decoration:line-through}
+
+/* steps */
+.step{background:var(--paper);border:1.5px solid var(--line);border-left:6px solid var(--cobalt);border-radius:6px;padding:20px 22px 22px;margin:0 0 26px}
+.step.done{border-left-color:var(--green)}
+.step-head{display:flex;gap:14px;align-items:flex-start}
+.num{flex:none;font-family:var(--mono);font-weight:600;font-size:22px;line-height:1;width:44px;height:44px;display:grid;place-items:center;background:var(--ink);color:var(--paper);border-radius:4px}
+.step.done .num{background:var(--green)}
+.step h2{font-size:21px;line-height:1.4;margin:0}
+.slide{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;background:var(--cobalt-soft);color:var(--ink);padding:2px 10px 2px 8px;border-radius:3px}
+.slide::before{content:"";width:10px;height:10px;background:var(--cobalt);box-shadow:3px -3px 0 var(--amber)}
+.done-toggle{margin-left:auto;flex:none;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);cursor:pointer;user-select:none;padding-top:4px}
+.done-toggle input{width:18px;height:18px;accent-color:var(--green)}
+.step h3{font-size:16px;margin:22px 0 6px}
+.step p{margin:8px 0}
+.step ul,.step ol{margin:8px 0;padding-left:1.4em}
+.step li{margin:3px 0}
+.why{font-size:14.5px;color:var(--sub);border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:10px 0}
+
+/* where badges */
+.where{display:inline-block;font-size:12.5px;font-weight:700;padding:1px 9px;border-radius:3px;border:1.5px solid currentColor}
+.w-local{color:#8A5A00;background:var(--amber-soft)}
+.w-ssh{color:var(--cobalt);background:var(--cobalt-soft)}
+.w-win{color:var(--green);background:transparent}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .w-local{color:var(--amber)}}
+:root[data-theme="dark"] .w-local{color:var(--amber)}
+
+/* code */
+.code{margin:10px 0 14px;border-radius:6px;overflow:hidden;background:var(--code-bg)}
+.code-top{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 12px;background:rgba(255,255,255,.06)}
+.code-top .where{background:transparent}
+.code-top .w-local{color:var(--amber)} .code-top .w-ssh{color:#9DB6FF} .code-top .w-win{color:#7FD9A6}
+.copy{margin-left:auto;font:inherit;font-size:13px;background:var(--amber);color:#1C2A44;border:0;border-radius:4px;padding:4px 12px;cursor:pointer;font-weight:700}
+.copy.ok{background:#7FD9A6}
+.code pre{margin:0;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:14px;line-height:1.65;color:var(--code-ink);white-space:pre}
+.code .ph{color:#1C2A44;background:var(--ph);border-radius:2px;padding:0 2px}
+.code .cm{color:#8C9AB5}
+.nocopy-note{font-size:13px;color:var(--sub);margin:-6px 0 12px}
+
+kbd{font-family:var(--mono);font-size:13px;border:1.5px solid var(--line);border-bottom-width:3px;border-radius:4px;padding:0 5px;background:var(--bg)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:0 4px}
+
+.box{border-radius:6px;padding:12px 16px;margin:14px 0;font-size:15px}
+.box strong{display:block;margin-bottom:2px}
+.warn{background:var(--red-soft);border:1.5px solid var(--red)}
+.warn strong{color:var(--red)}
+.tip{background:var(--amber-soft);border:1.5px solid var(--amber)}
+.ok{background:var(--cobalt-soft);border:1.5px solid var(--cobalt)}
+
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:700}
+
+.report{background:var(--bg);border:1.5px dashed var(--line);border-radius:6px;padding:14px 18px;font-size:15px}
+footer{font-size:13px;color:var(--sub);text-align:center;margin-top:40px}
+h2.part{font-size:22px;margin:44px 0 6px;padding:6px 0 6px 14px;border-left:8px solid var(--amber);line-height:1.4}
+.part-lead{max-width:66ch;margin:6px 0 14px}
+.diagram{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 28px}
+.d-box{flex:1 1 230px;background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:12px 14px}
+.d-title{font-weight:700;margin-bottom:6px}
+.d-key{font-family:var(--mono);font-size:13px;border-radius:4px;padding:6px 9px;margin:6px 0;word-break:break-all}
+.d-key small{display:block;font-family:var(--font);font-size:12.5px;color:var(--sub)}
+.d-key.priv{background:var(--red-soft);border:1.5px solid var(--red)}
+.d-key.pub{background:var(--cobalt-soft);border:1.5px solid var(--cobalt)}
+.d-arrow{flex:0 0 auto;font-size:13px;font-weight:700;color:var(--cobalt);text-align:center;padding:4px 8px}
+.d-arrow::after{content:"";display:block;margin:4px auto 0;width:0;height:0;border-left:12px solid var(--cobalt);border-top:8px solid transparent;border-bottom:8px solid transparent}
+@media (max-width:560px){.d-arrow::after{border-left:8px solid transparent;border-right:8px solid transparent;border-top:12px solid var(--cobalt);border-bottom:0}}
+details{margin:14px 0;border:1.5px dashed var(--line);border-radius:6px;padding:8px 14px}
+details summary{cursor:pointer;font-weight:700;font-size:15px}
+footer a{color:var(--sub)}
+.dl{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:12px 16px;margin:12px 0}
+.dl a.btn{display:inline-block;background:var(--cobalt);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:6px 14px;border-radius:4px}
+.dl .meta{font-size:13.5px;color:var(--sub)}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <label>ユーザ名 <input id="v-user" placeholder="例: kaneko" autocomplete="off" spellcheck="false"></label>
+    <label>サーバのIP <input id="v-ip" placeholder="例: 192.168.0.164" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
+    <div class="prog"><span id="prog-text">0 / 16</span><div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <button class="theme-btn" id="theme-btn" type="button">表示切替</button></div>
+  </div>
+</div>
+
+<main>
+  <header class="hero">
+    <p class="course">4EJ 情報工学実験 第2回（10/13）</p>
+    <h1>サーバ構築とソフトウェアの設定<br>コピペで進める手順書</h1>
+    <p>前半で自分用の公開鍵ログインを用意し（パスワードログインは残す）、後半でApache・PHP・MySQLを入れて、配布の db_sample をブラウザから動かします。</p>
+  </header>
+
+  <section class="howto">
+    <h2>使い方</h2>
+    <ul>
+      <li>上のバーに、<strong>サーバでの自分のユーザ名</strong>と<strong>サーバのIP</strong>を入れると、コマンドの<span style="background:var(--ph);color:#1C2A44;padding:0 3px;border-radius:2px">黄色い部分</span>が書き換わります。鍵のファイル名も「id_ed25519_ユーザ名」になります。</li>
+      <li>IPは再起動で変わることがあります。サーバで <code class="i">hostname -I</code>（大文字のI）を実行して確認してください。</li>
+      <li>今日はスライドが配られていないため、後半はガイダンスの題目「サーバ構築とソフトウェアの設定」と、LMSの <code class="i">db_sample.zip</code> の中身をもとに組み立てています。当日の指示と違う部分は、指示を優先してください。</li>
+    </ul>
+    <div class="legend">
+      <span class="where w-local">サーバ（sudoが使えるユーザで）</span>
+      <span class="where w-ssh">サーバ（自分のPCからSSHで）</span>
+      <span class="where w-win">自分のPCのPowerShell</span>
+    </div>
+    <div class="box tip"><strong>「サーバ」のコマンドも、打つのは自分のPCで大丈夫</strong>SSHでつなぐとプロンプトが <code class="i"><span class="liveuser">ユーザ名</span>@サーバ名:~$</code> に変わり、そこで打ったコマンドはサーバで動きます。PowerShellのプロンプト <code class="i">PS C:\…&gt;</code> のときは自分のPCで動きます。どちらで打つかは、各ブロック左上のラベルで確認してください。</div>
+  </section>
+
+  <section class="howto" id="files">
+    <h2>今回の配布ファイル</h2>
+    <div class="dl"><a class="btn" href="files/lab2/db_sample.zip" download>db_sample.zip</a><span class="meta">PHPとDBのサンプル（dateprint.php・dateadd.php）。ステップ13で使います</span></div>
+  </section>
+
+  <nav class="toc" aria-label="目次">
+    <h2>手順</h2>
+    <ol id="toc"></ol>
+  </nav>
+
+  <h2 class="part">前半　自分の公開鍵でログインできるようにする</h2>
+  <p class="part-lead">鍵は<strong>自分のPCで作り、公開鍵だけをサーバに送ります</strong>。秘密鍵はネットワークを一度も通りません。パスワードでのログインは、もしものときのために残しておきます。</p>
+  <div class="diagram" aria-label="鍵の配置">
+    <div class="d-box"><div class="d-title">自分のPC</div>
+      <div class="d-key priv">秘密鍵　id_ed25519_<span class="liveuser">ユーザ名</span><small>手元に置いたまま。人に渡さない</small></div>
+      <div class="d-key pub">公開鍵　id_ed25519_<span class="liveuser">ユーザ名</span>.pub</div>
+    </div>
+    <div class="d-arrow">公開鍵だけ送る</div>
+    <div class="d-box"><div class="d-title">サーバ</div>
+      <div class="d-key pub">~/.ssh/authorized_keys<small>「この鍵の持ち主ならログインを許可する」リスト</small></div>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <section class="step" id="s1" data-title="パスワードログインを使える状態に戻す">
+    <div class="step-head"><div class="num">1</div><div><h2>パスワードログインを使える状態に戻す</h2><span class="slide">前回スライド「証明書によるログインにする」の続き</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>前回の最後にパスワードでのSSHログインを無効にした場合、このままでは公開鍵を登録するための最初のログインができません。まず今の設定を確認します。サーバの前で直接、またはすでに鍵でSSHできるユーザ（相方など）で実行してください。</p>
+    <div class="code" data-where="local"><pre>sudo sshd -T | grep -i passwordauthentication
+hostname -I</pre></div>
+    <ul>
+      <li><code class="i">passwordauthentication yes</code> → そのまま次のステップへ</li>
+      <li><code class="i">passwordauthentication no</code> → 次を実行して、パスワードログインを戻します</li>
+    </ul>
+    <div class="code" data-where="local"><pre>sudo rm -f /etc/ssh/sshd_config.d/00-no-password.conf
+sudo systemctl restart ssh
+sudo sshd -T | grep -i passwordauthentication</pre></div>
+    <p><code class="i">yes</code> になれば戻っています。<code class="i">hostname -I</code> で表示されたIPを、上のバーに入力してください。</p>
+    <p class="why">前回 <code class="i">00-no-password.conf</code> 以外の方法（<code class="i">/etc/ssh/sshd_config</code> の直接編集など）で無効にした場合は、その行を <code class="i">PasswordAuthentication yes</code> に戻してから <code class="i">sudo systemctl restart ssh</code> を実行します。</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2" data-title="自分のPCで鍵ペアを作る">
+    <div class="step-head"><div class="num">2</div><div><h2>自分のPCで鍵ペアを作る</h2><span class="slide">前回スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <div class="code" data-where="win"><pre>mkdir $env:USERPROFILE\.ssh -Force
+ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_ed25519_{{USER}}</pre></div>
+    <div class="tbl"><table>
+      <thead><tr><th>表示</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td><code class="i">Enter passphrase (empty for no passphrase):</code></td><td>秘密鍵のパスフレーズを入力して <kbd>Enter</kbd>。なしなら <kbd>Enter</kbd> だけ</td></tr>
+        <tr><td><code class="i">Enter same passphrase again:</code></td><td><strong>1回目と同じもの</strong>を入力して <kbd>Enter</kbd></td></tr>
+        <tr><td><code class="i">Overwrite (y/n)?</code></td><td>同じ名前の鍵がすでにある。作り直すなら <kbd>y</kbd>、今ある鍵を使うなら <kbd>n</kbd></td></tr>
+      </tbody>
+    </table></div>
+    <p>入力中は何も表示されませんが、正常です。最後に四角い模様（randomart）が出れば完成です。できたファイルを確認します。</p>
+    <div class="code" data-where="win"><pre>dir $env:USERPROFILE\.ssh</pre></div>
+    <p><code class="i">id_ed25519_<span class="liveuser">ユーザ名</span></code>（秘密鍵）と <code class="i">id_ed25519_<span class="liveuser">ユーザ名</span>.pub</code>（公開鍵）の2つがあればOKです。</p>
+    <p class="why">パスフレーズはスライドの「秘密鍵にパスワードをかけておくとより安全」にあたります。秘密鍵のファイルが盗まれても、パスフレーズが分からなければ使えません。<code class="i">-f</code> で名前を指定しているので、このPCにある他の鍵を上書きすることはありません。</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3" data-title="公開鍵をサーバに登録する">
+    <div class="step-head"><div class="num">3</div><div><h2>公開鍵をサーバに登録する</h2><span class="slide">前回スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>公開鍵の中身をSSHでサーバに送り、自分の <code class="i">authorized_keys</code> に追記します。この1行で完了します。</p>
+    <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519_{{USER}}.pub | ssh {{USER}}@{{IP}} "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</pre></div>
+    <ul>
+      <li>初めて接続するPCでは <code class="i">Are you sure you want to continue connecting (yes/no/[fingerprint])?</code> と出るので、<code class="i">yes</code> と入力</li>
+      <li>聞かれるのは<strong>サーバでの自分のパスワード</strong>（鍵のパスフレーズではありません）</li>
+      <li>何も表示されずにプロンプトに戻れば成功</li>
+    </ul>
+    <div class="tbl"><table>
+      <thead><tr><th>部分</th><th>していること</th></tr></thead>
+      <tbody>
+        <tr><td><code class="i">type ….pub</code></td><td>自分のPCにある公開鍵の中身を読み出す</td></tr>
+        <tr><td><code class="i">| ssh …</code></td><td>読み出した中身を、SSHでサーバへ送る</td></tr>
+        <tr><td><code class="i">mkdir -p ~/.ssh</code></td><td>サーバに <code class="i">.ssh</code> フォルダがなければ作る</td></tr>
+        <tr><td><code class="i">cat &gt;&gt; ~/.ssh/authorized_keys</code></td><td>受け取った公開鍵を、ファイルの末尾に追記する</td></tr>
+        <tr><td><code class="i">chmod 700 / 600</code></td><td>自分以外が読み書きできないようにする。権限が緩いと、sshdが鍵ログインを拒否する</td></tr>
+      </tbody>
+    </table></div>
+    <details>
+      <summary>手でコピー＆ペーストして登録する場合</summary>
+      <p>結果は上の1行と同じです。まず自分のPCで公開鍵を表示し、出てきた1行（<code class="i">ssh-ed25519 AAAA…</code>）をすべてコピーします。</p>
+      <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519_{{USER}}.pub</pre></div>
+      <p>パスワードでサーバに入り、ファイルを開いて貼り付け、保存します（<kbd>Ctrl</kbd>+<kbd>O</kbd> → <kbd>Enter</kbd> → <kbd>Ctrl</kbd>+<kbd>X</kbd>）。</p>
+      <div class="code" data-where="ssh"><pre>mkdir -p ~/.ssh
+nano ~/.ssh/authorized_keys</pre></div>
+      <div class="code" data-where="ssh"><pre>chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys</pre></div>
+    </details>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4" data-title="鍵だけでログインできるか確認">
+    <div class="step-head"><div class="num">4</div><div><h2>鍵だけでログインできるか確認する</h2><span class="slide">前回スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>パスワードを使えないようにしたうえで接続します。これで入れれば、<strong>鍵での認証が確実に成功している</strong>ことになります。</p>
+    <div class="code" data-where="win"><pre>ssh -o PasswordAuthentication=no -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}</pre></div>
+    <ul>
+      <li>パスフレーズを付けた場合は <code class="i">Enter passphrase for key</code> と聞かれる（サーバのパスワードではない）</li>
+      <li>パスフレーズなしの場合は、何も聞かれずにログインできる</li>
+      <li>プロンプトが <code class="i"><span class="liveuser">ユーザ名</span>@サーバ名:~$</code> になれば成功</li>
+    </ul>
+    <p>ログインできたら、登録された公開鍵を確認してから抜けます。</p>
+    <div class="code" data-where="ssh"><pre>cat ~/.ssh/authorized_keys
+ls -la ~/.ssh
+exit</pre></div>
+    <p class="why"><code class="i">ls -la</code> の結果で、<code class="i">.</code>（.sshフォルダ自身）が <code class="i">drwx------</code>、<code class="i">authorized_keys</code> が <code class="i">-rw-------</code> なら権限も正しく設定されています。<code class="i">Permission denied (publickey)</code> と出た場合は、ページ下の「うまくいかないとき」を見てください。</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5" data-title="パスワードでも入れることを確認">
+    <div class="step-head"><div class="num">5</div><div><h2>パスワードでも入れることを確認する</h2><span class="slide">安全のための確認</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>今度は逆に、鍵を使わずに接続します。パスワードを聞かれてログインできれば、もしものときの入口が残っていることになります。</p>
+    <div class="code" data-where="win"><pre>ssh -o PubkeyAuthentication=no {{USER}}@{{IP}}</pre></div>
+    <div class="code" data-where="ssh"><pre>exit</pre></div>
+    <div class="box ok"><strong>これで「鍵でもパスワードでも入れる」状態です</strong>今日はパスワードログインを残したまま進めます。無効にするのは、鍵での作業に慣れて、秘密鍵のバックアップもとってからで大丈夫です（方法はステップ6の下にあります）。</div>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6" data-title="接続コマンドを短くする（任意）">
+    <div class="step-head"><div class="num">6</div><div><h2>接続コマンドを短くする（任意）</h2><span class="slide">手順書オリジナル</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>毎回 <code class="i">-i …</code> やIPを打つのは大変なので、自分のPCの <code class="i">.ssh\config</code> に接続先を登録しておきます。</p>
+    <div class="code" data-where="win"><pre>@"
+
+Host lab
+    HostName {{IP}}
+    User {{USER}}
+    IdentityFile ~/.ssh/id_ed25519_{{USER}}
+"@ | Add-Content -Encoding ascii $env:USERPROFILE\.ssh\config</pre></div>
+    <p>これで、接続もファイル送信も <code class="i">lab</code> だけで済みます。</p>
+    <div class="code" data-where="win"><pre>ssh lab</pre></div>
+    <p class="why">IPが変わったら、<code class="i">notepad $env:USERPROFILE\.ssh\config</code> で開いて <code class="i">HostName</code> の行を書き換えてください。以下の手順は、このステップを飛ばしても動くように、すべて省略しない形で書いています。</p>
+    <details>
+      <summary>参考：後でパスワードログインを無効にするとき</summary>
+      <p>鍵で入れることを確認した状態で、サーバで実行します。作業中のSSHは閉じずに、確認は別のウィンドウで行ってください。</p>
+      <div class="code" data-where="local"><pre>echo "PasswordAuthentication no" | sudo tee /etc/ssh/sshd_config.d/00-no-password.conf
+sudo sshd -t &amp;&amp; sudo systemctl restart ssh
+sudo sshd -T | grep -i passwordauthentication</pre></div>
+      <p>この設定は、相方を含むサーバの全ユーザに効きます。全員が鍵を登録してから行ってください。</p>
+    </details>
+  </section>
+
+  <h2 class="part">後半　Webサーバとデータベースを動かす</h2>
+  <p class="part-lead">ブラウザでボタンを押すと、押した時刻と押した人のIPアドレスがデータベースに記録され、一覧で表示される仕組みを作ります。そのために3つのソフトを入れます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>ソフト</th><th>役割</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Apache</strong>（アパッチ）</td><td>Webサーバ。ブラウザからのリクエストを受け取り、ページを返す</td></tr>
+      <tr><td><strong>PHP</strong></td><td>サーバ側で動くプログラム言語。リクエストのたびにページを作る</td></tr>
+      <tr><td><strong>MySQL</strong></td><td>データベース。データを表（テーブル）の形で保存する</td></tr>
+    </tbody>
+  </table></div>
+  <p class="part-lead">Linux・Apache・MySQL・PHPの頭文字をとって <strong>LAMP</strong> と呼ばれる、Webシステムの定番の構成です。</p>
+
+  <!-- 7 -->
+  <section class="step" id="s7" data-title="SSHで入り、sudoが使えるか確認">
+    <div class="step-head"><div class="num">7</div><div><h2>SSHで入り、sudoが使えるか確認する</h2><span class="slide">第2回「サーバ構築」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <div class="code" data-where="win"><pre>ssh -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}</pre></div>
+    <div class="code" data-where="ssh"><pre>groups</pre></div>
+    <p>結果に <code class="i">sudo</code> があれば、以降の手順はすべてこのユーザで進められます。ない場合は、sudoが使えるユーザ（インストール時に作ったユーザ）で次を実行してもらい、一度 <code class="i">exit</code> して入り直します。</p>
+    <div class="code" data-where="local"><pre>sudo usermod -aG sudo {{USER}}</pre></div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8" data-title="Apache・PHP・MySQLをインストール">
+    <div class="step-head"><div class="num">8</div><div><h2>Apache・PHP・MySQLをインストールする</h2><span class="slide">第2回「ソフトウェアの設定」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <div class="code" data-where="ssh"><pre>sudo apt update
+sudo apt install -y apache2 php libapache2-mod-php php-mysql mysql-server</pre></div>
+    <div class="tbl"><table>
+      <thead><tr><th>パッケージ</th><th>中身</th></tr></thead>
+      <tbody>
+        <tr><td><code class="i">apache2</code></td><td>Webサーバ本体</td></tr>
+        <tr><td><code class="i">php</code></td><td>PHP本体</td></tr>
+        <tr><td><code class="i">libapache2-mod-php</code></td><td>ApacheがPHPを実行できるようにする部品。ないとPHPのコードがそのまま表示される</td></tr>
+        <tr><td><code class="i">php-mysql</code></td><td>PHPからMySQLに接続するための部品（PDOのドライバ）。ないと <code class="i">could not find driver</code></td></tr>
+        <tr><td><code class="i">mysql-server</code></td><td>データベース本体（MySQL 8）</td></tr>
+      </tbody>
+    </table></div>
+    <p>数分かかります。終わったら、3つが動いているか確認します。</p>
+    <div class="code" data-where="ssh"><pre>systemctl is-active apache2 mysql
+php -v</pre></div>
+    <p><code class="i">active</code> が2行と、PHPのバージョン（<code class="i">PHP 8.3.x</code>）が出ればOKです。</p>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9" data-title="ファイアウォールでWebを許可し、表示を確認">
+    <div class="step-head"><div class="num">9</div><div><h2>ファイアウォールでWebを許可し、表示を確認する</h2><span class="slide">前回「リモートログイン」と同じ考え方</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>前回ufwを有効にしたので、Webが使う<strong>80番ポート</strong>を開けないとブラウザからつながりません。</p>
+    <div class="code" data-where="ssh"><pre>sudo ufw allow 'Apache'
+sudo ufw status</pre></div>
+    <p><code class="i">OpenSSH</code> に加えて <code class="i">Apache  ALLOW  Anywhere</code> が出ればOKです。自分のPCのブラウザで次を開きます。</p>
+    <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/</pre></div>
+    <p>「Apache2 Default Page」と書かれたページが出れば、Webサーバが動いています。</p>
+    <p class="why">このページの実体は、サーバの <code class="i">/var/www/html/index.html</code> です。Apacheは、<code class="i">/var/www/html</code> の中のファイルをブラウザに返します（ドキュメントルート）。</p>
+  </section>
+
+  <!-- 10 -->
+  <section class="step" id="s10" data-title="PHPが動くか確認">
+    <div class="step-head"><div class="num">10</div><div><h2>PHPが動くか確認する</h2><span class="slide">第2回「ソフトウェアの設定」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>PHPの設定情報を表示するページを一時的に作ります。</p>
+    <div class="code" data-where="ssh"><pre>echo '&lt;?php phpinfo();' | sudo tee /var/www/html/info.php</pre></div>
+    <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/info.php</pre></div>
+    <p>紫色の表のページが出ればPHPは動いています。ページ内を <kbd>Ctrl</kbd>+<kbd>F</kbd> で <code class="i">pdo_mysql</code> と検索し、見つかれば、PHPからMySQLに接続する準備もできています。</p>
+    <div class="box warn"><strong>確認が終わったら削除します（ステップ16）</strong>このページはサーバの構成を誰にでも見せてしまうので、公開しているサーバに残してはいけません。</div>
+  </section>
+
+  <!-- 11 -->
+  <section class="step" id="s11" data-title="データベースと表を作る">
+    <div class="step-head"><div class="num">11</div><div><h2>データベースと表を作る</h2><span class="slide">db_sample / dateadd.php のコメント</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>配布の dateadd.php のコメントに書かれている準備を行います。MySQLに管理者として入ります。</p>
+    <div class="code" data-where="ssh"><pre>sudo mysql</pre></div>
+    <p>プロンプトが <code class="i">mysql&gt;</code> に変わったら、次をまとめて貼り付けます。</p>
+    <div class="code" data-where="ssh" data-label="mysql> に貼り付け"><pre>CREATE DATABASE updatetime;
+CREATE USER 'ktajima'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL ON updatetime.* TO 'ktajima'@'localhost';
+CREATE TABLE updatetime.clickedtable (time DATETIME NOT NULL, ip TEXT NOT NULL);
+SHOW TABLES FROM updatetime;
+exit</pre></div>
+    <p><code class="i">clickedtable</code> と表示されればOKです。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>SQL</th><th>していること</th></tr></thead>
+      <tbody>
+        <tr><td><code class="i">CREATE DATABASE</code></td><td><code class="i">updatetime</code> というデータベース（表を入れる箱）を作る</td></tr>
+        <tr><td><code class="i">CREATE USER</code></td><td>PHPが接続に使うMySQLのユーザを作る。名前とパスワードはPHPファイルに書かれているものに合わせている</td></tr>
+        <tr><td><code class="i">GRANT ALL ON</code></td><td>そのユーザに、updatetime の中だけを操作する権限を与える（最小権限）</td></tr>
+        <tr><td><code class="i">CREATE TABLE</code></td><td>日時（DATETIME型）とIP（文字列）の2列をもつ表を作る</td></tr>
+      </tbody>
+    </table></div>
+    <p class="why">コメントにある <code class="i">grant … identified by 'password'</code> は古い書き方で、Ubuntu 24.04 のMySQL 8ではエラーになります。そのため「ユーザを作る」と「権限を与える」を分けています。報告のネタになります。</p>
+    <p class="why">ユーザ名やパスワードを変える場合は、dateadd.php と dateprint.php の両方にある <code class="i">'ktajima','password'</code> も同じに書き換えてください。</p>
+  </section>
+
+  <!-- 12 -->
+  <section class="step" id="s12" data-title="PHPの時刻を日本時間にする">
+    <div class="step-head"><div class="num">12</div><div><h2>PHPの時刻を日本時間にする</h2><span class="slide">手順書オリジナル（ずれ防止）</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>PHPは初期設定のままだと<strong>世界標準時（UTC）</strong>で時刻を出すので、記録される時刻が日本時間より9時間早くなります。Apache用のPHPの設定ファイルを書き換えます。</p>
+    <div class="code" data-where="ssh"><pre>sudo sed -i 's/^;date.timezone =.*/date.timezone = Asia\/Tokyo/' /etc/php/*/apache2/php.ini
+grep -n "^date.timezone" /etc/php/*/apache2/php.ini
+sudo systemctl restart apache2</pre></div>
+    <p>2行目の結果に <code class="i">date.timezone = Asia/Tokyo</code> が出ればOKです。</p>
+    <p class="why">あえてこのステップを飛ばして動かし、時刻のずれを確認してから直すと、「詰まった点・原因・対処」がそろった報告になります。</p>
+  </section>
+
+  <!-- 13 -->
+  <section class="step" id="s13" data-title="配布のPHPをサーバに置く">
+    <div class="step-head"><div class="num">13</div><div><h2>配布のPHPをサーバに置く</h2><span class="slide">db_sample.zip（LMS）</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <div class="dl"><a class="btn" href="files/lab2/db_sample.zip" download>db_sample.zip をダウンロード</a><span class="meta">LMSからでも同じものが取れます。ダウンロードフォルダに保存してください</span></div>
+    <p>ダウンロードした <code class="i">db_sample.zip</code> を解凍して送ります。ここだけはSSHに入っていないPowerShellで実行します（新しいタブを開くと便利です）。</p>
+    <div class="code" data-where="win"><pre>cd $env:USERPROFILE\Downloads
+Expand-Archive .\db_sample.zip -DestinationPath . -Force
+scp -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} -r .\db_sample {{USER}}@{{IP}}:~/</pre></div>
+    <p>サーバ側で、Webの公開フォルダにコピーします。</p>
+    <div class="code" data-where="ssh"><pre>sudo cp -r ~/db_sample /var/www/html/
+ls /var/www/html/db_sample</pre></div>
+    <p><code class="i">dateadd.php</code> と <code class="i">dateprint.php</code> が出ればOKです。</p>
+    <p class="why">zipを別の場所に保存した場合は、1行目の <code class="i">cd</code> の行き先を変えてください。<code class="i">/var/www/html</code> はrootの持ち物なので、直接scpで送らずに、一度自分のホームに置いてから <code class="i">sudo cp</code> しています。</p>
+  </section>
+
+  <!-- 14 -->
+  <section class="step" id="s14" data-title="ブラウザで動かす">
+    <div class="step-head"><div class="num">14</div><div><h2>ブラウザで動かす</h2><span class="slide">db_sample / dateprint.php・dateadd.php</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/db_sample/dateprint.php</pre></div>
+    <ol>
+      <li>「PHP-DB-TEST」の空の表が出る</li>
+      <li>「要素を追加」ボタンを押す → dateadd.php に移り「日付を追加したよ」と出る</li>
+      <li>「[戻る]」を押す → 表に、今の時刻と自分のPCのIPアドレスが1行増えている</li>
+      <li>相方のPCからも開いて押してもらうと、違うIPの行が増える</li>
+    </ol>
+    <div class="tbl"><table>
+      <thead><tr><th>ファイル</th><th>していること</th></tr></thead>
+      <tbody>
+        <tr><td>dateprint.php</td><td>DBに接続し <code class="i">SELECT * FROM clickedtable</code> で全行を取り出して、HTMLの表にして返す</td></tr>
+        <tr><td>dateadd.php</td><td>DBに接続し <code class="i">INSERT INTO clickedtable</code> で、今の日時と <code class="i">$_SERVER["REMOTE_ADDR"]</code>（アクセスしてきた相手のIP）を1行追加する</td></tr>
+      </tbody>
+    </table></div>
+    <p class="why">ブラウザに届くのは、PHPが実行された<strong>結果のHTMLだけ</strong>です。ブラウザで右クリック →「ページのソースを表示」を開くと、PHPのコードやDBのパスワードが見えないことを確認できます。</p>
+  </section>
+
+  <!-- 15 -->
+  <section class="step" id="s15" data-title="サーバ側で記録を確かめる">
+    <div class="step-head"><div class="num">15</div><div><h2>サーバ側で記録を確かめる</h2><span class="slide">考察用</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>ブラウザで見た内容が、本当にデータベースに入っているかを確かめます。</p>
+    <div class="code" data-where="ssh"><pre>sudo mysql -e "SELECT * FROM updatetime.clickedtable;"</pre></div>
+    <p>Apacheのアクセスログにも、同じIPからのアクセスが残っています。</p>
+    <div class="code" data-where="ssh"><pre>sudo tail -n 5 /var/log/apache2/access.log</pre></div>
+    <p class="why">行の先頭がアクセス元のIP、続いて日時、<code class="i">"GET /db_sample/dateadd.php"</code> のようにどのページを開いたかが記録されています。DBの記録とログを並べると、「サーバはアクセスしてきた相手のIPを知っている」ことを説明できます。</p>
+  </section>
+
+  <!-- 16 -->
+  <section class="step" id="s16" data-title="後片付けとシャットダウン">
+    <div class="step-head"><div class="num">16</div><div><h2>後片付けとシャットダウン</h2><span class="slide">前回スライド「実験上の注意」「今回はここまでです」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>確認用に作った info.php を消し、今日のコマンドの記録を保存します。</p>
+    <div class="code" data-where="ssh"><pre>sudo rm /var/www/html/info.php
+history &gt; ~/command_log_1013.txt
+exit</pre></div>
+    <div class="code" data-where="win"><pre>scp -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}:~/command_log_1013.txt .</pre></div>
+    <p>最後にサーバを停止します（全員の作業が終わってから）。</p>
+    <div class="code" data-where="ssh"><pre>sudo shutdown -h now</pre></div>
+    <p class="why">秘密鍵 <code class="i">id_ed25519_<span class="liveuser">ユーザ名</span></code> をなくすと、鍵でログインできなくなります。USBメモリなどにバックアップしておくと安心です（人に渡さないこと）。</p>
+  </section>
+
+  <!-- trouble -->
+  <section class="step" id="trouble" style="border-left-color:var(--red)" data-notoc>
+    <div class="step-head"><div class="num" style="background:var(--red)">!</div><div><h2>うまくいかないとき</h2></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+      <tbody>
+        <tr><td>ステップ3で <code class="i">Permission denied (publickey)</code></td><td>パスワードログインが無効のまま。ステップ1をやり直す。</td></tr>
+        <tr><td>ステップ4で <code class="i">Permission denied (publickey)</code></td><td>公開鍵が登録されていない、または権限が緩い。パスワードで入って <code class="i">cat ~/.ssh/authorized_keys</code> と <code class="i">ls -la ~/.ssh</code> を確認し、<code class="i">chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys</code>。</td></tr>
+        <tr><td><code class="i">Connection timed out</code></td><td>IPが変わった、または自分のPCが別のネットワーク（Wi-Fiなど）にいる。サーバで <code class="i">hostname -I</code>、自分のPCで <code class="i">ipconfig</code> を確認。</td></tr>
+        <tr><td><code class="i">REMOTE HOST IDENTIFICATION HAS CHANGED!</code></td><td>OSを入れ直したかIPが入れ替わった。自分のPCで <code class="i">ssh-keygen -R <span class="liveip">IP</span></code> を実行してから接続し直す。</td></tr>
+        <tr><td>ブラウザでページが開かない</td><td>ステップ9のufwの許可がない、またはIPが違う。<code class="i">sudo ufw status</code> を確認。</td></tr>
+        <tr><td>PHPのコードがそのまま表示される／ダウンロードされる</td><td>ApacheにPHPが組み込まれていない。<code class="i">sudo apt install -y libapache2-mod-php</code> → <code class="i">sudo systemctl restart apache2</code>。</td></tr>
+        <tr><td>データベース接続失敗。could not find driver</td><td><code class="i">php-mysql</code> が入っていない。入れてから <code class="i">sudo systemctl restart apache2</code>。</td></tr>
+        <tr><td>データベース接続失敗。Access denied</td><td>ステップ11のユーザ名・パスワードが、PHPファイルのものと違う。</td></tr>
+        <tr><td>データベース接続失敗。Unknown database</td><td>ステップ11の <code class="i">CREATE DATABASE</code> が抜けている。</td></tr>
+        <tr><td>Table … doesn't exist</td><td>ステップ11の <code class="i">CREATE TABLE</code> が抜けている。</td></tr>
+        <tr><td>記録される時刻が9時間ずれる</td><td>PHPがUTCのまま。ステップ12を実行する。</td></tr>
+        <tr><td>MySQLで <code class="i">ERROR 1064</code></td><td>SQLの書き間違い。行末の <code class="i">;</code>、クォート <code class="i">'</code> の閉じ忘れを確認。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- report -->
+  <section class="step" id="report" style="border-left-color:var(--amber)" data-notoc>
+    <div class="step-head"><div class="num" style="background:var(--amber);color:#1C2A44">話</div><div><h2>15:00の経過報告（2分）の例</h2><span class="slide">実験ガイダンス「4. 実験の流れ」</span></div></div>
+    <div class="report">
+      <p>まず、自分のPCで公開鍵ペアを作り、公開鍵をサーバの authorized_keys に登録して、パスワードを使わずに鍵だけでログインできることを確認しました。秘密鍵はサーバに送らずに済むよう、クライアント側で鍵を作りました。</p>
+      <p>次に、Apache・PHP・MySQLを導入し、ufwで80番ポートを許可しました。配布されたPHPを使い、ブラウザからのアクセス時刻とクライアントのIPアドレスをデータベースに記録し、一覧表示できることを確認しました。</p>
+      <p>詰まった点として、配布コードのコメントにあるGRANT文はMySQL 8では使えない書き方だったため、ユーザ作成と権限付与を分けて実行しました。また、PHPのタイムゾーンがUTCのままだと記録時刻が9時間ずれたため、php.iniでAsia/Tokyoに設定しました。</p>
+    </div>
+    <p class="why">実際にできたところ・詰まったところに合わせて変えてください。「詰まった点・原因・対処」の3つがそろうと伝わりやすくなります。</p>
+  </section>
+
+  <footer>情報工学実験 第2回 手順書（2026年10月13日分）・<a href="./">手順書の一覧へ</a></footer>
+</main>
+
+<script>
+(function(){
+  var store = {
+    get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},
+    set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  };
+  var WHERE = {
+    local:['w-local','サーバ（sudoが使えるユーザで）'],
+    ssh:['w-ssh','サーバ（自分のPCからSSHで）'],
+    win:['w-win','自分のPCのPowerShell']
+  };
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+  var uIn=document.getElementById('v-user'), ipIn=document.getElementById('v-ip');
+  uIn.value=store.get('lab2-user')||''; ipIn.value=store.get('lab2-ip')||'';
+
+  // build code blocks
+  var blocks=[].slice.call(document.querySelectorAll('.code'));
+  blocks.forEach(function(b){
+    var pre=b.querySelector('pre');
+    b._tpl=pre.textContent;
+    var w=WHERE[b.dataset.where]||WHERE.ssh;
+    var top=document.createElement('div'); top.className='code-top';
+    var badge=document.createElement('span'); badge.className='where '+w[0]; badge.textContent=b.dataset.label||w[1];
+    var btn=document.createElement('button'); btn.type='button'; btn.className='copy'; btn.textContent='コピー';
+    btn.addEventListener('click',function(){
+      var text=fill(b._tpl,false);
+      var done=function(){btn.textContent='コピーしました';btn.classList.add('ok');setTimeout(function(){btn.textContent='コピー';btn.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done()})}else{fallback(text);done()}
+    });
+    top.appendChild(badge); top.appendChild(btn); b.insertBefore(top,pre);
+  });
+  function fallback(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta)}
+
+  function fill(t,html){
+    var u=uIn.value.trim()||'ユーザ名', ip=ipIn.value.trim()||'IPアドレス';
+    if(!html) return t.replace(/\{\{USER\}\}/g,u).replace(/\{\{IP\}\}/g,ip);
+    return esc(t).replace(/\{\{USER\}\}/g,'<span class="ph">'+esc(u)+'</span>').replace(/\{\{IP\}\}/g,'<span class="ph">'+esc(ip)+'</span>');
+  }
+  function render(){
+    blocks.forEach(function(b){b.querySelector('pre').innerHTML=fill(b._tpl,true)});
+    document.querySelectorAll('.liveuser').forEach(function(s){s.textContent=uIn.value.trim()||'ユーザ名'});
+    document.querySelectorAll('.liveip').forEach(function(s){s.textContent=ipIn.value.trim()||'IP'});
+  }
+  uIn.addEventListener('input',function(){store.set('lab2-user',uIn.value);render()});
+  ipIn.addEventListener('input',function(){store.set('lab2-ip',ipIn.value);render()});
+  render();
+
+  // toc + progress
+  var steps=[].slice.call(document.querySelectorAll('.step:not([data-notoc])'));
+  var toc=document.getElementById('toc');
+  var state={}; try{state=JSON.parse(store.get('lab2-done')||'{}')}catch(e){state={}}
+  steps.forEach(function(s){
+    var li=document.createElement('li'); var a=document.createElement('a');
+    a.href='#'+s.id; a.textContent=s.dataset.title; li.appendChild(a); toc.appendChild(li); s._li=li;
+    var cb=s.querySelector('.done-toggle input');
+    cb.checked=!!state[s.id];
+    cb.addEventListener('change',function(){state[s.id]=cb.checked;store.set('lab2-done',JSON.stringify(state));upd()});
+  });
+  function upd(){
+    var n=0;
+    steps.forEach(function(s){var d=!!state[s.id];s.classList.toggle('done',d);s._li.classList.toggle('done',d);if(d)n++});
+    document.getElementById('prog-text').textContent=n+' / '+steps.length;
+    document.getElementById('prog-fill').style.width=(n/steps.length*100)+'%';
+  }
+  upd();
+
+  // theme
+  var root=document.documentElement, saved=store.get('lab2-theme');
+  if(saved) root.setAttribute('data-theme',saved);
+  document.getElementById('theme-btn').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    var nx=cur==='dark'?'light':'dark'; root.setAttribute('data-theme',nx); store.set('lab2-theme',nx);
+  });
+})();
+</script>
+</body>
+</html>

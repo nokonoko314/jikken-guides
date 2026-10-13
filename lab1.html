@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>情報工学実験 第1回 手順書：Ubuntu Server構築</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F5; --grid:rgba(47,91,211,.07); --paper:#FFFFFF; --ink:#1C2A44; --sub:#56627A;
+  --line:#CDD6E2; --cobalt:#2F5BD3; --cobalt-soft:#E3EAFB; --amber:#F2B33D; --amber-soft:#FDF2DA;
+  --red:#C9443A; --red-soft:#FBE7E5; --green:#2E8B57; --code-bg:#1E2738; --code-ink:#E7ECF5; --ph:#FFD479;
+  --font: "BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+  --mono: "JetBrains Mono","BIZ UDGothic",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121826; --grid:rgba(120,150,230,.06); --paper:#1A2234; --ink:#E4E9F2; --sub:#9AA6BD;
+    --line:#2D3850; --cobalt:#7C9CF0; --cobalt-soft:#22305A; --amber:#F2B33D; --amber-soft:#3A2F17;
+    --red:#EF7B70; --red-soft:#3D2222; --green:#5CC28A; --code-bg:#0F1522; --code-ink:#E7ECF5;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121826; --grid:rgba(120,150,230,.06); --paper:#1A2234; --ink:#E4E9F2; --sub:#9AA6BD;
+  --line:#2D3850; --cobalt:#7C9CF0; --cobalt-soft:#22305A; --amber:#F2B33D; --amber-soft:#3A2F17;
+  --red:#EF7B70; --red-soft:#3D2222; --green:#5CC28A; --code-bg:#0F1522; --code-ink:#E7ECF5;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 120px);scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;background-color:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.8;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+a{color:var(--cobalt)}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+/* sticky config bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--paper);border-bottom:2px solid var(--ink)}
+.bar-in{max-width:820px;margin:0 auto;padding:10px 18px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.bar label{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.bar input{font-family:var(--mono);font-size:14px;padding:5px 8px;border:1.5px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:150px}
+.bar input:focus{border-color:var(--cobalt);outline:none}
+.prog{margin-left:auto;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:8px}
+.prog-track{width:90px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);width:0;transition:width .3s}
+.theme-btn{font:inherit;font-size:13px;background:none;border:1.5px solid var(--line);color:var(--ink);border-radius:4px;padding:3px 8px;cursor:pointer}
+
+main{max-width:820px;margin:0 auto;padding:28px 18px 80px}
+
+/* hero */
+.hero{position:relative;padding:28px 0 24px 34px;margin-bottom:8px}
+.hero::before{content:"";position:absolute;left:0;top:30px;width:18px;height:18px;background:var(--amber)}
+.hero::after{content:"";position:absolute;left:8px;top:40px;width:14px;height:14px;background:var(--cobalt);opacity:.85}
+.hero .course{font-size:14px;color:var(--sub);margin:0}
+.hero h1{font-size:clamp(26px,5vw,38px);line-height:1.3;margin:4px 0 12px;letter-spacing:.01em}
+.hero p{margin:0;max-width:62ch;color:var(--sub)}
+
+.howto{background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:16px 20px;margin:20px 0 32px}
+.howto h2{font-size:16px;margin:0 0 8px}
+.howto ul{margin:0;padding-left:1.2em}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+/* toc */
+.toc{background:var(--paper);border:1.5px solid var(--line);border-radius:6px;padding:14px 20px;margin-bottom:36px}
+.toc h2{font-size:16px;margin:0 0 6px}
+.toc ol{margin:0;padding-left:1.6em;columns:2;column-gap:28px;font-size:14.5px}
+@media (max-width:600px){.toc ol{columns:1}}
+.toc li.done a{color:var(--green);text-decoration:line-through}
+
+/* steps */
+.step{background:var(--paper);border:1.5px solid var(--line);border-left:6px solid var(--cobalt);border-radius:6px;padding:20px 22px 22px;margin:0 0 26px}
+.step.done{border-left-color:var(--green)}
+.step-head{display:flex;gap:14px;align-items:flex-start}
+.num{flex:none;font-family:var(--mono);font-weight:600;font-size:22px;line-height:1;width:44px;height:44px;display:grid;place-items:center;background:var(--ink);color:var(--paper);border-radius:4px}
+.step.done .num{background:var(--green)}
+.step h2{font-size:21px;line-height:1.4;margin:0}
+.slide{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;background:var(--cobalt-soft);color:var(--ink);padding:2px 10px 2px 8px;border-radius:3px}
+.slide::before{content:"";width:10px;height:10px;background:var(--cobalt);box-shadow:3px -3px 0 var(--amber)}
+.done-toggle{margin-left:auto;flex:none;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);cursor:pointer;user-select:none;padding-top:4px}
+.done-toggle input{width:18px;height:18px;accent-color:var(--green)}
+.step h3{font-size:16px;margin:22px 0 6px}
+.step p{margin:8px 0}
+.step ul,.step ol{margin:8px 0;padding-left:1.4em}
+.step li{margin:3px 0}
+.why{font-size:14.5px;color:var(--sub);border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:10px 0}
+
+/* where badges */
+.where{display:inline-block;font-size:12.5px;font-weight:700;padding:1px 9px;border-radius:3px;border:1.5px solid currentColor}
+.w-local{color:#8A5A00;background:var(--amber-soft)}
+.w-ssh{color:var(--cobalt);background:var(--cobalt-soft)}
+.w-win{color:var(--green);background:transparent}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .w-local{color:var(--amber)}}
+:root[data-theme="dark"] .w-local{color:var(--amber)}
+
+/* code */
+.code{margin:10px 0 14px;border-radius:6px;overflow:hidden;background:var(--code-bg)}
+.code-top{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 12px;background:rgba(255,255,255,.06)}
+.code-top .where{background:transparent}
+.code-top .w-local{color:var(--amber)} .code-top .w-ssh{color:#9DB6FF} .code-top .w-win{color:#7FD9A6}
+.copy{margin-left:auto;font:inherit;font-size:13px;background:var(--amber);color:#1C2A44;border:0;border-radius:4px;padding:4px 12px;cursor:pointer;font-weight:700}
+.copy.ok{background:#7FD9A6}
+.code pre{margin:0;padding:12px 14px;overflow-x:auto;font-family:var(--mono);font-size:14px;line-height:1.65;color:var(--code-ink);white-space:pre}
+.code .ph{color:#1C2A44;background:var(--ph);border-radius:2px;padding:0 2px}
+.code .cm{color:#8C9AB5}
+.nocopy-note{font-size:13px;color:var(--sub);margin:-6px 0 12px}
+
+kbd{font-family:var(--mono);font-size:13px;border:1.5px solid var(--line);border-bottom-width:3px;border-radius:4px;padding:0 5px;background:var(--bg)}
+code.i{font-family:var(--mono);font-size:.9em;background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:0 4px}
+
+.box{border-radius:6px;padding:12px 16px;margin:14px 0;font-size:15px}
+.box strong{display:block;margin-bottom:2px}
+.warn{background:var(--red-soft);border:1.5px solid var(--red)}
+.warn strong{color:var(--red)}
+.tip{background:var(--amber-soft);border:1.5px solid var(--amber)}
+.ok{background:var(--cobalt-soft);border:1.5px solid var(--cobalt)}
+
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:700}
+
+.report{background:var(--bg);border:1.5px dashed var(--line);border-radius:6px;padding:14px 18px;font-size:15px}
+footer{font-size:13px;color:var(--sub);text-align:center;margin-top:40px}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <label>ユーザ名 <input id="v-user" placeholder="例: noko" autocomplete="off" spellcheck="false"></label>
+    <label>サーバのIP <input id="v-ip" placeholder="例: 10.0.5.23" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
+    <div class="prog"><span id="prog-text">0 / 14</span><div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <button class="theme-btn" id="theme-btn" type="button">表示切替</button></div>
+  </div>
+</div>
+
+<main>
+  <header class="hero">
+    <p class="course">4EJ 情報工学実験 第1回（10/6）テーマ1</p>
+    <h1>OSのインストールとシステム構築<br>コピペで進める手順書</h1>
+    <p>旧PCにUbuntu Server 24.04 LTSを入れ、WindowsからSSHでログインし、Pythonでグラフを出すところまで。各ステップに、対応するスライドのタイトルを付けています。</p>
+  </header>
+
+  <section class="howto">
+    <h2>使い方</h2>
+    <ul>
+      <li>上のバーに<strong>ユーザ名</strong>と<strong>サーバのIP</strong>を入れると、下のコマンドの<span style="background:var(--ph);color:#1C2A44;padding:0 3px;border-radius:2px">黄色い部分</span>が自動で書き換わります（IPはステップ6で調べます）。</li>
+      <li>終わったステップは右上の「完了」にチェック。入力内容と進み具合はこのブラウザに保存されます。</li>
+      <li>コマンドを打つ場所は、ブロックの左上のラベルで区別しています。</li>
+    </ul>
+    <div class="legend">
+      <span class="where w-local">サーバで直接入力</span>
+      <span class="where w-ssh">サーバ（SSH経由・コピペ可）</span>
+      <span class="where w-win">Windows PowerShell</span>
+    </div>
+    <div class="box tip"><strong>コピペできるのはSSH接続後から</strong>サーバのPCに直接つないだキーボードでは貼り付けができません。ステップ7までは手で打つ短いコマンドだけにしてあり、ステップ8以降はすべてMobaXtermからコピペできます。</div>
+  </section>
+
+  <nav class="toc" aria-label="目次">
+    <h2>手順</h2>
+    <ol id="toc"></ol>
+  </nav>
+
+  <!-- 1 -->
+  <section class="step" id="s1" data-title="Ubuntu Serverのイメージを取得">
+    <div class="step-head"><div class="num">1</div><div><h2>Ubuntu Serverのイメージを取得</h2><span class="slide">スライド「本日の作業手順（1）」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>Windows PCで、Ubuntu 24.04 LTSのServer版のISOファイルをダウンロードします。</p>
+    <ol>
+      <li><a href="https://releases.ubuntu.com/24.04/" target="_blank" rel="noopener">https://releases.ubuntu.com/24.04/</a> を開く（スライドの「Previous releases」から辿った先と同じ場所です）</li>
+      <li>「<strong>Server install image</strong>」をクリック</li>
+      <li><code class="i">ubuntu-24.04.x-live-server-amd64.iso</code>（約3GB）が保存される</li>
+    </ol>
+    <p class="why">Desktop版ではなくServer版を選ぶこと。24.04.1でなく24.04.3などの新しい小数点版でも問題ありません（同じ24.04 LTSの更新版です）。</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2" data-title="USBメモリに書き込む">
+    <div class="step-head"><div class="num">2</div><div><h2>USBメモリに書き込む</h2><span class="slide">スライド「本日の作業手順（1）」USBメモリへのイメージの書き込み</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <div class="box warn"><strong>USBの中身はすべて消えます</strong>必要なデータが入っていないか確認してから進めてください。</div>
+    <ol>
+      <li><a href="https://rufus.ie/ja/" target="_blank" rel="noopener">Rufus</a> をダウンロードして起動（インストール不要の「ポータブル版」で可）</li>
+      <li>「デバイス」で持ってきたUSBメモリを選ぶ</li>
+      <li>「選択」を押して、ステップ1のISOを選ぶ</li>
+      <li>他の設定はそのままで「スタート」→ 確認画面はすべて「OK」（ISOイメージモードを推奨）</li>
+      <li>状態が「準備完了」になったら終了</li>
+    </ol>
+    <p class="why">旧PCがUSBから起動しない場合、Rufusの「パーティション構成」を<strong>MBR</strong>に変えて書き直すと起動できることがあります（古いPCはUEFIではなくBIOS方式の場合があるため）。</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3" data-title="旧PCにインストール">
+    <div class="step-head"><div class="num">3</div><div><h2>旧PCにインストール</h2><span class="slide">スライド「本日の作業手順（1）」「2人1組で作業します」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>旧PCにキーボード・マウス・電源・VGAケーブルとLANケーブルをつなぎ、USBを挿して電源を入れます。起動直後に<strong>ブートメニューのキー</strong>を連打し、USBを選びます。</p>
+    <p class="why">キーはメーカーで違います。Dell・Lenovoは <kbd>F12</kbd>、HPは <kbd>F9</kbd> か <kbd>Esc</kbd>、富士通・NECは <kbd>F12</kbd> が多いです。起動画面の下のほうに表示されることもあります。</p>
+    <p>「Try or Install Ubuntu Server」を選ぶとインストーラが始まります。<kbd>↑</kbd><kbd>↓</kbd><kbd>Tab</kbd>で移動、<kbd>Enter</kbd>で決定、<kbd>Space</kbd>でチェックです。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>画面</th><th>選ぶもの</th></tr></thead>
+      <tbody>
+        <tr><td>Language</td><td>English（Server版のインストーラに日本語はありません）</td></tr>
+        <tr><td>Keyboard configuration</td><td>Layout：<strong>Japanese</strong>、Variant：<strong>Japanese</strong> → Done<br><span style="color:var(--sub);font-size:13.5px">ここで設定すればステップ4は確認だけで済みます</span></td></tr>
+        <tr><td>Type of installation</td><td>Ubuntu Server（そのまま）</td></tr>
+        <tr><td>Network configuration</td><td>LANケーブルがつながっていれば自動でIPが入る（<code class="i">DHCPv4</code> の横に数字が出る）→ Done</td></tr>
+        <tr><td>Proxy / Mirror</td><td>空欄・そのまま → Done（ミラーのテストが終わるまで少し待つ）</td></tr>
+        <tr><td>Guided storage configuration</td><td>Use an entire disk → Done → 次の確認画面で <strong>Continue</strong>（ディスクが消去されます）</td></tr>
+        <tr><td>Profile configuration</td><td>Your name / Your servers name / Pick a username / Password を入力。<br><strong>usernameとパスワードは必ずメモ</strong>（このusernameを上のバーに入れておく）</td></tr>
+        <tr><td>Upgrade to Ubuntu Pro</td><td>Skip for now</td></tr>
+        <tr><td>SSH configuration</td><td><strong>Install OpenSSH server にSpaceでチェック [X]</strong> → Done</td></tr>
+        <tr><td>Featured server snaps</td><td>何も選ばず → Done</td></tr>
+        <tr><td>Installing system</td><td>完了したら「Reboot Now」。USBを抜くよう表示されたら抜いて <kbd>Enter</kbd></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4" data-title="ログインとキーボード配列">
+    <div class="step-head"><div class="num">4</div><div><h2>ログインとキーボード配列の確認</h2><span class="slide">スライド「キーボードレイアウトの変更」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>再起動後、<code class="i">login:</code> と出たらステップ3のusernameとパスワードを入力します。パスワードは入力しても画面に何も表示されませんが、正常です。</p>
+    <p>キーボードで <kbd>@</kbd> や <kbd>:</kbd> を押して、そのとおりの記号が出れば日本語配列になっています。ずれる場合だけ、次を実行します。</p>
+    <div class="code" data-where="local"><pre>sudo dpkg-reconfigure keyboard-configuration</pre></div>
+    <p>出てくる画面では、Generic 105-key PC → Japanese → Japanese → その後はすべてそのまま <kbd>Enter</kbd>。終わったら次のコマンドで反映します。</p>
+    <div class="code" data-where="local"><pre>sudo setupcon</pre></div>
+    <p class="why">反映されない場合は <code class="i">sudo reboot</code> で再起動。</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5" data-title="ユーザの追加">
+    <div class="step-head"><div class="num">5</div><div><h2>ユーザの追加</h2><span class="slide">スライド「本日の作業手順（1）」ユーザの追加</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>2人1組なので、インストール時に作っていない<strong>相方のユーザ</strong>を追加します。名前は「user2」の部分を変えてください。</p>
+    <div class="code" data-where="local"><pre>sudo adduser user2</pre></div>
+    <p>パスワードを2回入力し、Full Name などの質問はすべて <kbd>Enter</kbd> で空欄、最後に <kbd>Y</kbd>。管理者権限（sudo）も持たせる場合は次も実行します。</p>
+    <div class="code" data-where="local"><pre>sudo usermod -aG sudo user2
+groups user2</pre></div>
+    <p class="why">最後の行の結果に <code class="i">sudo</code> が含まれていれば成功。普段は一般ユーザで作業し、管理作業のときだけ sudo で権限を借りるのがLinuxの基本です。</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6" data-title="IPアドレスを確認">
+    <div class="step-head"><div class="num">6</div><div><h2>IPアドレスを確認</h2><span class="slide">スライド「IPアドレスについて」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <div class="code" data-where="local"><pre>hostname -I</pre></div>
+    <p>表示された数字（例：<code class="i">10.0.5.23</code>）が、このサーバのIPアドレスです。<strong>ページ上部のバーに入力してください</strong>。以降のコマンドに自動で反映されます。</p>
+    <p class="why">この部屋はDHCPで自動割り当てなので、再起動するとIPが変わる可能性があります。SSHがつながらなくなったら、まずこのコマンドで確認し直してください。</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7" data-title="SSHとファイアウォール">
+    <div class="step-head"><div class="num">7</div><div><h2>SSHを動かし、ファイアウォールで許可する</h2><span class="slide">スライド「リモートログイン」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>まずSSHサーバが動いているか確認します。</p>
+    <div class="code" data-where="local"><pre>sudo systemctl enable --now ssh
+systemctl status ssh</pre></div>
+    <p><code class="i">active (running)</code> と出ればOK（<kbd>q</kbd>で抜ける）。「Unit ssh.service could not be found」と出たら、インストール時にOpenSSHのチェックが漏れています。次で入れてから、上の2行をもう一度実行します。</p>
+    <div class="code" data-where="local"><pre>sudo apt install -y openssh-server</pre></div>
+    <h3>ファイアウォール（ufw）</h3>
+    <div class="box warn"><strong>必ず allow → enable の順</strong>先にenableすると、SSHの通り道（22番ポート）まで閉じてしまいます。</div>
+    <div class="code" data-where="local"><pre>sudo ufw allow OpenSSH
+sudo ufw enable
+sudo ufw status</pre></div>
+    <p>enableで <code class="i">Proceed with operation (y|n)?</code> と聞かれたら <kbd>y</kbd>。statusに <code class="i">OpenSSH  ALLOW  Anywhere</code> と出ればOKです。</p>
+    <p class="why">スライドの「本来はアクセス制限をかけたほうがいい」の発展として、同じネットワーク内からだけ許可する書き方もあります（例：IPが10.0.5.xなら <code class="i">sudo ufw allow from 10.0.5.0/24 to any port 22</code>）。今回は必須ではありません。</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8" data-title="WindowsからSSH接続">
+    <div class="step-head"><div class="num">8</div><div><h2>WindowsからSSHで接続</h2><span class="slide">スライド「リモートログイン」「本日の作業手順（1）」SSHによる接続テスト</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>Windows PCを、サーバと<strong>同じハブ</strong>にLANケーブルでつなぎます（無線LANではつながらないことがあります）。</p>
+    <h3>MobaXtermで接続する（推奨）</h3>
+    <ol>
+      <li>MobaXtermを起動 → 左上の「Session」→「SSH」</li>
+      <li>Remote host にサーバのIP、「Specify username」にチェックしてユーザ名を入力 → OK</li>
+      <li>初回は「接続先を信頼するか」を聞かれるので Accept、続けてパスワードを入力</li>
+    </ol>
+    <p>プロンプトが <code class="i"><span class="liveuser">ユーザ名</span>@サーバ名:~$</code> になれば成功です。左側に出るファイル一覧が<strong>SFTP</strong>の画面で、ドラッグ＆ドロップでファイルを送受信できます。</p>
+    <h3>PowerShellで接続する場合</h3>
+    <div class="code" data-where="win"><pre>ssh {{USER}}@{{IP}}</pre></div>
+    <p class="why">初回は <code class="i">Are you sure you want to continue connecting (yes/no/[fingerprint])?</code> と聞かれるので <code class="i">yes</code> と入力。</p>
+    <div class="box ok"><strong>ここからコピペできます</strong>MobaXtermでは、コピーしたコマンドを<strong>右クリック</strong>（または <kbd>Shift</kbd>+<kbd>Insert</kbd>）で貼り付けられます。</div>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9" data-title="Pythonの準備（pip・venv）">
+    <div class="step-head"><div class="num">9</div><div><h2>Pythonの準備（pip・venv）</h2><span class="slide">スライド「Python3のインストール」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>Python3が入っていることを確認し、pipと仮想環境の道具を入れます。</p>
+    <div class="code" data-where="ssh"><pre>python3 --version
+sudo apt update
+sudo apt install -y python3-pip python3-venv python3-tk</pre></div>
+    <p class="why"><code class="i">python3-tk</code> は、グラフをウィンドウで表示するための部品です（ステップ11で使います）。</p>
+    <h3>pip installがエラーになることを確認</h3>
+    <div class="code" data-where="ssh"><pre>pip install numpy</pre></div>
+    <p><code class="i">error: externally-managed-environment</code> と出ます。Ubuntu 24.04では、OS自身が使うPython環境を守るため、pipでシステムに直接インストールできないようになっています（PEP 668）。<strong>報告のネタになるので、この画面は覚えておきましょう。</strong></p>
+    <h3>仮想環境（venv）を作ってpipでインストール</h3>
+    <div class="code" data-where="ssh"><pre>python3 -m venv ~/myenv
+source ~/myenv/bin/activate
+pip install numpy matplotlib</pre></div>
+    <p>プロンプトの先頭に <code class="i">(myenv)</code> が付けば、仮想環境に入っています。<code class="i">Successfully installed</code> で完了です。</p>
+    <h3>ログインのたびに自動で仮想環境に入る設定（おすすめ）</h3>
+    <div class="code" data-where="ssh"><pre>echo 'source ~/myenv/bin/activate' &gt;&gt; ~/.bashrc</pre></div>
+    <p class="why">SSHで入り直すたび、また次回（10/13）サーバを起動したときにも <code class="i">activate</code> が必要になるため。この設定をしておけば、ログイン直後から <code class="i">(myenv)</code> の状態になります。</p>
+  </section>
+
+  <!-- 10 -->
+  <section class="step" id="s10" data-title="sample1.pyの動作テスト">
+    <div class="step-head"><div class="num">10</div><div><h2>sample1.py の動作テスト</h2><span class="slide">スライド「Pythonプログラムの動作テスト」「プログラムの実行」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>スライドどおり <strong>nano で入力</strong>する方法です。</p>
+    <div class="code" data-where="ssh"><pre>nano sample1.py</pre></div>
+    <p>nanoが開いたら、次のコードをコピーして<strong>右クリックで貼り付け</strong>ます。</p>
+    <div class="code" data-where="ssh" data-label="nanoの中に貼り付け"><pre>import matplotlib.pyplot as plt
+import numpy as np
+x=np.arange(-1, 1, 0.1)
+y=np.sin(x)
+print(x)
+print(y)</pre></div>
+    <p>保存は <kbd>Ctrl</kbd>+<kbd>O</kbd> → <kbd>Enter</kbd>、終了は <kbd>Ctrl</kbd>+<kbd>X</kbd>。そして実行します（<code class="i">python</code> ではなく <code class="i">python3</code>）。</p>
+    <div class="code" data-where="ssh"><pre>python3 sample1.py</pre></div>
+    <p>-1から0.9までの数値の配列（x）と、そのsinの値の配列（y）が表示されれば成功です。</p>
+    <p class="why"><code class="i">ModuleNotFoundError: No module named 'numpy'</code> と出たら、仮想環境に入っていません。<code class="i">source ~/myenv/bin/activate</code> を実行してからもう一度。</p>
+  </section>
+
+  <!-- 11 -->
+  <section class="step" id="s11" data-title="グラフを描くプログラム">
+    <div class="step-head"><div class="num">11</div><div><h2>グラフを描くプログラムを動かす</h2><span class="slide">スライド「プログラムの実行」「（参考）プロット結果を出力するコード」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>スライドでは、ソースは<strong>LMSにアップ済み</strong>で、それを<strong>SFTPかMobaXtermでアップロード</strong>して動かすことになっています。</p>
+    <h3>A. LMSのファイルをアップロードして実行</h3>
+    <ol>
+      <li>LMSからPythonファイルをWindowsにダウンロード</li>
+      <li>MobaXtermの左側のファイル一覧（SFTP）に<strong>ドラッグ＆ドロップ</strong></li>
+    </ol>
+    <p>PowerShellで送る場合は次のとおりです（ダウンロードフォルダにある前提。<code class="i">ファイル名.py</code> を実際の名前に変えてください）。</p>
+    <div class="code" data-where="win"><pre>cd $env:USERPROFILE\Downloads
+scp .\ファイル名.py {{USER}}@{{IP}}:~/</pre></div>
+    <p>サーバ側で実行します。</p>
+    <div class="code" data-where="ssh"><pre>ls
+python3 ファイル名.py</pre></div>
+    <p>MobaXtermはX11転送という機能で、サーバのウィンドウをWindows側に表示できます。sinのグラフのウィンドウが出れば成功です。</p>
+    <h3>B. ウィンドウが出ない場合：画像で保存して取り出す</h3>
+    <p>Server版には画面（GUI）がないため、<code class="i">plt.show()</code> では表示されないことがあります。その場合は <code class="i">savefig</code> で画像に保存します。次をまとめてコピーして貼り付ければ、ファイル作成から実行まで一度に終わります。</p>
+    <div class="code" data-where="ssh"><pre>cat &gt; ~/plot_sin.py &lt;&lt; 'EOF'
+import matplotlib.pyplot as plt
+import numpy as np
+x=np.arange(-10, 10, 0.1)
+y=np.sin(x)
+plt.plot(x, y)
+plt.savefig("sin.png")
+print("sin.png を保存しました")
+EOF
+python3 ~/plot_sin.py</pre></div>
+    <p>できた <code class="i">sin.png</code> を、MobaXtermの左のファイル一覧からダブルクリック（またはWindowsへドラッグ）して開きます。PowerShellなら次のとおりです。</p>
+    <div class="code" data-where="win"><pre>scp {{USER}}@{{IP}}:~/sin.png .
+start .\sin.png</pre></div>
+    <p class="why">スライドの参考コードはxの範囲が -10〜10、sample1.py は -1〜1 と違う点にも注意。グラフにするとsin波が約3周期見えます。</p>
+  </section>
+
+  <!-- 12 -->
+  <section class="step" id="s12" data-title="公開鍵認証の設定">
+    <div class="step-head"><div class="num">12</div><div><h2>公開鍵でログインできるようにする</h2><span class="slide">スライド「証明書によるログインにする」「その他にやること」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>鍵は<strong>Windows側（ログインする側）で作る</strong>のが基本です。秘密鍵が一度もネットワークを通らないため安全です。</p>
+    <h3>① 鍵ペアを作る</h3>
+    <div class="code" data-where="win"><pre>ssh-keygen -t ed25519</pre></div>
+    <ul>
+      <li>保存場所を聞かれたら、そのまま <kbd>Enter</kbd></li>
+      <li><code class="i">Overwrite (y/n)?</code> と出たら、すでに鍵があるので <kbd>n</kbd>（既存の鍵をそのまま使う）</li>
+      <li>passphrase を聞かれたら、ここで設定（スライドの「秘密鍵にパスワードをかけておくとより安全」）</li>
+    </ul>
+    <p class="why">作られるのは秘密鍵 <code class="i">id_ed25519</code>（人に渡さない）と公開鍵 <code class="i">id_ed25519.pub</code>（サーバに置く）の2つ。場所は <code class="i">C:\Users\Windowsのユーザ名\.ssh\</code> です。</p>
+    <h3>② 公開鍵をサーバに登録する</h3>
+    <p>最後にサーバのパスワードを聞かれるので入力します。</p>
+    <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh {{USER}}@{{IP}} "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</pre></div>
+    <p class="why"><code class="i">authorized_keys</code> は「ここに書かれた公開鍵とペアの秘密鍵を持っていれば、ログインを許可する」というリスト。<code class="i">chmod 700/600</code> で自分以外が触れないようにしないと、sshdが鍵ログインを拒否します。</p>
+    <h3>③ 鍵でログインできるか確認</h3>
+    <div class="code" data-where="win"><pre>ssh {{USER}}@{{IP}}</pre></div>
+    <p>サーバのパスワードではなく <code class="i">Enter passphrase for key</code> と聞かれる（パスフレーズなしなら何も聞かれずに入れる）なら成功。<code class="i">exit</code> で抜けます。</p>
+    <p>MobaXtermでも鍵を使う場合は、セッションを右クリック →「Edit session」→「Advanced SSH settings」→「Use private key」にチェックし、<code class="i">C:\Users\Windowsのユーザ名\.ssh\id_ed25519</code> を指定します。</p>
+    <h3>参考：サーバ側で鍵を作った場合</h3>
+    <p>スライドの「サーバ上で鍵を作った場合はきちんとクライアントに転送」のケースです。上の①〜②の代わりに、サーバで次を実行します。</p>
+    <div class="code" data-where="ssh"><pre>ssh-keygen -t ed25519
+cat ~/.ssh/id_ed25519.pub &gt;&gt; ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys</pre></div>
+    <p>秘密鍵をWindowsへダウンロードし、<strong>サーバからは消します</strong>（サーバが乗っ取られたとき、一緒に盗まれないように）。</p>
+    <div class="code" data-where="win"><pre>scp {{USER}}@{{IP}}:~/.ssh/id_ed25519 $env:USERPROFILE\.ssh\id_ed25519_server</pre></div>
+    <div class="code" data-where="ssh"><pre>rm ~/.ssh/id_ed25519</pre></div>
+    <div class="code" data-where="win"><pre>ssh -i $env:USERPROFILE\.ssh\id_ed25519_server {{USER}}@{{IP}}</pre></div>
+  </section>
+
+  <!-- 13 -->
+  <section class="step" id="s13" data-title="パスワードログインを無効化">
+    <div class="step-head"><div class="num">13</div><div><h2>パスワードログインを無効化する</h2><span class="slide">スライド「証明書によるログインにする」1つ目</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <div class="box warn"><strong>ステップ12の③が成功してから</strong>鍵でログインできない状態で無効化すると、SSHで入れなくなります。また、今つないでいるSSHのウィンドウは閉じずに残し、確認は別ウィンドウで行ってください。</div>
+    <p>Ubuntu 24.04では <code class="i">/etc/ssh/sshd_config.d/</code> の中の設定ファイルが本体より優先され、ファイル名順に<strong>先に読んだ設定が勝ちます</strong>。そこで、先頭に来る名前（00-）のファイルを作って確実に無効化します。</p>
+    <div class="code" data-where="ssh"><pre>echo "PasswordAuthentication no" | sudo tee /etc/ssh/sshd_config.d/00-no-password.conf
+sudo sshd -t &amp;&amp; sudo systemctl restart ssh
+sudo sshd -T | grep -i passwordauthentication</pre></div>
+    <p>最後の行で <code class="i">passwordauthentication no</code> と出れば設定完了です。<code class="i">sshd -t</code> は設定の文法チェックで、エラーがあると再起動しません。</p>
+    <h3>パスワードで入れないことを確認</h3>
+    <div class="code" data-where="win"><pre>ssh -o PubkeyAuthentication=no {{USER}}@{{IP}}</pre></div>
+    <p><code class="i">Permission denied (publickey).</code> と出て、パスワードを聞かれずに拒否されれば成功です。</p>
+    <h3>元に戻したいとき</h3>
+    <div class="code" data-where="ssh"><pre>sudo rm /etc/ssh/sshd_config.d/00-no-password.conf
+sudo systemctl restart ssh</pre></div>
+  </section>
+
+  <!-- 14 -->
+  <section class="step" id="s14" data-title="作業ログを保存してシャットダウン">
+    <div class="step-head"><div class="num">14</div><div><h2>作業ログを保存してシャットダウン</h2><span class="slide">スライド「実験上の注意」「今回はここまでです」</span></div><label class="done-toggle"><input type="checkbox">完了</label></div>
+    <p>スライドに「作業ログを残すのは基本」とあるので、今日打ったコマンドの履歴を保存して手元に取っておきます。次回やり直すことになっても、これを見ればすぐ再現できます。</p>
+    <div class="code" data-where="ssh"><pre>history &gt; ~/command_log.txt</pre></div>
+    <div class="code" data-where="win"><pre>scp {{USER}}@{{IP}}:~/command_log.txt .</pre></div>
+    <p>最後にシャットダウンします。</p>
+    <div class="code" data-where="ssh"><pre>sudo shutdown -h now</pre></div>
+    <p class="why">スライドの「shutdown –h now」は、ハイフンがダッシュ記号（–）になっているので、スライドからコピーすると動きません。上のコマンドを使ってください。いきなり電源を切ると、ディスクへの書き込み待ちのデータが失われ、設定ファイルが壊れることがあります。</p>
+  </section>
+
+  <!-- trouble -->
+  <section class="step" id="trouble" style="border-left-color:var(--red)" data-notoc>
+    <div class="step-head"><div class="num" style="background:var(--red)">!</div><div><h2>うまくいかないとき</h2></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+      <tbody>
+        <tr><td>USBから起動しない</td><td>ブートメニューのキーを確認。BIOS設定でSecure Bootを無効にする、またはRufusでMBRを選んで書き直す。</td></tr>
+        <tr><td>SSHで <code class="i">Connection refused</code></td><td>sshが動いていない。サーバで <code class="i">systemctl status ssh</code> を確認（ステップ7）。</td></tr>
+        <tr><td>SSHで <code class="i">Connection timed out</code></td><td>IPが違う、別のハブにつないでいる、ufwで許可していない。<code class="i">hostname -I</code> と <code class="i">sudo ufw status</code> を確認。</td></tr>
+        <tr><td><code class="i">REMOTE HOST IDENTIFICATION HAS CHANGED!</code></td><td>OSを入れ直すと出る。Windowsで <code class="i">ssh-keygen -R <span class="liveip">IP</span></code> を実行してから接続し直す。</td></tr>
+        <tr><td><code class="i">pip: command not found</code></td><td>pipが未インストール。ステップ9の <code class="i">apt install</code> を実行。</td></tr>
+        <tr><td><code class="i">externally-managed-environment</code></td><td>仕様どおり。venvの中でpipを使う（ステップ9）。</td></tr>
+        <tr><td><code class="i">No module named 'numpy'</code></td><td>仮想環境に入っていない。<code class="i">source ~/myenv/bin/activate</code></td></tr>
+        <tr><td>グラフのウィンドウが出ない</td><td>サーバにGUIがない。<code class="i">savefig</code> で画像に保存して取り出す（ステップ11のB）。</td></tr>
+        <tr><td>鍵を登録したのにパスワードを聞かれる</td><td><code class="i">~/.ssh</code> の権限が緩い。サーバで <code class="i">chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys</code></td></tr>
+        <tr><td>記号の位置がずれる</td><td>英語配列のまま。ステップ4のコマンドで日本語配列に変更。</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- report -->
+  <section class="step" id="report" style="border-left-color:var(--amber)" data-notoc>
+    <div class="step-head"><div class="num" style="background:var(--amber);color:#1C2A44">話</div><div><h2>15:00の経過報告（2分）の例</h2><span class="slide">実験ガイダンス「4. 実験の流れ」</span></div></div>
+    <div class="report">
+      <p>今日は旧PCにUbuntu Server 24.04 LTSをインストールし、サーバとして使える状態を構築しました。USBにISOイメージを書き込んでインストールし、キーボード配列を日本語に設定し、ユーザを追加しました。次に、ufwでSSHのみを許可し、WindowsからMobaXtermでSSHとSFTPの接続を確認しました。</p>
+      <p>Pythonでは、24.04ではpipでシステムに直接インストールしようとするとexternally-managed-environmentエラーになりました。これはOSが使うPython環境を守るための仕様なので、venvで仮想環境を作り、その中でNumPyとmatplotlibを導入しました。また、GUIのないサーバでは <code class="i">plt.show()</code> でグラフが表示されないことがあるため、<code class="i">savefig</code> で画像に保存し、SFTPで取り出して確認しました。</p>
+      <p>さらに公開鍵認証を設定し、パスワードログインを無効化しました。課題としては、DHCPのためIPアドレスが変わる可能性があることが挙げられます。</p>
+    </div>
+    <p class="why">実際にできたところ・詰まったところに合わせて変えてください。「詰まった点・原因・対処」の3つがそろうと伝わりやすくなります。</p>
+  </section>
+
+  <footer>情報工学実験 第1回 手順書（2026年10月6日分）・<a href="./" style="color:inherit">手順書の一覧へ</a></footer>
+</main>
+
+<script>
+(function(){
+  var store = {
+    get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},
+    set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  };
+  var WHERE = {
+    local:['w-local','サーバで直接入力'],
+    ssh:['w-ssh','サーバ（SSH経由・コピペ可）'],
+    win:['w-win','Windows PowerShell']
+  };
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+  var uIn=document.getElementById('v-user'), ipIn=document.getElementById('v-ip');
+  uIn.value=store.get('lab1-user')||''; ipIn.value=store.get('lab1-ip')||'';
+
+  // build code blocks
+  var blocks=[].slice.call(document.querySelectorAll('.code'));
+  blocks.forEach(function(b){
+    var pre=b.querySelector('pre');
+    b._tpl=pre.textContent;
+    var w=WHERE[b.dataset.where]||WHERE.ssh;
+    var top=document.createElement('div'); top.className='code-top';
+    var badge=document.createElement('span'); badge.className='where '+w[0]; badge.textContent=b.dataset.label||w[1];
+    var btn=document.createElement('button'); btn.type='button'; btn.className='copy'; btn.textContent='コピー';
+    btn.addEventListener('click',function(){
+      var text=fill(b._tpl,false);
+      var done=function(){btn.textContent='コピーしました';btn.classList.add('ok');setTimeout(function(){btn.textContent='コピー';btn.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done()})}else{fallback(text);done()}
+    });
+    top.appendChild(badge); top.appendChild(btn); b.insertBefore(top,pre);
+  });
+  function fallback(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta)}
+
+  function fill(t,html){
+    var u=uIn.value.trim()||'ユーザ名', ip=ipIn.value.trim()||'IPアドレス';
+    if(!html) return t.replace(/\{\{USER\}\}/g,u).replace(/\{\{IP\}\}/g,ip);
+    return esc(t).replace(/\{\{USER\}\}/g,'<span class="ph">'+esc(u)+'</span>').replace(/\{\{IP\}\}/g,'<span class="ph">'+esc(ip)+'</span>');
+  }
+  function render(){
+    blocks.forEach(function(b){b.querySelector('pre').innerHTML=fill(b._tpl,true)});
+    document.querySelectorAll('.liveuser').forEach(function(s){s.textContent=uIn.value.trim()||'ユーザ名'});
+    document.querySelectorAll('.liveip').forEach(function(s){s.textContent=ipIn.value.trim()||'IP'});
+  }
+  uIn.addEventListener('input',function(){store.set('lab1-user',uIn.value);render()});
+  ipIn.addEventListener('input',function(){store.set('lab1-ip',ipIn.value);render()});
+  render();
+
+  // toc + progress
+  var steps=[].slice.call(document.querySelectorAll('.step:not([data-notoc])'));
+  var toc=document.getElementById('toc');
+  var state={}; try{state=JSON.parse(store.get('lab1-done')||'{}')}catch(e){state={}}
+  steps.forEach(function(s){
+    var li=document.createElement('li'); var a=document.createElement('a');
+    a.href='#'+s.id; a.textContent=s.dataset.title; li.appendChild(a); toc.appendChild(li); s._li=li;
+    var cb=s.querySelector('.done-toggle input');
+    cb.checked=!!state[s.id];
+    cb.addEventListener('change',function(){state[s.id]=cb.checked;store.set('lab1-done',JSON.stringify(state));upd()});
+  });
+  function upd(){
+    var n=0;
+    steps.forEach(function(s){var d=!!state[s.id];s.classList.toggle('done',d);s._li.classList.toggle('done',d);if(d)n++});
+    document.getElementById('prog-text').textContent=n+' / '+steps.length;
+    document.getElementById('prog-fill').style.width=(n/steps.length*100)+'%';
+  }
+  upd();
+
+  // theme
+  var root=document.documentElement, saved=store.get('lab1-theme');
+  if(saved) root.setAttribute('data-theme',saved);
+  document.getElementById('theme-btn').addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+    var nx=cur==='dark'?'light':'dark'; root.setAttribute('data-theme',nx); store.set('lab1-theme',nx);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>実験手順書</title>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF1F5;--paper:#fff;--ink:#1C2A44;--sub:#56627A;--line:#CDD6E2;--cobalt:#2F5BD3;--amber:#F2B33D}
+@media (prefers-color-scheme: dark){:root{--bg:#121826;--paper:#1A2234;--ink:#E4E9F2;--sub:#9AA6BD;--line:#2D3850;--cobalt:#7C9CF0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.8}
+main{max-width:640px;margin:0 auto;padding:48px 16px}
+h1{font-size:28px;margin:0 0 6px;padding-left:16px;border-left:8px solid var(--amber)}
+p{color:var(--sub);margin:0 0 28px}
+a.card{display:flex;gap:16px;align-items:center;background:var(--paper);border:1.5px solid var(--line);border-left:6px solid var(--cobalt);border-radius:6px;padding:16px 18px;margin-bottom:14px;color:var(--ink);text-decoration:none}
+a.card:hover,a.card:focus-visible{border-color:var(--cobalt)}
+.n{flex:none;width:44px;height:44px;display:grid;place-items:center;background:var(--ink);color:var(--paper);border-radius:4px;font-weight:700;font-size:20px}
+.files{margin:-6px 0 18px 66px;font-size:14px}.files a{color:var(--cobalt)}
+.t{font-weight:700;font-size:17px}.d{font-size:14px;color:var(--sub)}
+</style>
+</head>
+<body>
+<main>
+  <h1>情報工学実験 手順書</h1>
+  <p>4年 情報工学実験の作業手順。各回のページで、ユーザ名とIPを入れるとコマンドがそのままコピーできます。</p>
+  <a class="card" href="lab2.html"><span class="n">2</span><span><span class="t">サーバ構築とソフトウェアの設定</span><br><span class="d">10/13　公開鍵ログイン・Apache・PHP・MySQL</span></span></a>
+  <div class="files">配布ファイル：<a href="files/lab2/db_sample.zip" download>db_sample.zip</a></div>
+  <a class="card" href="lab1.html"><span class="n">1</span><span><span class="t">OSのインストールとシステム構築</span><br><span class="d">10/6　Ubuntu Server・SSH・Python</span></span></a>
+</main>
+</body>
+</html>
