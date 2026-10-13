@@ -13,10 +13,11 @@
 <body data-lab="lab1" data-label-local="サーバで直接入力" data-label-ssh="サーバ（SSH経由・コピペ可）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
 <header class="topbar"><div class="topbar-in">
-  <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
   <div class="fields">
     <label>ユーザ名 <input id="v-user" placeholder="例: noko" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
-    <label>サーバのIP <input id="v-ip" placeholder="例: 192.168.0.164" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
+    <label>サーバのIP <input id="v-ip" placeholder="例: 192.168.0.1" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
   </div>
   <div class="top-right">
     <div class="prog" aria-live="polite"><span id="prog-text">0 / 0</span><div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div></div>
@@ -30,6 +31,7 @@
     <ul class="rail-extra"><li><a href="#files">配布資料</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の例</a></li></ul>
   </div></aside>
   <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第1回　OSのインストールとシステム構築</span></nav>
 <section class="tb" aria-label="この回の概要">
   <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">01</span></div>
   <div class="tb-title"><span class="tb-k">題目</span><h1>OSのインストールとシステム構築</h1></div>
@@ -338,6 +340,11 @@ sudo systemctl restart ssh</pre></div>
     </div>
     <p class="why">実際にできたところ・詰まったところに合わせて変えてください。「詰まった点・原因・対処」の3つがそろうと伝わりやすくなります。</p>
   </section>
+<nav class="pager" aria-label="ほかの回へ">
+  <span class="pager-item empty"><span class="pager-k">前の回</span>これが最初の回です</span>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <a class="pager-item" href="lab2.html"><span class="pager-k">次の回</span>第2回　サーバ構築とソフトウェアの設定</a>
+</nav>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
