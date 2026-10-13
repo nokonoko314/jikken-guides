@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=20261013b">
 </head>
 <body data-lab="lab1" data-label-local="サーバで直接入力" data-label-ssh="サーバ（SSH経由・コピペ可）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -20,25 +20,6 @@
     <label>サーバのIP <input id="v-ip" placeholder="例: 192.168.0.1" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
   </div>
   <div class="top-right"></div>
-    <div class="cover-wrap">
-      <button class="cover-btn" id="cover-btn" type="button" aria-controls="cover-panel" aria-expanded="false">資料モード オフ</button>
-      <div class="cover-panel" id="cover-panel" hidden>
-        <p class="cp-title">資料モード</p>
-        <p class="cp-desc">オンにすると、選んだ授業資料が画面全体に表示されます。<kbd class="cover-keyname">V</kbd> キーを押している間だけ手順書が見え、離すと資料に戻ります。</p>
-        <div class="cp-block">
-          <span class="cp-k">1. 表示する授業資料（PDF）</span>
-          <label class="cp-btn cp-file-btn">PDFを選ぶ<input type="file" id="cover-file" accept="application/pdf,.pdf"></label>
-          <p class="cp-file"><span class="cp-file-name">まだ選ばれていません</span><button id="cover-del" type="button" class="cp-link" hidden>削除</button></p>
-          <p class="cp-note">PDFはこのブラウザの中にだけ保存され、インターネットには送られません。回ごとに別の資料を選べます。</p>
-        </div>
-        <div class="cp-block">
-          <span class="cp-k">2. 手順書を見るときに押すキー</span>
-          <div class="cp-row"><kbd class="cp-key">V</kbd><button id="cover-key" type="button" class="cp-btn">キーを変更</button></div>
-        </div>
-        <label class="cp-switch"><input type="checkbox" id="cover-on"><span>資料モードをオンにする</span></label>
-        <p class="cp-msg" role="status"></p>
-      </div>
-    </div>
     <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
   </div>
 </div></header>
@@ -60,11 +41,7 @@
 </section>
 <section class="files" id="files">
   <h2 class="sec">配布資料</h2>
-  <ul class="file-list">
-    <li class="file"><span class="ftype pdf" aria-hidden="true">PDF</span><div><a class="fname" href="files/lab1/lab1-slides.pdf" target="_blank" rel="noopener">第1回 スライド「OSのインストールとシステム構築」</a><span class="fdesc">作業手順、SSH、Python、公開鍵ログイン（14ページ）</span></div><div class="factions"><span class="fsize">312 KB</span><a class="fbtn" href="files/lab1/lab1-slides.pdf" target="_blank" rel="noopener">開く</a><a class="fbtn primary" href="files/lab1/lab1-slides.pdf" download>ダウンロード</a></div></li>
-    <li class="file"><span class="ftype pdf" aria-hidden="true">PDF</span><div><a class="fname" href="files/lab1/guidance.pdf" target="_blank" rel="noopener">実験のガイダンス</a><span class="fdesc">実験の目的、年間スケジュール、レポートと評価の決まり（2ページ）</span></div><div class="factions"><span class="fsize">228 KB</span><a class="fbtn" href="files/lab1/guidance.pdf" target="_blank" rel="noopener">開く</a><a class="fbtn primary" href="files/lab1/guidance.pdf" download>ダウンロード</a></div></li>
-  </ul>
-  <p class="files-note">授業で配られた資料と同じものです。班分け表は、氏名が載っているためここには置いていません。</p>
+  <p class="files-note">第1回のスライドと実験のガイダンスは、LMSから取得してください。このページは、その内容を自分用に手順化したものです。</p>
 </section>
 <details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
 <section class="panel" id="intro">
@@ -367,7 +344,6 @@ sudo systemctl restart ssh</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js"></script>
-<script src="assets/cover.js"></script>
+<script src="assets/app.js?v=20261013b"></script>
 </body>
 </html>

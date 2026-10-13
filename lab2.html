@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=20261013b">
 </head>
 <body data-lab="lab2" data-label-local="サーバ（直接ログインして）" data-label-ssh="サーバ（自分のPCからSSHで）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -20,25 +20,6 @@
     <label>サーバのIP <input id="v-ip" placeholder="例: 192.168.0.1" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
   </div>
   <div class="top-right"></div>
-    <div class="cover-wrap">
-      <button class="cover-btn" id="cover-btn" type="button" aria-controls="cover-panel" aria-expanded="false">資料モード オフ</button>
-      <div class="cover-panel" id="cover-panel" hidden>
-        <p class="cp-title">資料モード</p>
-        <p class="cp-desc">オンにすると、選んだ授業資料が画面全体に表示されます。<kbd class="cover-keyname">V</kbd> キーを押している間だけ手順書が見え、離すと資料に戻ります。</p>
-        <div class="cp-block">
-          <span class="cp-k">1. 表示する授業資料（PDF）</span>
-          <label class="cp-btn cp-file-btn">PDFを選ぶ<input type="file" id="cover-file" accept="application/pdf,.pdf"></label>
-          <p class="cp-file"><span class="cp-file-name">まだ選ばれていません</span><button id="cover-del" type="button" class="cp-link" hidden>削除</button></p>
-          <p class="cp-note">PDFはこのブラウザの中にだけ保存され、インターネットには送られません。回ごとに別の資料を選べます。</p>
-        </div>
-        <div class="cp-block">
-          <span class="cp-k">2. 手順書を見るときに押すキー</span>
-          <div class="cp-row"><kbd class="cp-key">V</kbd><button id="cover-key" type="button" class="cp-btn">キーを変更</button></div>
-        </div>
-        <label class="cp-switch"><input type="checkbox" id="cover-on"><span>資料モードをオンにする</span></label>
-        <p class="cp-msg" role="status"></p>
-      </div>
-    </div>
     <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
   </div>
 </div></header>
@@ -63,7 +44,7 @@
   <ul class="file-list">
     <li class="file"><span class="ftype zip" aria-hidden="true">ZIP</span><div><a class="fname" href="files/lab2/db_sample.zip" download>db_sample.zip</a><span class="fdesc">PHPとデータベースのサンプル。dateprint.php（一覧表示）と dateadd.php（記録）が入っている</span></div><div class="factions"><span class="fsize">2 KB</span><a class="fbtn primary" href="files/lab2/db_sample.zip" download>ダウンロード</a></div></li>
   </ul>
-  <p class="files-note">サンプルはLMSのものと同じです。第2回のスライドはLMSから取得してください（右上の「資料モード」で表示できます）。</p>
+  <p class="files-note">サンプルはLMSのものと同じです。第2回のスライドはLMSから取得してください。このページは、その内容を自分用に手順化したものです。</p>
 </section>
 <details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
 
@@ -71,7 +52,8 @@
   <h2 class="sec">使い方</h2>
   <ul>
     <li>上のバーに、<strong>サーバでの自分のユーザ名</strong>と<strong>サーバのIP</strong>を入れると、コマンドの<span class="mark">黄色い部分</span>が書き換わります。IPが変わったら、サーバで <code class="i">hostname -I</code> を実行して入れ直してください。</li>
-    <li>手順はスライドの順番どおりです。番号の横に<span class="xtag">補足</span>とある手順はスライドにはなく、つまずきを防ぐために足したものです。</li>
+    <li>手順7以降は、スライドの順番と内容どおりです。<span class="xtag">補足</span>とある手順は、スライドにない作業や、自分の環境に合わせて足したものです。</li>
+    <li>手順1〜6（公開鍵の設定）は、班員それぞれが自分のPCからログインできるようにするための補足です。</li>
     <li>「共通」はサーバ1台につき1回（班で1人がやればよい）、「個人」は班員それぞれが自分のユーザで行います。</li>
   </ul>
   <div class="legend">
@@ -88,7 +70,7 @@
   <div class="tbl"><table>
     <thead><tr><th>区分</th><th>目標</th><th>手順</th></tr></thead>
     <tbody>
-      <tr><td>個人</td><td>証明書（公開鍵）によるログインに変更する</td><td>1〜6</td></tr>
+      <tr><td>個人</td><td>証明書（公開鍵）によるログインに変更する</td><td>補足1〜6</td></tr>
       <tr><td>共通</td><td>Webサーバ（Apache）をセットアップする</td><td>7〜8</td></tr>
       <tr><td>共通</td><td>サーバサイド言語（PHP）をインストールする</td><td>9</td></tr>
       <tr><td>共通</td><td>データベース（MariaDB）をセットアップする</td><td>10</td></tr>
@@ -99,8 +81,8 @@
   </table></div>
 </section>
 
-<h2 class="part">個人　証明書によるログインに変更する</h2>
-<p class="part-lead">鍵は<strong>自分のPCで作り、公開鍵だけをサーバに送ります</strong>。秘密鍵はネットワークを一度も通りません。今日はパスワードでのログインも残したまま進めます。</p>
+<h2 class="part">補足　自分の公開鍵でログインできるようにする</h2>
+<p class="part-lead">スライド「証明書によるログインにする」の内容を、班員それぞれが自分のPCからログインできるように手順化したものです。鍵は<strong>自分のPCで作り、公開鍵だけをサーバに送ります</strong>。秘密鍵はネットワークを一度も通りません。今日はパスワードでのログインも残したまま進めます。</p>
 <div class="diagram" aria-label="鍵の配置">
   <div class="d-box"><div class="d-title">自分のPC</div>
     <div class="d-key priv">秘密鍵　id_ed25519_<span class="liveuser">ユーザ名</span><small>手元に置いたまま。人に渡さない</small></div>
@@ -130,8 +112,8 @@ sudo sshd -T | grep -i passwordauthentication</pre></div>
   </details>
 </section>
 
-<section class="step" id="s2" data-title="自分のPCで鍵ペアを作る">
-  <div class="step-head"><div class="num">2</div><div><h2>自分のPCで鍵ペアを作る</h2><span class="slide">スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+<section class="step extra" id="s2" data-title="自分のPCで鍵ペアを作る">
+  <div class="step-head"><div class="num">2</div><div><h2>自分のPCで鍵ペアを作る</h2><span class="xtag">補足</span> <span class="slide">スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <div class="code" data-where="win"><pre>mkdir $env:USERPROFILE\.ssh -Force
 ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_ed25519_{{USER}}</pre></div>
   <div class="tbl"><table>
@@ -148,8 +130,8 @@ ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_ed25519_{{USER}}</pre></div>
   <p class="why">スライドの「サーバ上で鍵を作った場合はきちんとクライアントに転送」は、サーバで作る方法の注意です。自分のPCで作ればこの転送が要らず、秘密鍵がネットワークを通りません。</p>
 </section>
 
-<section class="step" id="s3" data-title="公開鍵をサーバに登録する">
-  <div class="step-head"><div class="num">3</div><div><h2>公開鍵をサーバに登録する</h2><span class="slide">スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+<section class="step extra" id="s3" data-title="公開鍵をサーバに登録する">
+  <div class="step-head"><div class="num">3</div><div><h2>公開鍵をサーバに登録する</h2><span class="xtag">補足</span> <span class="slide">スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519_{{USER}}.pub | ssh {{USER}}@{{IP}} "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</pre></div>
   <p>聞かれるのは<strong>サーバでの自分のパスワード</strong>です。何も表示されずに戻れば成功です。</p>
   <div class="tbl"><table>
@@ -163,8 +145,8 @@ ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_ed25519_{{USER}}</pre></div>
   </table></div>
 </section>
 
-<section class="step" id="s4" data-title="鍵だけでログインできるか確認">
-  <div class="step-head"><div class="num">4</div><div><h2>鍵だけでログインできるか確認する</h2><span class="slide">スライド「今回の目標（ミッション）：個人」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+<section class="step extra" id="s4" data-title="鍵だけでログインできるか確認">
+  <div class="step-head"><div class="num">4</div><div><h2>鍵だけでログインできるか確認する</h2><span class="xtag">補足</span> <span class="slide">スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <p>パスワードを使えない状態で接続します。これで入れれば、鍵での認証が確実に成功しています。</p>
   <div class="code" data-where="win"><pre>ssh -o PasswordAuthentication=no -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}</pre></div>
   <p>聞かれるのが<strong>パスフレーズ</strong>（<code class="i">Enter passphrase for key</code>）なら成功です。パスフレーズなしの場合は何も聞かれずに入れます。</p>
@@ -444,7 +426,6 @@ exit</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js"></script>
-<script src="assets/cover.js"></script>
+<script src="assets/app.js?v=20261013b"></script>
 </body>
 </html>
