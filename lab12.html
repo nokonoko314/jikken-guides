@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013i">
+<link rel="stylesheet" href="assets/style.css?v=20261013j">
 </head>
 <body data-lab="lab12" data-label-local="第2回で作ったサーバ" data-label-ssh="コードの書き方の例" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -57,7 +57,7 @@
 
 <section class="panel" id="mission">
   <h2 class="sec">テーマ一覧と提出物</h2>
-  <p class="note">スライド「テーマ一覧」と各テーマの「提出物等」より。⑤⑥は、選ぶ前に教員への相談が必要です。</p>
+  <p class="note">スライド「テーマ一覧」と各テーマの「提出物等」より。スライドは前年度のもので、⑤⑥は「要相談」とされていました。</p>
   <div class="tbl"><table>
     <thead><tr><th>テーマ</th><th>基本課題</th><th>レポート以外の提出物</th><th>手順</th></tr></thead>
     <tbody>
@@ -65,10 +65,11 @@
       <tr><td>② ネットワーク機器の性能測定</td><td>2台のPCでスループットを測るプログラムを作り、ハブ・スイッチ・パケットサイズ・TCP/UDPを変えて比べる</td><td>動作結果の提示</td><td>4</td></tr>
       <tr><td>③ 文字画像のWebデータベース</td><td>2つの本の文字を、文字で検索して並べて比べられるWebサイトを作る</td><td>プログラム、データファイル、動作結果の提示</td><td>5</td></tr>
       <tr><td>④ Minecraft Educationで教材作り</td><td>Hour of Code で仕組みを学び、アルゴリズムを教える副教材を作る</td><td>ワールドデータ、授業資料、動作結果の提示</td><td>6</td></tr>
-      <tr><td>⑤ サーバクライアント型システム（要相談）</td><td>3人以上が同時に使えるチャット（マルチスレッド・非同期通信）</td><td>チャットプログラム、動作結果の提示</td><td>7</td></tr>
-      <tr><td>⑥ 通信対戦ボードゲーム（要相談）</td><td>Board Game Arena で、ハーツのチュートリアルの後に七並べなどを作る</td><td>ゲームの内容、プログラム、動作結果の提示</td><td>8</td></tr>
+      <tr><td>⑤ サーバクライアント型システム</td><td>3人以上が同時に使えるチャット（マルチスレッド・非同期通信）</td><td>チャットプログラム、動作結果の提示</td><td>7</td></tr>
+      <tr><td>⑥ 通信対戦ボードゲーム</td><td>Board Game Arena で、ハーツのチュートリアルの後に七並べなどを作る</td><td>ゲームの内容、プログラム、動作結果の提示</td><td>8</td></tr>
     </tbody>
   </table></div>
+  <div class="box warn"><strong>今年度のガイダンスのテーマは、スライドと少し違います</strong>実験ガイダンス「6. 選択テーマ型実験について」（2026年度）のテーマは、①機械学習による画像の分類<strong>または生成</strong>、②Javaによるサーバクライアント型プログラム、③Webサーバ上のDB型システム開発、④Board Game Area を用いた七並べ、⑤Minecraft Education を用いたプログラミング教育、⑥その他取り組みたいテーマ（自由制作）です。<strong>ネットワーク機器の性能測定はガイダンスにはなく</strong>、チャットとボードゲームは「要相談」ではなく通常のテーマ、自由制作が加わっています。番号もスライドと違うので、選べるテーマは第12回の説明で確かめてください。このページの番号はスライドに合わせています。</div>
 </section>
 
 <section class="step" id="s1" data-title="3回の進め方を決める">
@@ -94,8 +95,9 @@
       <tr><td>②</td><td>第4回（ソケット通信）</td><td>PCが2台と、ハブ・スイッチ・LANケーブルが要る。<strong>班の相方と機材を融通し合う</strong>必要あり</td></tr>
       <tr><td>③</td><td>第2回（Apache・PHP・MariaDB）、第5回（画像の切り出し）</td><td>第2回のサーバがそのまま使える</td></tr>
       <tr><td>④</td><td>なし（新しい道具）</td><td><strong>演習室PCでは動かない</strong>。自分のPCとOffice365のアカウントが必要</td></tr>
-      <tr><td>⑤</td><td>第4回（ソケット通信）</td><td>要相談。3人以上で試すので、動作確認の相手が要る</td></tr>
-      <tr><td>⑥</td><td>第6・7回（イベント処理の考え方）</td><td>要相談。Board Game Arena の開発者アカウントが必要</td></tr>
+      <tr><td>⑤</td><td>第4回（ソケット通信）</td><td>3人以上で試すので、動作確認の相手が要る</td></tr>
+      <tr><td>⑥</td><td>第6・7回（イベント処理の考え方）</td><td>Board Game Arena の開発者アカウントが必要</td></tr>
+      <tr><td>自由制作（ガイダンス⑥）</td><td>内容による</td><td>取り組みたいテーマがあれば教員に伝えて相談する。何を作り、どう確かめるかを第12回のうちに決める</td></tr>
     </tbody>
   </table></div>
   <p class="why">個人実験なので、班の相方と同じテーマでもかまいませんが、プログラムやレポートは各自のものです。②⑤のように相手が要るテーマは、測定や確認の相手を先に決めておきます。</p>
@@ -206,8 +208,8 @@ page.crop((x1, y1, x2, y2)).save("6-F-01-01-01.jpg")</pre><pre class="out">（�
   <p class="why">Code Builder では、ブロックのほかに JavaScript や Python でも書けます。ブロックで作ったものを文字のコードに切り替えて見せると、「ブロックとふつうのプログラムの対応」を教える材料になります。</p>
 </section>
 
-<section class="step" id="s7" data-title="⑤チャット（要相談）">
-  <div class="step-head"><div class="num">7</div><div><h2>⑤ 多人数で使えるチャット（要相談）</h2><span class="slide">スライド「サーバクライアント型プログラム」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+<section class="step" id="s7" data-title="⑤チャット">
+  <div class="step-head"><div class="num">7</div><div><h2>⑤ 多人数で使えるチャット</h2><span class="slide">スライド「サーバクライアント型プログラム」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <p>第4回のエコーサーバを、「1人が送った文を、つながっている全員に配る」形に広げます。</p>
   <div class="tbl"><table>
     <thead><tr><th>部分</th><th>考え方・ヒント</th></tr></thead>
@@ -221,8 +223,8 @@ page.crop((x1, y1, x2, y2)).save("6-F-01-01-01.jpg")</pre><pre class="out">（�
   <p class="why">発展課題のファイル・音声の送受信では、「これは文なのか、ファイルなのか」「何バイト続くのか」を先頭で伝える決まり（プロトコル）が必要になります。第4回で計算サーバのプロトコルを決めたのと同じ考え方で、種類と長さを先に送る形にすると、受ける側が区切りを判断できます。</p>
 </section>
 
-<section class="step" id="s8" data-title="⑥ボードゲーム（要相談）">
-  <div class="step-head"><div class="num">8</div><div><h2>⑥ 通信対戦できるボードゲーム（要相談）</h2><span class="slide">スライド「Board Game Area を用いた七並べゲームの作成」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+<section class="step" id="s8" data-title="⑥ボードゲーム">
+  <div class="step-head"><div class="num">8</div><div><h2>⑥ 通信対戦できるボードゲーム</h2><span class="slide">スライド「Board Game Area を用いた七並べゲームの作成」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <ol>
     <li>Board Game Arena Studio（スライドの参考URL）で開発者アカウントを作る</li>
     <li><strong>ハーツのチュートリアルを必ず最後まで行う</strong>（スライドで必須とされています）。ゲームの状態の移り変わりを定義する仕組みと、サーバ側（PHP）と画面側（JavaScript）の分担をここでつかむ</li>
@@ -266,6 +268,12 @@ page.crop((x1, y1, x2, y2)).save("6-F-01-01-01.jpg")</pre><pre class="out">（�
       <tr><td>6. 考察</td><td>結果の違いの理由、うまくいかなかった点とその原因、時間があれば何をするか</td></tr>
     </tbody>
   </table></div>
+  <ul>
+    <li>ガイダンス「4. 実験の流れ」により、レポートには<strong>アルゴリズムのフローチャート</strong>を必ず入れる（形式は厳密でなくてよいが、処理の手順がはっきりわかるように）</li>
+    <li>表紙は電子投函システムから取得したもの。提出は表紙を含めた<strong>1つのPDF</strong></li>
+    <li>ソースコードは<strong>1つのzip</strong>にして電子投函。コードには、フローチャートのどの部分の処理かが分かるコメントを付ける。全文はレポートに載せない（一部の引用はよい）</li>
+    <li>参考にした文献がなければ「参考文献なし」と書く。評価は<strong>考察</strong>に最も重みが置かれる</li>
+  </ul>
   <p class="why">締切は2/23（火）9:00です（予定表より）。プログラムやデータファイルなど、レポート以外の提出物もテーマごとに決まっているので、上の「テーマ一覧と提出物」で確認してください。</p>
 </section>
 
@@ -277,6 +285,6 @@ page.crop((x1, y1, x2, y2)).save("6-F-01-01-01.jpg")</pre><pre class="out">（�
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013i"></script>
+<script src="assets/app.js?v=20261013j"></script>
 </body>
 </html>
