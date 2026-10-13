@@ -19,14 +19,33 @@
     <label>ユーザ名 <input id="v-user" placeholder="例: noko" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
     <label>サーバのIP <input id="v-ip" placeholder="例: 192.168.0.1" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
   </div>
-  <div class="top-right">
-    <div class="prog" aria-live="polite"><span id="prog-text">0 / 0</span><div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div></div>
+  <div class="top-right"></div>
+    <div class="cover-wrap">
+      <button class="cover-btn" id="cover-btn" type="button" aria-controls="cover-panel" aria-expanded="false">資料モード オフ</button>
+      <div class="cover-panel" id="cover-panel" hidden>
+        <p class="cp-title">資料モード</p>
+        <p class="cp-desc">オンにすると、選んだ授業資料が画面全体に表示されます。<kbd class="cover-keyname">V</kbd> キーを押している間だけ手順書が見え、離すと資料に戻ります。</p>
+        <div class="cp-block">
+          <span class="cp-k">1. 表示する授業資料（PDF）</span>
+          <label class="cp-btn cp-file-btn">PDFを選ぶ<input type="file" id="cover-file" accept="application/pdf,.pdf"></label>
+          <p class="cp-file"><span class="cp-file-name">まだ選ばれていません</span><button id="cover-del" type="button" class="cp-link" hidden>削除</button></p>
+          <p class="cp-note">PDFはこのブラウザの中にだけ保存され、インターネットには送られません。回ごとに別の資料を選べます。</p>
+        </div>
+        <div class="cp-block">
+          <span class="cp-k">2. 手順書を見るときに押すキー</span>
+          <div class="cp-row"><kbd class="cp-key">V</kbd><button id="cover-key" type="button" class="cp-btn">キーを変更</button></div>
+        </div>
+        <label class="cp-switch"><input type="checkbox" id="cover-on"><span>資料モードをオンにする</span></label>
+        <p class="cp-msg" role="status"></p>
+      </div>
+    </div>
     <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
   </div>
 </div></header>
 <div class="layout">
   <aside class="rail" aria-label="手順の目次"><div class="rail-in">
-    <p class="rail-title">手順</p>
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
     <ol id="toc"></ol>
     <ul class="rail-extra"><li><a href="#files">配布資料</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の例</a></li></ul>
   </div></aside>
@@ -349,5 +368,6 @@ sudo systemctl restart ssh</pre></div>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
 <script src="assets/app.js"></script>
+<script src="assets/cover.js"></script>
 </body>
 </html>

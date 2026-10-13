@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
-<body data-lab="lab2" data-label-local="サーバ（sudoが使えるユーザで）" data-label-ssh="サーバ（自分のPCからSSHで）" data-label-win="自分のPCのPowerShell">
+<body data-lab="lab2" data-label-local="サーバ（直接ログインして）" data-label-ssh="サーバ（自分のPCからSSHで）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
 <header class="topbar"><div class="topbar-in">
   <a class="back" href="./">一覧へ戻る</a>
@@ -19,14 +19,33 @@
     <label>ユーザ名 <input id="v-user" placeholder="例: kaneko" autocomplete="off" spellcheck="false" autocapitalize="off"></label>
     <label>サーバのIP <input id="v-ip" placeholder="例: 192.168.0.1" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
   </div>
-  <div class="top-right">
-    <div class="prog" aria-live="polite"><span id="prog-text">0 / 0</span><div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div></div>
+  <div class="top-right"></div>
+    <div class="cover-wrap">
+      <button class="cover-btn" id="cover-btn" type="button" aria-controls="cover-panel" aria-expanded="false">資料モード オフ</button>
+      <div class="cover-panel" id="cover-panel" hidden>
+        <p class="cp-title">資料モード</p>
+        <p class="cp-desc">オンにすると、選んだ授業資料が画面全体に表示されます。<kbd class="cover-keyname">V</kbd> キーを押している間だけ手順書が見え、離すと資料に戻ります。</p>
+        <div class="cp-block">
+          <span class="cp-k">1. 表示する授業資料（PDF）</span>
+          <label class="cp-btn cp-file-btn">PDFを選ぶ<input type="file" id="cover-file" accept="application/pdf,.pdf"></label>
+          <p class="cp-file"><span class="cp-file-name">まだ選ばれていません</span><button id="cover-del" type="button" class="cp-link" hidden>削除</button></p>
+          <p class="cp-note">PDFはこのブラウザの中にだけ保存され、インターネットには送られません。回ごとに別の資料を選べます。</p>
+        </div>
+        <div class="cp-block">
+          <span class="cp-k">2. 手順書を見るときに押すキー</span>
+          <div class="cp-row"><kbd class="cp-key">V</kbd><button id="cover-key" type="button" class="cp-btn">キーを変更</button></div>
+        </div>
+        <label class="cp-switch"><input type="checkbox" id="cover-on"><span>資料モードをオンにする</span></label>
+        <p class="cp-msg" role="status"></p>
+      </div>
+    </div>
     <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
   </div>
 </div></header>
 <div class="layout">
   <aside class="rail" aria-label="手順の目次"><div class="rail-in">
-    <p class="rail-title">手順</p>
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
     <ol id="toc"></ol>
     <ul class="rail-extra"><li><a href="#files">配布資料</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の例</a></li></ul>
   </div></aside>
@@ -37,357 +56,386 @@
   <div class="tb-title"><span class="tb-k">題目</span><h1>サーバ構築とソフトウェアの設定</h1></div>
   <div class="tb-date"><span class="tb-k">実施日</span>2026年10月13日（火）</div>
   <div class="tb-rep"><span class="tb-k">レポート</span>なし（15:00に経過報告）</div>
-  <div class="tb-sum"><span class="tb-k">この回でやること</span>自分の公開鍵でログインできるようにしてから（パスワードログインは残す）、Apache・PHP・MySQLを入れて、ブラウザのボタン操作をデータベースに記録するPHPを動かす。</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>前回のサーバにWebサーバとデータベースを用意する（共通）。各自は公開鍵でログインできるようにし、自分のページと自分のデータベースでPHPのプログラムを動かして改良する（個人）。</div>
 </section>
 <section class="files" id="files">
   <h2 class="sec">配布資料</h2>
   <ul class="file-list">
     <li class="file"><span class="ftype zip" aria-hidden="true">ZIP</span><div><a class="fname" href="files/lab2/db_sample.zip" download>db_sample.zip</a><span class="fdesc">PHPとデータベースのサンプル。dateprint.php（一覧表示）と dateadd.php（記録）が入っている</span></div><div class="factions"><span class="fsize">2 KB</span><a class="fbtn primary" href="files/lab2/db_sample.zip" download>ダウンロード</a></div></li>
   </ul>
-  <p class="files-note">授業で配られた資料と同じものです。班分け表は、氏名が載っているためここには置いていません。</p>
+  <p class="files-note">サンプルはLMSのものと同じです。第2回のスライドはLMSから取得してください（右上の「資料モード」で表示できます）。</p>
 </section>
 <details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
 <section class="panel" id="intro">
-    <h2 class="sec">使い方</h2>
-    <ul>
-      <li>上のバーに、<strong>サーバでの自分のユーザ名</strong>と<strong>サーバのIP</strong>を入れると、コマンドの<span class="mark">黄色い部分</span>が書き換わります。鍵のファイル名も「id_ed25519_ユーザ名」になります。</li>
-      <li>IPは再起動で変わることがあります。サーバで <code class="i">hostname -I</code>（大文字のI）を実行して確認してください。</li>
-      <li>今日はスライドが配られていないため、後半はガイダンスの題目「サーバ構築とソフトウェアの設定」と、LMSの <code class="i">db_sample.zip</code> の中身をもとに組み立てています。当日の指示と違う部分は、指示を優先してください。</li>
-    </ul>
-    <div class="legend">
-      <span class="where w-local">サーバ（sudoが使えるユーザで）</span>
-      <span class="where w-ssh">サーバ（自分のPCからSSHで）</span>
-      <span class="where w-win">自分のPCのPowerShell</span>
-    </div>
-    <div class="box tip"><strong>「サーバ」のコマンドも、打つのは自分のPCで大丈夫</strong>SSHでつなぐとプロンプトが <code class="i"><span class="liveuser">ユーザ名</span>@サーバ名:~$</code> に変わり、そこで打ったコマンドはサーバで動きます。PowerShellのプロンプト <code class="i">PS C:\…&gt;</code> のときは自分のPCで動きます。どちらで打つかは、各ブロック左上のラベルで確認してください。</div>
-  </section>
-
-  <h2 class="part">前半　自分の公開鍵でログインできるようにする</h2>
-  <p class="part-lead">鍵は<strong>自分のPCで作り、公開鍵だけをサーバに送ります</strong>。秘密鍵はネットワークを一度も通りません。パスワードでのログインは、もしものときのために残しておきます。</p>
-  <div class="diagram" aria-label="鍵の配置">
-    <div class="d-box"><div class="d-title">自分のPC</div>
-      <div class="d-key priv">秘密鍵　id_ed25519_<span class="liveuser">ユーザ名</span><small>手元に置いたまま。人に渡さない</small></div>
-      <div class="d-key pub">公開鍵　id_ed25519_<span class="liveuser">ユーザ名</span>.pub</div>
-    </div>
-    <div class="d-arrow">公開鍵だけ送る</div>
-    <div class="d-box"><div class="d-title">サーバ</div>
-      <div class="d-key pub">~/.ssh/authorized_keys<small>「この鍵の持ち主ならログインを許可する」リスト</small></div>
-    </div>
+  <h2 class="sec">使い方</h2>
+  <ul>
+    <li>上のバーに、<strong>サーバでの自分のユーザ名</strong>と<strong>サーバのIP</strong>を入れると、コマンドの<span class="mark">黄色い部分</span>が書き換わります。IPが変わったら、サーバで <code class="i">hostname -I</code> を実行して入れ直してください。</li>
+    <li>手順はスライドの順番どおりです。番号の横に<span class="xtag">補足</span>とある手順はスライドにはなく、つまずきを防ぐために足したものです。</li>
+    <li>「共通」はサーバ1台につき1回（班で1人がやればよい）、「個人」は班員それぞれが自分のユーザで行います。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-local">サーバ（直接ログインして）</span>
+    <span class="where w-ssh">サーバ（自分のPCからSSHで）</span>
+    <span class="where w-win">自分のPCのPowerShell</span>
   </div>
+  <div class="box tip"><strong>「サーバ」のコマンドも、打つのは自分のPCで大丈夫</strong>SSHでつなぐとプロンプトが <code class="i"><span class="liveuser">ユーザ名</span>@サーバ名:~$</code> に変わり、そこで打ったコマンドはサーバで動きます。PowerShellのプロンプト <code class="i">PS C:\…&gt;</code> のときは自分のPCで動きます。</div>
+</section>
 
-  <!-- 1 -->
-  <section class="step" id="s1" data-title="パスワードでログインできるか確認">
-    <div class="step-head"><div class="num">1</div><div><h2>パスワードでログインできるか確認する</h2><span class="slide">前回スライド「証明書によるログインにする」の続き</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>公開鍵を登録するための最初の1回は、パスワードでSSHログインします。まずサーバのIPを確認し、上のバーに入力してください（サーバの前で直接ログインして実行します）。</p>
-    <div class="code" data-where="local"><pre>hostname -I</pre></div>
-    <p>自分のPCから、パスワードでログインできるか試します。</p>
-    <div class="code" data-where="win"><pre>ssh {{USER}}@{{IP}}</pre></div>
-    <ul>
-      <li>初めて接続するPCでは <code class="i">Are you sure you want to continue connecting (yes/no/[fingerprint])?</code> と出るので、<code class="i">yes</code> と入力</li>
-      <li>サーバでの自分のパスワードを入力して、プロンプトが <code class="i"><span class="liveuser">ユーザ名</span>@サーバ名:~$</code> になれば確認完了。<code class="i">exit</code> で抜けて次へ</li>
-    </ul>
-    <details>
-      <summary><code class="i">Permission denied (publickey)</code> と出てパスワードを聞かれない場合</summary>
-      <p>パスワードログインが無効になっています。サーバの前で、sudoが使えるユーザでログインして次を実行し、最後の行が <code class="i">yes</code> になれば戻っています。</p>
-      <div class="code" data-where="local"><pre>sudo rm -f /etc/ssh/sshd_config.d/00-no-password.conf
+<section class="panel" id="mission">
+  <h2 class="sec">今回の目標</h2>
+  <p class="note">スライド「今回の目標（ミッション）：共通」「今回の目標（ミッション）：個人」より。この回はレポートなし。作業内容をまとめておくと、リセットしてもすぐ戻せます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>目標</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>個人</td><td>証明書（公開鍵）によるログインに変更する</td><td>1〜6</td></tr>
+      <tr><td>共通</td><td>Webサーバ（Apache）をセットアップする</td><td>7〜8</td></tr>
+      <tr><td>共通</td><td>サーバサイド言語（PHP）をインストールする</td><td>9</td></tr>
+      <tr><td>共通</td><td>データベース（MariaDB）をセットアップする</td><td>10</td></tr>
+      <tr><td>共通</td><td>管理ソフト（phpMyAdmin）を入れ、特定のIPからのみ見られるようにする</td><td>11〜12</td></tr>
+      <tr><td>個人</td><td>個人ページを閲覧できるようにする</td><td>13</td></tr>
+      <tr><td>個人</td><td>個人でデータベースを設定し、PHPと連携したプログラムを動かして改良する</td><td>14〜17</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<h2 class="part">個人　証明書によるログインに変更する</h2>
+<p class="part-lead">鍵は<strong>自分のPCで作り、公開鍵だけをサーバに送ります</strong>。秘密鍵はネットワークを一度も通りません。今日はパスワードでのログインも残したまま進めます。</p>
+<div class="diagram" aria-label="鍵の配置">
+  <div class="d-box"><div class="d-title">自分のPC</div>
+    <div class="d-key priv">秘密鍵　id_ed25519_<span class="liveuser">ユーザ名</span><small>手元に置いたまま。人に渡さない</small></div>
+    <div class="d-key pub">公開鍵　id_ed25519_<span class="liveuser">ユーザ名</span>.pub</div>
+  </div>
+  <div class="d-arrow">公開鍵だけ送る</div>
+  <div class="d-box"><div class="d-title">サーバ</div>
+    <div class="d-key pub">~/.ssh/authorized_keys<small>「この鍵の持ち主ならログインを許可する」リスト</small></div>
+  </div>
+</div>
+
+<section class="step extra" id="s1" data-title="パスワードでログインできるか確認">
+  <div class="step-head"><div class="num">1</div><div><h2>パスワードでログインできるか確認する</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>公開鍵を登録するための最初の1回は、パスワードでSSHログインします。サーバの前でIPを確認し、上のバーに入力してください。</p>
+  <div class="code" data-where="local"><pre>hostname -I</pre></div>
+  <div class="code" data-where="win"><pre>ssh {{USER}}@{{IP}}</pre></div>
+  <ul>
+    <li>初めて接続するPCでは <code class="i">Are you sure you want to continue connecting</code> と出るので <code class="i">yes</code></li>
+    <li>サーバでの自分のパスワードを入れてログインできれば確認完了。<code class="i">exit</code> で抜けて次へ</li>
+  </ul>
+  <details>
+    <summary><code class="i">Permission denied (publickey)</code> と出てパスワードを聞かれない場合</summary>
+    <p>パスワードログインが無効になっています。サーバの前で、sudoが使えるユーザでログインして次を実行します。最後の行が <code class="i">yes</code> になれば戻っています。</p>
+    <div class="code" data-where="local"><pre>sudo rm -f /etc/ssh/sshd_config.d/00-no-password.conf
 sudo systemctl restart ssh
 sudo sshd -T | grep -i passwordauthentication</pre></div>
-      <p class="why"><code class="i">00-no-password.conf</code> 以外の方法（<code class="i">/etc/ssh/sshd_config</code> の直接編集など）で無効にした場合は、その行を <code class="i">PasswordAuthentication yes</code> に戻してから <code class="i">sudo systemctl restart ssh</code> を実行します。</p>
-    </details>
-  </section>
+  </details>
+</section>
 
-  <!-- 2 -->
-  <section class="step" id="s2" data-title="自分のPCで鍵ペアを作る">
-    <div class="step-head"><div class="num">2</div><div><h2>自分のPCで鍵ペアを作る</h2><span class="slide">前回スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <div class="code" data-where="win"><pre>mkdir $env:USERPROFILE\.ssh -Force
+<section class="step" id="s2" data-title="自分のPCで鍵ペアを作る">
+  <div class="step-head"><div class="num">2</div><div><h2>自分のPCで鍵ペアを作る</h2><span class="slide">スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="win"><pre>mkdir $env:USERPROFILE\.ssh -Force
 ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_ed25519_{{USER}}</pre></div>
-    <div class="tbl"><table>
-      <thead><tr><th>表示</th><th>操作</th></tr></thead>
-      <tbody>
-        <tr><td><code class="i">Enter passphrase (empty for no passphrase):</code></td><td>秘密鍵のパスフレーズを入力して <kbd>Enter</kbd>。なしなら <kbd>Enter</kbd> だけ</td></tr>
-        <tr><td><code class="i">Enter same passphrase again:</code></td><td><strong>1回目と同じもの</strong>を入力して <kbd>Enter</kbd></td></tr>
-        <tr><td><code class="i">Overwrite (y/n)?</code></td><td>同じ名前の鍵がすでにある。作り直すなら <kbd>y</kbd>、今ある鍵を使うなら <kbd>n</kbd></td></tr>
-      </tbody>
-    </table></div>
-    <p>入力中は何も表示されませんが、正常です。最後に四角い模様（randomart）が出れば完成です。できたファイルを確認します。</p>
-    <div class="code" data-where="win"><pre>dir $env:USERPROFILE\.ssh</pre></div>
-    <p><code class="i">id_ed25519_<span class="liveuser">ユーザ名</span></code>（秘密鍵）と <code class="i">id_ed25519_<span class="liveuser">ユーザ名</span>.pub</code>（公開鍵）の2つがあればOKです。</p>
-    <p class="why">パスフレーズはスライドの「秘密鍵にパスワードをかけておくとより安全」にあたります。秘密鍵のファイルが盗まれても、パスフレーズが分からなければ使えません。<code class="i">-f</code> で名前を指定しているので、このPCにある他の鍵を上書きすることはありません。</p>
-  </section>
+  <div class="tbl"><table>
+    <thead><tr><th>表示</th><th>操作</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">Enter passphrase (empty for no passphrase):</code></td><td>秘密鍵のパスフレーズを入力（スライドの「秘密鍵にパスワードをかけておくとより安全」）。なしなら <kbd>Enter</kbd></td></tr>
+      <tr><td><code class="i">Enter same passphrase again:</code></td><td><strong>1回目と同じもの</strong>を入力</td></tr>
+      <tr><td><code class="i">Overwrite (y/n)?</code></td><td>同じ名前の鍵がある。作り直すなら <kbd>y</kbd>、今の鍵を使うなら <kbd>n</kbd></td></tr>
+    </tbody>
+  </table></div>
+  <p>入力中は何も表示されませんが正常です。四角い模様（randomart）が出れば完成です。</p>
+  <div class="code" data-where="win"><pre>dir $env:USERPROFILE\.ssh</pre></div>
+  <p><code class="i">id_ed25519_<span class="liveuser">ユーザ名</span></code>（秘密鍵）と <code class="i">….pub</code>（公開鍵）の2つがあればOKです。</p>
+  <p class="why">スライドの「サーバ上で鍵を作った場合はきちんとクライアントに転送」は、サーバで作る方法の注意です。自分のPCで作ればこの転送が要らず、秘密鍵がネットワークを通りません。</p>
+</section>
 
-  <!-- 3 -->
-  <section class="step" id="s3" data-title="公開鍵をサーバに登録する">
-    <div class="step-head"><div class="num">3</div><div><h2>公開鍵をサーバに登録する</h2><span class="slide">前回スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>公開鍵の中身をSSHでサーバに送り、自分の <code class="i">authorized_keys</code> に追記します。この1行で完了します。</p>
-    <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519_{{USER}}.pub | ssh {{USER}}@{{IP}} "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</pre></div>
-    <ul>
-      <li>初めて接続するPCでは <code class="i">Are you sure you want to continue connecting (yes/no/[fingerprint])?</code> と出るので、<code class="i">yes</code> と入力</li>
-      <li>聞かれるのは<strong>サーバでの自分のパスワード</strong>（鍵のパスフレーズではありません）</li>
-      <li>何も表示されずにプロンプトに戻れば成功</li>
-    </ul>
-    <div class="tbl"><table>
-      <thead><tr><th>部分</th><th>していること</th></tr></thead>
-      <tbody>
-        <tr><td><code class="i">type ….pub</code></td><td>自分のPCにある公開鍵の中身を読み出す</td></tr>
-        <tr><td><code class="i">| ssh …</code></td><td>読み出した中身を、SSHでサーバへ送る</td></tr>
-        <tr><td><code class="i">mkdir -p ~/.ssh</code></td><td>サーバに <code class="i">.ssh</code> フォルダがなければ作る</td></tr>
-        <tr><td><code class="i">cat &gt;&gt; ~/.ssh/authorized_keys</code></td><td>受け取った公開鍵を、ファイルの末尾に追記する</td></tr>
-        <tr><td><code class="i">chmod 700 / 600</code></td><td>自分以外が読み書きできないようにする。権限が緩いと、sshdが鍵ログインを拒否する</td></tr>
-      </tbody>
-    </table></div>
-    <details>
-      <summary>手でコピー＆ペーストして登録する場合</summary>
-      <p>結果は上の1行と同じです。まず自分のPCで公開鍵を表示し、出てきた1行（<code class="i">ssh-ed25519 AAAA…</code>）をすべてコピーします。</p>
-      <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519_{{USER}}.pub</pre></div>
-      <p>パスワードでサーバに入り、ファイルを開いて貼り付け、保存します（<kbd>Ctrl</kbd>+<kbd>O</kbd> → <kbd>Enter</kbd> → <kbd>Ctrl</kbd>+<kbd>X</kbd>）。</p>
-      <div class="code" data-where="ssh"><pre>mkdir -p ~/.ssh
-nano ~/.ssh/authorized_keys</pre></div>
-      <div class="code" data-where="ssh"><pre>chmod 700 ~/.ssh
-chmod 600 ~/.ssh/authorized_keys</pre></div>
-    </details>
-  </section>
+<section class="step" id="s3" data-title="公開鍵をサーバに登録する">
+  <div class="step-head"><div class="num">3</div><div><h2>公開鍵をサーバに登録する</h2><span class="slide">スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="win"><pre>type $env:USERPROFILE\.ssh\id_ed25519_{{USER}}.pub | ssh {{USER}}@{{IP}} "mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys &amp;&amp; chmod 600 ~/.ssh/authorized_keys"</pre></div>
+  <p>聞かれるのは<strong>サーバでの自分のパスワード</strong>です。何も表示されずに戻れば成功です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>部分</th><th>していること</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">type ….pub</code></td><td>自分のPCにある公開鍵の中身を読み出す</td></tr>
+      <tr><td><code class="i">| ssh …</code></td><td>その中身をSSHでサーバへ送る</td></tr>
+      <tr><td><code class="i">cat &gt;&gt; ~/.ssh/authorized_keys</code></td><td>受け取った公開鍵をファイルの末尾に追記する</td></tr>
+      <tr><td><code class="i">chmod 700 / 600</code></td><td>自分以外が読み書きできないようにする。権限が緩いとsshdが鍵ログインを拒否する</td></tr>
+    </tbody>
+  </table></div>
+</section>
 
-  <!-- 4 -->
-  <section class="step" id="s4" data-title="鍵だけでログインできるか確認">
-    <div class="step-head"><div class="num">4</div><div><h2>鍵だけでログインできるか確認する</h2><span class="slide">前回スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>パスワードを使えないようにしたうえで接続します。これで入れれば、<strong>鍵での認証が確実に成功している</strong>ことになります。</p>
-    <div class="code" data-where="win"><pre>ssh -o PasswordAuthentication=no -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}</pre></div>
-    <ul>
-      <li>パスフレーズを付けた場合は <code class="i">Enter passphrase for key</code> と聞かれる（サーバのパスワードではない）</li>
-      <li>パスフレーズなしの場合は、何も聞かれずにログインできる</li>
-      <li>プロンプトが <code class="i"><span class="liveuser">ユーザ名</span>@サーバ名:~$</code> になれば成功</li>
-    </ul>
-    <p>ログインできたら、登録された公開鍵を確認してから抜けます。</p>
-    <div class="code" data-where="ssh"><pre>cat ~/.ssh/authorized_keys
-ls -la ~/.ssh
+<section class="step" id="s4" data-title="鍵だけでログインできるか確認">
+  <div class="step-head"><div class="num">4</div><div><h2>鍵だけでログインできるか確認する</h2><span class="slide">スライド「今回の目標（ミッション）：個人」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>パスワードを使えない状態で接続します。これで入れれば、鍵での認証が確実に成功しています。</p>
+  <div class="code" data-where="win"><pre>ssh -o PasswordAuthentication=no -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}</pre></div>
+  <p>聞かれるのが<strong>パスフレーズ</strong>（<code class="i">Enter passphrase for key</code>）なら成功です。パスフレーズなしの場合は何も聞かれずに入れます。</p>
+  <div class="code" data-where="ssh"><pre>ls -la ~/.ssh
 exit</pre></div>
-    <p class="why"><code class="i">ls -la</code> の結果で、<code class="i">.</code>（.sshフォルダ自身）が <code class="i">drwx------</code>、<code class="i">authorized_keys</code> が <code class="i">-rw-------</code> なら権限も正しく設定されています。<code class="i">Permission denied (publickey)</code> と出た場合は、ページ下の「うまくいかないとき」を見てください。</p>
-  </section>
+  <p class="why"><code class="i">.</code> が <code class="i">drwx------</code>、<code class="i">authorized_keys</code> が <code class="i">-rw-------</code> なら権限も正しく設定されています。</p>
+</section>
 
-  <!-- 5 -->
-  <section class="step" id="s5" data-title="パスワードでも入れることを確認">
-    <div class="step-head"><div class="num">5</div><div><h2>パスワードでも入れることを確認する</h2><span class="slide">安全のための確認</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>今度は逆に、鍵を使わずに接続します。パスワードを聞かれてログインできれば、もしものときの入口が残っていることになります。</p>
-    <div class="code" data-where="win"><pre>ssh -o PubkeyAuthentication=no {{USER}}@{{IP}}</pre></div>
-    <div class="code" data-where="ssh"><pre>exit</pre></div>
-    <div class="box ok"><strong>これで「鍵でもパスワードでも入れる」状態です</strong>今日はパスワードログインを残したまま進めます。無効にするのは、鍵での作業に慣れて、秘密鍵のバックアップもとってからで大丈夫です（方法はステップ6の下にあります）。</div>
-  </section>
+<section class="step extra" id="s5" data-title="パスワードでも入れることを確認">
+  <div class="step-head"><div class="num">5</div><div><h2>パスワードでも入れることを確認する</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="win"><pre>ssh -o PubkeyAuthentication=no {{USER}}@{{IP}}</pre></div>
+  <p>パスワードでログインできれば、もしものときの入口が残っています。<code class="i">exit</code> で抜けます。</p>
+  <details>
+    <summary>スライドどおり、パスワードログインを無効にするとき</summary>
+    <p>スライドの目標は「パスワードではなく、証明書によりログインできるようにする」ことです。<strong>班員全員が鍵で入れることを確認してから</strong>、サーバで実行します。作業中のSSHは閉じずに、確認は別のウィンドウで行ってください。</p>
+    <div class="code" data-where="ssh"><pre>echo "PasswordAuthentication no" | sudo tee /etc/ssh/sshd_config.d/00-no-password.conf
+sudo sshd -t &amp;&amp; sudo systemctl restart ssh
+sudo sshd -T | grep -i passwordauthentication</pre></div>
+  </details>
+</section>
 
-  <!-- 6 -->
-  <section class="step" id="s6" data-title="接続コマンドを短くする（任意）">
-    <div class="step-head"><div class="num">6</div><div><h2>接続コマンドを短くする（任意）</h2><span class="slide">手順書オリジナル</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>毎回 <code class="i">-i …</code> やIPを打つのは大変なので、自分のPCの <code class="i">.ssh\config</code> に接続先を登録しておきます。</p>
-    <div class="code" data-where="win"><pre>@"
+<section class="step extra" id="s6" data-title="接続コマンドを短くする">
+  <div class="step-head"><div class="num">6</div><div><h2>接続コマンドを短くする（任意）</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="win"><pre>@"
 
 Host lab
     HostName {{IP}}
     User {{USER}}
     IdentityFile ~/.ssh/id_ed25519_{{USER}}
 "@ | Add-Content -Encoding ascii $env:USERPROFILE\.ssh\config</pre></div>
-    <p>これで、接続もファイル送信も <code class="i">lab</code> だけで済みます。</p>
-    <div class="code" data-where="win"><pre>ssh lab</pre></div>
-    <p class="why">IPが変わったら、<code class="i">notepad $env:USERPROFILE\.ssh\config</code> で開いて <code class="i">HostName</code> の行を書き換えてください。以下の手順は、このステップを飛ばしても動くように、すべて省略しない形で書いています。</p>
-    <details>
-      <summary>参考：後でパスワードログインを無効にするとき</summary>
-      <p>鍵で入れることを確認した状態で、サーバで実行します。作業中のSSHは閉じずに、確認は別のウィンドウで行ってください。</p>
-      <div class="code" data-where="local"><pre>echo "PasswordAuthentication no" | sudo tee /etc/ssh/sshd_config.d/00-no-password.conf
-sudo sshd -t &amp;&amp; sudo systemctl restart ssh
-sudo sshd -T | grep -i passwordauthentication</pre></div>
-      <p>この設定は、相方を含むサーバの全ユーザに効きます。全員が鍵を登録してから行ってください。</p>
-    </details>
-  </section>
+  <p>これで <code class="i">ssh lab</code> だけで接続できます。IPが変わったら <code class="i">notepad $env:USERPROFILE\.ssh\config</code> で <code class="i">HostName</code> を書き換えます。以下の手順は、このステップを飛ばしても動くように書いています。</p>
+</section>
 
-  <h2 class="part">後半　Webサーバとデータベースを動かす</h2>
-  <p class="part-lead">ブラウザでボタンを押すと、押した時刻と押した人のIPアドレスがデータベースに記録され、一覧で表示される仕組みを作ります。そのために3つのソフトを入れます。</p>
+<h2 class="part">共通　Webサーバ・PHP・データベースを用意する</h2>
+<p class="part-lead">サーバ1台につき1回の作業です。班で分担し、終わったら相方に伝えてください。以降はSSHでサーバに入った状態で進めます。</p>
+<div class="code" data-where="win"><pre>ssh -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}</pre></div>
+
+<section class="step" id="s7" data-title="ソフトウェアのリストを更新">
+  <div class="step-head"><div class="num">7</div><div><h2>ソフトウェアのリストを更新する</h2><span class="slide">スライド「ソフトウェアのインストール」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="ssh"><pre>sudo apt update</pre></div>
+  <p class="why">「最新のパッケージ一覧を取ってくる」コマンドです。<code class="i">sudo</code> でパスワードを聞かれて弾かれる場合は、<code class="i">groups</code> の結果に <code class="i">sudo</code> があるか確認します。ない場合は、sudoが使える班員に <code class="i">sudo usermod -aG sudo <span class="liveuser">ユーザ名</span></code> を実行してもらい、入り直します。</p>
+</section>
+
+<section class="step" id="s8" data-title="Apacheのインストール">
+  <div class="step-head"><div class="num">8</div><div><h2>Apacheをインストールし、サイトを確認する</h2><span class="slide">スライド「Apacheのインストール」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="ssh"><pre>sudo apt install -y apache2
+sudo ufw allow 'Apache'
+sudo ufw status</pre></div>
+  <p>前回ufwを有効にしたので、Webの<strong>80番ポート</strong>を開けないとブラウザからつながりません（スライド「FWを設定する」）。<code class="i">Apache  ALLOW</code> が出たら、自分のPCのブラウザで開きます。</p>
+  <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/</pre></div>
+  <p>「Apache2 Default Page」が出れば、サイトができています。このページの実体は <code class="i">/var/www/html/index.html</code> です。</p>
+  <h3>停止・起動・再起動の方法</h3>
+  <p>スライドに「サーバの停止・再起動方法を見ておくと良い」とあります。試すときは、停止中にブラウザで開けなくなることも確認してみてください。</p>
+  <div class="code" data-where="ssh"><pre>sudo systemctl stop apache2      # 停止
+sudo systemctl start apache2     # 起動
+sudo systemctl restart apache2   # 再起動（設定を変えたあと）
+sudo systemctl reload apache2    # 接続を切らずに設定だけ読み直す
+systemctl status apache2 --no-pager</pre></div>
+</section>
+
+<section class="step" id="s9" data-title="PHPのインストール">
+  <div class="step-head"><div class="num">9</div><div><h2>PHPをインストールし、テストページで確認する</h2><span class="slide">スライド「PHP 7.2系列のインストール」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドのとおり、ApacheからPHPを実行するモジュール（<code class="i">libapache2-mod-php</code>）も入れます。<code class="i">php-mysql</code> はPHPからデータベースに接続するための部品です。バージョンは標準のもの（Ubuntu 24.04ではPHP 8.3）で大丈夫です。</p>
+  <div class="code" data-where="ssh"><pre>sudo apt install -y php libapache2-mod-php php-mysql
+sudo systemctl restart apache2
+php -v</pre></div>
+  <p>スライドの「Apacheを再起動しないと動くようになりません」にあたるのが2行目です。テスト用のページを作ります。</p>
+  <div class="code" data-where="ssh"><pre>echo '&lt;?php phpinfo();' | sudo tee /var/www/html/info.php</pre></div>
+  <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/info.php</pre></div>
+  <p>PHPの設定一覧が出れば動いています。ページ内を <kbd>Ctrl</kbd>+<kbd>F</kbd> で <code class="i">pdo_mysql</code> と検索して見つかれば、DB接続の準備もできています。</p>
+  <div class="box warn"><strong>info.php は最後に消します（手順18）</strong>サーバの構成を誰にでも見せてしまうページです。</div>
+</section>
+
+<section class="step" id="s10" data-title="MariaDBのインストールとユーザ登録">
+  <div class="step-head"><div class="num">10</div><div><h2>MariaDBを入れ、班員ごとのユーザと権限付きのテーブルを作る</h2><span class="slide">スライド「MariaDBのインストール」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="ssh"><pre>sudo apt install -y mariadb-server
+sudo systemctl status mariadb --no-pager</pre></div>
+  <p class="why">すでにMySQLを入れている場合は、そのままで大丈夫です（スライド「MySQLでも良いです」）。MariaDBとMySQLを両方入れると衝突するので、どちらか一方にしてください。以降のコマンドはどちらでも同じです。</p>
+  <h3>班員それぞれのユーザを登録する（各自が自分のPCから）</h3>
+  <p>班員がそれぞれ、自分のユーザでSSHして実行します。1行目でDB用のパスワードを聞かれるので、決めたものを入力します（画面には表示されません）。</p>
+  <div class="code" data-where="ssh"><pre>read -s -p "DBのパスワード: " DBPASS; echo
+sudo mysql -e "CREATE USER '{{USER}}'@'localhost' IDENTIFIED BY '$DBPASS';"</pre></div>
+  <p class="why">パスワードには <code class="i">'</code> <code class="i">|</code> <code class="i">&amp;</code> <code class="i">\</code> を使わないでください。手順16でも同じパスワードを使うので、覚えておきます。</p>
+  <h3>ユーザごとに権限を与えたテーブルを作る</h3>
+  <p>班で共有するデータベース <code class="i">team</code> を作り、その中に<strong>自分だけが触れるテーブル</strong>を作ります。これも各自が実行します。</p>
+  <div class="code" data-where="ssh"><pre>sudo mysql -e "CREATE DATABASE IF NOT EXISTS team;
+CREATE TABLE IF NOT EXISTS team.{{USER}}_table (id INT AUTO_INCREMENT PRIMARY KEY, memo TEXT);
+GRANT ALL ON team.{{USER}}_table TO '{{USER}}'@'localhost';"
+mysql -u {{USER}} -p -e "SHOW TABLES FROM team;"</pre></div>
+  <p>最後の行は、自分のユーザでDBに入って一覧を見るコマンドです（DBのパスワードを聞かれます）。班員全員がテーブルを作ったあとでも、<strong>自分のテーブルしか表示されない</strong>ことが、「ユーザごとに権限を与えた」ことの確認になります。</p>
   <div class="tbl"><table>
-    <thead><tr><th>ソフト</th><th>役割</th></tr></thead>
+    <thead><tr><th>SQL</th><th>していること</th></tr></thead>
     <tbody>
-      <tr><td><strong>Apache</strong>（アパッチ）</td><td>Webサーバ。ブラウザからのリクエストを受け取り、ページを返す</td></tr>
-      <tr><td><strong>PHP</strong></td><td>サーバ側で動くプログラム言語。リクエストのたびにページを作る</td></tr>
-      <tr><td><strong>MySQL</strong></td><td>データベース。データを表（テーブル）の形で保存する</td></tr>
+      <tr><td><code class="i">CREATE USER</code></td><td>DBにログインできるユーザを作る（Linuxのユーザとは別物）</td></tr>
+      <tr><td><code class="i">CREATE DATABASE</code></td><td>表を入れる箱を作る</td></tr>
+      <tr><td><code class="i">CREATE TABLE</code></td><td>列の形を決めて表を作る</td></tr>
+      <tr><td><code class="i">GRANT … TO</code></td><td>そのユーザに、指定したテーブルだけを操作する権限を与える</td></tr>
     </tbody>
   </table></div>
-  <p class="part-lead">Linux・Apache・MySQL・PHPの頭文字をとって <strong>LAMP</strong> と呼ばれる、Webシステムの定番の構成です。</p>
+</section>
 
-  <!-- 7 -->
-  <section class="step" id="s7" data-title="SSHで入り、sudoが使えるか確認">
-    <div class="step-head"><div class="num">7</div><div><h2>SSHで入り、sudoが使えるか確認する</h2><span class="slide">第2回「サーバ構築」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <div class="code" data-where="win"><pre>ssh -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}</pre></div>
-    <div class="code" data-where="ssh"><pre>groups</pre></div>
-    <p>結果に <code class="i">sudo</code> があれば、以降の手順はすべてこのユーザで進められます。ない場合は、sudoが使えるユーザ（インストール時に作ったユーザ）で次を実行してもらい、一度 <code class="i">exit</code> して入り直します。</p>
-    <div class="code" data-where="local"><pre>sudo usermod -aG sudo {{USER}}</pre></div>
-  </section>
+<section class="step" id="s11" data-title="phpMyAdminのインストール">
+  <div class="step-head"><div class="num">11</div><div><h2>phpMyAdminをインストールする</h2><span class="slide">スライド「phpMyAdminのインストール」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="ssh"><pre>sudo apt install -y phpmyadmin</pre></div>
+  <p>途中で設定画面が出ます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>画面</th><th>操作</th></tr></thead>
+    <tbody>
+      <tr><td>Web server to reconfigure automatically</td><td><strong><kbd>Space</kbd> で apache2 に [*] を付けてから</strong> <kbd>Tab</kbd> → OK。付けずに進むとApacheに登録されません</td></tr>
+      <tr><td>Configure database for phpmyadmin with dbconfig-common?</td><td>Yes</td></tr>
+      <tr><td>MySQL application password for phpmyadmin</td><td>空欄のまま OK（自動で決まる）</td></tr>
+    </tbody>
+  </table></div>
+  <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/phpmyadmin</pre></div>
+  <p>ログイン画面が出たら、手順10のユーザ名（<span class="liveuser">ユーザ名</span>）とDBのパスワードで入れます。<code class="i">team</code> の中に自分のテーブルが見えればOKです。</p>
+  <p class="why">phpMyAdminに <code class="i">root</code> では入れません（Ubuntuのrootは、パスワードではなくLinuxの管理者権限で入る設定のため）。</p>
+</section>
 
-  <!-- 8 -->
-  <section class="step" id="s8" data-title="Apache・PHP・MySQLをインストール">
-    <div class="step-head"><div class="num">8</div><div><h2>Apache・PHP・MySQLをインストールする</h2><span class="slide">第2回「ソフトウェアの設定」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <div class="code" data-where="ssh"><pre>sudo apt update
-sudo apt install -y apache2 php libapache2-mod-php php-mysql mysql-server</pre></div>
-    <div class="tbl"><table>
-      <thead><tr><th>パッケージ</th><th>中身</th></tr></thead>
-      <tbody>
-        <tr><td><code class="i">apache2</code></td><td>Webサーバ本体</td></tr>
-        <tr><td><code class="i">php</code></td><td>PHP本体</td></tr>
-        <tr><td><code class="i">libapache2-mod-php</code></td><td>ApacheがPHPを実行できるようにする部品。ないとPHPのコードがそのまま表示される</td></tr>
-        <tr><td><code class="i">php-mysql</code></td><td>PHPからMySQLに接続するための部品（PDOのドライバ）。ないと <code class="i">could not find driver</code></td></tr>
-        <tr><td><code class="i">mysql-server</code></td><td>データベース本体（MySQL 8）</td></tr>
-      </tbody>
-    </table></div>
-    <p>数分かかります。終わったら、3つが動いているか確認します。</p>
-    <div class="code" data-where="ssh"><pre>systemctl is-active apache2 mysql
-php -v</pre></div>
-    <p><code class="i">active</code> が2行と、PHPのバージョン（<code class="i">PHP 8.3.x</code>）が出ればOKです。</p>
-  </section>
+<section class="step" id="s12" data-title="phpMyAdminにアクセス制限をかける">
+  <div class="step-head"><div class="num">12</div><div><h2>phpMyAdminを自分のPCのIPからだけ開けるようにする</h2><span class="slide">スライド「phpMyAdminのインストール」アクセス制限</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>phpMyAdminは広く使われているぶん狙われやすいページです。許可するIPを、今SSHでつないでいる自分のPCのIPに限ります。SSHでつないでいると、接続元のIPが <code class="i">$SSH_CLIENT</code> に入っているので、それを使います。</p>
+  <div class="code" data-where="ssh"><pre>MYIP=$(echo $SSH_CLIENT | cut -d' ' -f1); echo "許可するIP: $MYIP"</pre></div>
+  <p>表示されたIPが自分のPCのもの（<code class="i">ipconfig</code> の結果と同じ）なら、設定ファイルを作って有効にします。</p>
+  <div class="code" data-where="ssh"><pre>printf '&lt;Directory /usr/share/phpmyadmin&gt;\n    Require ip %s\n&lt;/Directory&gt;\n' "$MYIP" | sudo tee /etc/apache2/conf-available/zz-phpmyadmin-allow.conf
+sudo a2enconf zz-phpmyadmin-allow
+sudo apache2ctl configtest &amp;&amp; sudo systemctl reload apache2</pre></div>
+  <p><code class="i">Syntax OK</code> と出ればOKです。スライドの「IPを変えて試してみましょう」にあたる確認をします。</p>
+  <ul>
+    <li>自分のPCで <code class="i">http://<span class="liveip">IP</span>/phpmyadmin</code> → 今までどおり開ける</li>
+    <li>相方のPCで同じURL → <strong>Forbidden</strong>（403）になる</li>
+  </ul>
+  <p class="why">相方も使う場合は、<code class="i">sudo nano /etc/apache2/conf-available/zz-phpmyadmin-allow.conf</code> で <code class="i">Require ip</code> の後ろにスペース区切りで相方のIPを足し、<code class="i">sudo systemctl reload apache2</code>。名前を <code class="i">zz-</code> で始めているのは、phpMyAdmin本体の設定より後に読ませて、確実にこちらを効かせるためです。スライドの「httpd.conf」は、UbuntuのApacheでは <code class="i">/etc/apache2/</code> 以下の設定ファイルにあたります。</p>
+</section>
 
-  <!-- 9 -->
-  <section class="step" id="s9" data-title="ファイアウォールでWebを許可し、表示を確認">
-    <div class="step-head"><div class="num">9</div><div><h2>ファイアウォールでWebを許可し、表示を確認する</h2><span class="slide">前回「リモートログイン」と同じ考え方</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>前回ufwを有効にしたので、Webが使う<strong>80番ポート</strong>を開けないとブラウザからつながりません。</p>
-    <div class="code" data-where="ssh"><pre>sudo ufw allow 'Apache'
-sudo ufw status</pre></div>
-    <p><code class="i">OpenSSH</code> に加えて <code class="i">Apache  ALLOW  Anywhere</code> が出ればOKです。自分のPCのブラウザで次を開きます。</p>
-    <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/</pre></div>
-    <p>「Apache2 Default Page」と書かれたページが出れば、Webサーバが動いています。</p>
-    <p class="why">このページの実体は、サーバの <code class="i">/var/www/html/index.html</code> です。Apacheは、<code class="i">/var/www/html</code> の中のファイルをブラウザに返します（ドキュメントルート）。</p>
-  </section>
+<h2 class="part">個人　自分のページとデータベースで動かす</h2>
+<p class="part-lead">ここからは班員それぞれが、自分のユーザで行います。スライド「以後のプログラムは個人別に、それぞれでデータベースを使って動かすこと」。</p>
 
-  <!-- 10 -->
-  <section class="step" id="s10" data-title="PHPが動くか確認">
-    <div class="step-head"><div class="num">10</div><div><h2>PHPが動くか確認する</h2><span class="slide">第2回「ソフトウェアの設定」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>PHPの設定情報を表示するページを一時的に作ります。</p>
-    <div class="code" data-where="ssh"><pre>echo '&lt;?php phpinfo();' | sudo tee /var/www/html/info.php</pre></div>
-    <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/info.php</pre></div>
-    <p>紫色の表のページが出ればPHPは動いています。ページ内を <kbd>Ctrl</kbd>+<kbd>F</kbd> で <code class="i">pdo_mysql</code> と検索し、見つかれば、PHPからMySQLに接続する準備もできています。</p>
-    <div class="box warn"><strong>確認が終わったら削除します（ステップ16）</strong>このページはサーバの構成を誰にでも見せてしまうので、公開しているサーバに残してはいけません。</div>
-  </section>
+<section class="step" id="s13" data-title="ユーザーごとのHPを作る">
+  <div class="step-head"><div class="num">13</div><div><h2>自分のホームページを公開する</h2><span class="slide">スライド「ユーザーごとのHPを作る」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの1つ目の方法「userdirモジュール」を使います。ホームの <code class="i">public_html</code> に置いたファイルが、<code class="i">http://IP/~ユーザ名/</code> で見られるようになります。</p>
+  <h3>Apacheの設定（共通・1回だけ）</h3>
+  <div class="code" data-where="ssh"><pre>sudo a2enmod userdir
+sudo sed -i 's/php_admin_flag engine Off/php_admin_flag engine On/' /etc/apache2/mods-available/php*.conf
+sudo systemctl restart apache2</pre></div>
+  <p class="why">2行目は、スライドの「PHPプログラムが動くように設定しておくこと」にあたります。Ubuntuでは安全のため、<code class="i">public_html</code> の中ではPHPが動かない設定になっているので、それを有効にしています。</p>
+  <h3>自分のページを作る（各自）</h3>
+  <div class="code" data-where="ssh"><pre>mkdir -p ~/public_html
+chmod 711 ~
+chmod 755 ~/public_html
+echo '&lt;?php echo "Hello, " . get_current_user() . "! PHP " . phpversion();' &gt; ~/public_html/index.php</pre></div>
+  <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/~{{USER}}/</pre></div>
+  <p><code class="i">Hello, <span class="liveuser">ユーザ名</span>! PHP 8.3…</code> と出れば、個人ページでPHPが動いています。</p>
+  <p class="why"><code class="i">chmod 711 ~</code> は、Apache（www-dataユーザ）が自分のホームを「通り抜ける」ことだけを許可する設定です。中身の一覧は見せません。これがないと Forbidden になります。</p>
+  <details>
+    <summary>補足：スライドのURL例（<code class="i">http://IP/ユーザ名</code>）のように <code class="i">~</code> なしにする</summary>
+    <p>スライドの2つ目の方法「シンボリックリンク」です。Apacheの公開フォルダに、自分の <code class="i">public_html</code> へのリンクを作ります。</p>
+    <div class="code" data-where="ssh"><pre>sudo ln -s /home/{{USER}}/public_html /var/www/html/{{USER}}</pre></div>
+    <p><code class="i">http://<span class="liveip">IP</span>/<span class="liveuser">ユーザ名</span>/</code> でも同じページが開けます。</p>
+  </details>
+</section>
 
-  <!-- 11 -->
-  <section class="step" id="s11" data-title="データベースと表を作る">
-    <div class="step-head"><div class="num">11</div><div><h2>データベースと表を作る</h2><span class="slide">db_sample / dateadd.php のコメント</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>配布の dateadd.php のコメントに書かれている準備を行います。MySQLに管理者として入ります。</p>
-    <div class="code" data-where="ssh"><pre>sudo mysql</pre></div>
-    <p>プロンプトが <code class="i">mysql&gt;</code> に変わったら、次をまとめて貼り付けます。</p>
-    <div class="code" data-where="ssh" data-label="mysql> に貼り付け"><pre>CREATE DATABASE updatetime;
-CREATE USER 'ktajima'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL ON updatetime.* TO 'ktajima'@'localhost';
-CREATE TABLE updatetime.clickedtable (time DATETIME NOT NULL, ip TEXT NOT NULL);
-SHOW TABLES FROM updatetime;
-exit</pre></div>
-    <p><code class="i">clickedtable</code> と表示されればOKです。</p>
-    <div class="tbl"><table>
-      <thead><tr><th>SQL</th><th>していること</th></tr></thead>
-      <tbody>
-        <tr><td><code class="i">CREATE DATABASE</code></td><td><code class="i">updatetime</code> というデータベース（表を入れる箱）を作る</td></tr>
-        <tr><td><code class="i">CREATE USER</code></td><td>PHPが接続に使うMySQLのユーザを作る。名前とパスワードはPHPファイルに書かれているものに合わせている</td></tr>
-        <tr><td><code class="i">GRANT ALL ON</code></td><td>そのユーザに、updatetime の中だけを操作する権限を与える（最小権限）</td></tr>
-        <tr><td><code class="i">CREATE TABLE</code></td><td>日時（DATETIME型）とIP（文字列）の2列をもつ表を作る</td></tr>
-      </tbody>
-    </table></div>
-    <p class="why">コメントにある <code class="i">grant … identified by 'password'</code> は古い書き方で、Ubuntu 24.04 のMySQL 8ではエラーになります。そのため「ユーザを作る」と「権限を与える」を分けています。報告のネタになります。</p>
-    <p class="why">ユーザ名やパスワードを変える場合は、dateadd.php と dateprint.php の両方にある <code class="i">'ktajima','password'</code> も同じに書き換えてください。</p>
-  </section>
+<section class="step" id="s14" data-title="個人のデータベースを作る">
+  <div class="step-head"><div class="num">14</div><div><h2>個人のデータベースを作る</h2><span class="slide">スライド「データベースのユーザを作る」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>手順10で作った自分のDBユーザに、自分専用のデータベースを用意します。</p>
+  <div class="code" data-where="ssh"><pre>sudo mysql -e "CREATE DATABASE {{USER}}_db; GRANT ALL ON {{USER}}_db.* TO '{{USER}}'@'localhost';"
+mysql -u {{USER}} -p -e "SHOW DATABASES;"</pre></div>
+  <p>自分のユーザで入った一覧に <code class="i"><span class="liveuser">ユーザ名</span>_db</code> と <code class="i">team</code> が見え、他の人のデータベースが見えなければOKです。</p>
+</section>
 
-  <!-- 12 -->
-  <section class="step" id="s12" data-title="PHPの時刻を日本時間にする">
-    <div class="step-head"><div class="num">12</div><div><h2>PHPの時刻を日本時間にする</h2><span class="slide">手順書オリジナル（ずれ防止）</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>PHPは初期設定のままだと<strong>世界標準時（UTC）</strong>で時刻を出すので、記録される時刻が日本時間より9時間早くなります。Apache用のPHPの設定ファイルを書き換えます。</p>
-    <div class="code" data-where="ssh"><pre>sudo sed -i 's/^;date.timezone =.*/date.timezone = Asia\/Tokyo/' /etc/php/*/apache2/php.ini
+<section class="step extra" id="s15" data-title="PHPの時刻を日本時間にする">
+  <div class="step-head"><div class="num">15</div><div><h2>PHPの時刻を日本時間にする</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>PHPは初期設定だと世界標準時（UTC）なので、次の手順で記録される時刻が9時間ずれます。共通の設定なので、班で1回だけ行います。</p>
+  <div class="code" data-where="ssh"><pre>sudo sed -i 's/^;date.timezone =.*/date.timezone = Asia\/Tokyo/' /etc/php/*/apache2/php.ini
 grep -n "^date.timezone" /etc/php/*/apache2/php.ini
 sudo systemctl restart apache2</pre></div>
-    <p>2行目の結果に <code class="i">date.timezone = Asia/Tokyo</code> が出ればOKです。</p>
-    <p class="why">あえてこのステップを飛ばして動かし、時刻のずれを確認してから直すと、「詰まった点・原因・対処」がそろった報告になります。</p>
-  </section>
+  <p class="why">あえて飛ばして時刻のずれを確認してから直すと、報告で話せる「詰まった点・原因・対処」になります。</p>
+</section>
 
-  <!-- 13 -->
-  <section class="step" id="s13" data-title="配布のPHPをサーバに置く">
-    <div class="step-head"><div class="num">13</div><div><h2>配布のPHPをサーバに置く</h2><span class="slide">db_sample.zip（LMS）</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <div class="dl"><a class="btn" href="files/lab2/db_sample.zip" download>db_sample.zip をダウンロード</a><span class="meta">LMSからでも同じものが取れます。ダウンロードフォルダに保存してください</span></div>
-    <p>ダウンロードした <code class="i">db_sample.zip</code> を解凍して送ります。ここだけはSSHに入っていないPowerShellで実行します（新しいタブを開くと便利です）。</p>
-    <div class="code" data-where="win"><pre>cd $env:USERPROFILE\Downloads
+<section class="step" id="s16" data-title="DBとPHPを連携させたプログラム">
+  <div class="step-head"><div class="num">16</div><div><h2>サンプルプログラムを自分のページで動かす</h2><span class="slide">スライド「DBとPHPを連携させたプログラム」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="dl"><a class="btn" href="files/lab2/db_sample.zip" download>db_sample.zip をダウンロード</a><span class="meta">LMSのものと同じです。ダウンロードフォルダに保存してください</span></div>
+  <h3>自分の public_html に送る</h3>
+  <div class="code" data-where="win"><pre>cd $env:USERPROFILE\Downloads
 Expand-Archive .\db_sample.zip -DestinationPath . -Force
-scp -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} -r .\db_sample {{USER}}@{{IP}}:~/</pre></div>
-    <p>サーバ側で、Webの公開フォルダにコピーします。</p>
-    <div class="code" data-where="ssh"><pre>sudo cp -r ~/db_sample /var/www/html/
-ls /var/www/html/db_sample</pre></div>
-    <p><code class="i">dateadd.php</code> と <code class="i">dateprint.php</code> が出ればOKです。</p>
-    <p class="why">zipを別の場所に保存した場合は、1行目の <code class="i">cd</code> の行き先を変えてください。<code class="i">/var/www/html</code> はrootの持ち物なので、直接scpで送らずに、一度自分のホームに置いてから <code class="i">sudo cp</code> しています。</p>
-  </section>
+scp -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} -r .\db_sample {{USER}}@{{IP}}:~/public_html/</pre></div>
+  <h3>ユーザ名・データベース名を自分のものに変える</h3>
+  <p>スライドの「ユーザ名、データベース名など一部調整が必要です」にあたります。手順10と同じDBのパスワードを入力します。</p>
+  <div class="code" data-where="ssh"><pre>cd ~/public_html/db_sample
+read -s -p "DBのパスワード: " DBPASS; echo
+sed -i "s|dbname=updatetime|dbname={{USER}}_db|; s|'ktajima','password'|'{{USER}}','$DBPASS'|" dateadd.php dateprint.php
+grep -c "dbname={{USER}}_db" dateadd.php dateprint.php</pre></div>
+  <p>最後の行で両方のファイルが <code class="i">:1</code> になっていれば書き換え済みです。</p>
+  <h3>表（clickedtable）を作る</h3>
+  <p>スライドの表のとおり、<code class="i">time</code>（DATETIME型の日付と時刻）と <code class="i">ip</code>（アクセス元のIPアドレス）の2列です。</p>
+  <div class="code" data-where="ssh"><pre>mysql -u {{USER}} -p {{USER}}_db -e "CREATE TABLE clickedtable (time DATETIME NOT NULL, ip TEXT NOT NULL); DESCRIBE clickedtable;"</pre></div>
+  <h3>ブラウザで動かす</h3>
+  <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/~{{USER}}/db_sample/dateprint.php</pre></div>
+  <ol>
+    <li>空の表が出る</li>
+    <li>「要素を追加」を押す → dateadd.php で「日付を追加したよ」</li>
+    <li>「[戻る]」を押す → 今の時刻と自分のPCのIPが1行増えている</li>
+  </ol>
+  <div class="tbl"><table>
+    <thead><tr><th>ファイル</th><th>していること</th></tr></thead>
+    <tbody>
+      <tr><td>dateprint.php</td><td>DBに接続し <code class="i">SELECT * FROM clickedtable</code> で全行を取り出して、HTMLの表にして返す</td></tr>
+      <tr><td>dateadd.php</td><td><code class="i">INSERT INTO clickedtable</code> で、今の日時と <code class="i">$_SERVER["REMOTE_ADDR"]</code>（アクセスしてきた相手のIP）を1行追加する</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">サーバ側でも確かめられます：<code class="i">mysql -u <span class="liveuser">ユーザ名</span> -p <span class="liveuser">ユーザ名</span>_db -e "SELECT * FROM clickedtable;"</code>。phpMyAdminからも同じ表が見えます。</p>
+</section>
 
-  <!-- 14 -->
-  <section class="step" id="s14" data-title="ブラウザで動かす">
-    <div class="step-head"><div class="num">14</div><div><h2>ブラウザで動かす</h2><span class="slide">db_sample / dateprint.php・dateadd.php</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/db_sample/dateprint.php</pre></div>
-    <ol>
-      <li>「PHP-DB-TEST」の空の表が出る</li>
-      <li>「要素を追加」ボタンを押す → dateadd.php に移り「日付を追加したよ」と出る</li>
-      <li>「[戻る]」を押す → 表に、今の時刻と自分のPCのIPアドレスが1行増えている</li>
-      <li>相方のPCからも開いて押してもらうと、違うIPの行が増える</li>
-    </ol>
-    <div class="tbl"><table>
-      <thead><tr><th>ファイル</th><th>していること</th></tr></thead>
-      <tbody>
-        <tr><td>dateprint.php</td><td>DBに接続し <code class="i">SELECT * FROM clickedtable</code> で全行を取り出して、HTMLの表にして返す</td></tr>
-        <tr><td>dateadd.php</td><td>DBに接続し <code class="i">INSERT INTO clickedtable</code> で、今の日時と <code class="i">$_SERVER["REMOTE_ADDR"]</code>（アクセスしてきた相手のIP）を1行追加する</td></tr>
-      </tbody>
-    </table></div>
-    <p class="why">ブラウザに届くのは、PHPが実行された<strong>結果のHTMLだけ</strong>です。ブラウザで右クリック →「ページのソースを表示」を開くと、PHPのコードやDBのパスワードが見えないことを確認できます。</p>
-  </section>
+<section class="step" id="s17" data-title="プログラムを改良する">
+  <div class="step-head"><div class="num">17</div><div><h2>データベースを使ったプログラムに改良する</h2><span class="slide">スライド「今回の目標（ミッション）：個人」「課題」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの「改良の上、データベースを使ったプログラムに改良してください」が今日の個人課題です。内容は自分で決めて、自分で書きます。考えるときの手がかりを挙げておきます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>改良の例</th><th>使うもの</th></tr></thead>
+    <tbody>
+      <tr><td>新しい記録が上に来るように並べる</td><td>SQLの <code class="i">ORDER BY time DESC</code></td></tr>
+      <tr><td>IPアドレスごとのアクセス回数を表示する</td><td><code class="i">GROUP BY ip</code> と <code class="i">COUNT(*)</code></td></tr>
+      <tr><td>ブラウザの種類も記録する</td><td>表に列を追加（<code class="i">ALTER TABLE</code>）、<code class="i">$_SERVER['HTTP_USER_AGENT']</code></td></tr>
+      <tr><td>名前とひとことを書き込める掲示板にする</td><td>HTMLの <code class="i">&lt;form&gt;</code> と <code class="i">$_POST</code>、サンプルと同じ <code class="i">prepare</code> / <code class="i">bindValue</code></td></tr>
+      <tr><td>記録を削除できるようにする</td><td><code class="i">DELETE FROM</code>、どの行かを決める主キー（id列）</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">入力を受け取るときは、サンプルと同じく <code class="i">prepare</code> でSQLを組み立て（SQLインジェクション対策）、表示するときは <code class="i">htmlspecialchars</code> を通します（XSS対策）。この2つを守ると、Webに公開しても安全なプログラムになります。</p>
+</section>
 
-  <!-- 15 -->
-  <section class="step" id="s15" data-title="サーバ側で記録を確かめる">
-    <div class="step-head"><div class="num">15</div><div><h2>サーバ側で記録を確かめる</h2><span class="slide">考察用</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>ブラウザで見た内容が、本当にデータベースに入っているかを確かめます。</p>
-    <div class="code" data-where="ssh"><pre>sudo mysql -e "SELECT * FROM updatetime.clickedtable;"</pre></div>
-    <p>Apacheのアクセスログにも、同じIPからのアクセスが残っています。</p>
-    <div class="code" data-where="ssh"><pre>sudo tail -n 5 /var/log/apache2/access.log</pre></div>
-    <p class="why">行の先頭がアクセス元のIP、続いて日時、<code class="i">"GET /db_sample/dateadd.php"</code> のようにどのページを開いたかが記録されています。DBの記録とログを並べると、「サーバはアクセスしてきた相手のIPを知っている」ことを説明できます。</p>
-  </section>
-
-  <!-- 16 -->
-  <section class="step" id="s16" data-title="後片付けとシャットダウン">
-    <div class="step-head"><div class="num">16</div><div><h2>後片付けとシャットダウン</h2><span class="slide">前回スライド「実験上の注意」「今回はここまでです」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-    <p>確認用に作った info.php を消し、今日のコマンドの記録を保存します。</p>
-    <div class="code" data-where="ssh"><pre>sudo rm /var/www/html/info.php
+<section class="step extra" id="s18" data-title="後片付けとシャットダウン">
+  <div class="step-head"><div class="num">18</div><div><h2>後片付けとシャットダウン</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの「作業内容をまとめておくと役に立ちます」のために、今日のコマンドを保存してから終わります。</p>
+  <div class="code" data-where="ssh"><pre>sudo rm -f /var/www/html/info.php
 history &gt; ~/command_log_1013.txt
 exit</pre></div>
-    <div class="code" data-where="win"><pre>scp -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}:~/command_log_1013.txt .</pre></div>
-    <p>最後にサーバを停止します（全員の作業が終わってから）。</p>
-    <div class="code" data-where="ssh"><pre>sudo shutdown -h now</pre></div>
-    <p class="why">秘密鍵 <code class="i">id_ed25519_<span class="liveuser">ユーザ名</span></code> をなくすと、鍵でログインできなくなります。USBメモリなどにバックアップしておくと安心です（人に渡さないこと）。</p>
-  </section>
+  <div class="code" data-where="win"><pre>scp -i $env:USERPROFILE\.ssh\id_ed25519_{{USER}} {{USER}}@{{IP}}:~/command_log_1013.txt .</pre></div>
+  <p>全員の作業が終わってから、サーバを停止します。</p>
+  <div class="code" data-where="ssh"><pre>sudo shutdown -h now</pre></div>
+  <p class="why">秘密鍵 <code class="i">id_ed25519_<span class="liveuser">ユーザ名</span></code> をなくすと鍵でログインできなくなります。USBメモリなどにバックアップしておくと安心です。</p>
+</section>
 
-  <!-- trouble -->
-  <section class="step special" id="trouble" data-notoc>
-    <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
-    <div class="tbl"><table>
-      <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
-      <tbody>
-        <tr><td>ステップ3で <code class="i">Permission denied (publickey)</code></td><td>パスワードログインが無効になっている。ステップ1の折りたたみの中の手順で戻す。</td></tr>
-        <tr><td>ステップ4で <code class="i">Permission denied (publickey)</code></td><td>公開鍵が登録されていない、または権限が緩い。パスワードで入って <code class="i">cat ~/.ssh/authorized_keys</code> と <code class="i">ls -la ~/.ssh</code> を確認し、<code class="i">chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys</code>。</td></tr>
-        <tr><td><code class="i">Connection timed out</code></td><td>IPが変わった、または自分のPCが別のネットワーク（Wi-Fiなど）にいる。サーバで <code class="i">hostname -I</code>、自分のPCで <code class="i">ipconfig</code> を確認。</td></tr>
-        <tr><td><code class="i">REMOTE HOST IDENTIFICATION HAS CHANGED!</code></td><td>OSを入れ直したかIPが入れ替わった。自分のPCで <code class="i">ssh-keygen -R <span class="liveip">IP</span></code> を実行してから接続し直す。</td></tr>
-        <tr><td>ブラウザでページが開かない</td><td>ステップ9のufwの許可がない、またはIPが違う。<code class="i">sudo ufw status</code> を確認。</td></tr>
-        <tr><td>PHPのコードがそのまま表示される／ダウンロードされる</td><td>ApacheにPHPが組み込まれていない。<code class="i">sudo apt install -y libapache2-mod-php</code> → <code class="i">sudo systemctl restart apache2</code>。</td></tr>
-        <tr><td>データベース接続失敗。could not find driver</td><td><code class="i">php-mysql</code> が入っていない。入れてから <code class="i">sudo systemctl restart apache2</code>。</td></tr>
-        <tr><td>データベース接続失敗。Access denied</td><td>ステップ11のユーザ名・パスワードが、PHPファイルのものと違う。</td></tr>
-        <tr><td>データベース接続失敗。Unknown database</td><td>ステップ11の <code class="i">CREATE DATABASE</code> が抜けている。</td></tr>
-        <tr><td>Table … doesn't exist</td><td>ステップ11の <code class="i">CREATE TABLE</code> が抜けている。</td></tr>
-        <tr><td>記録される時刻が9時間ずれる</td><td>PHPがUTCのまま。ステップ12を実行する。</td></tr>
-        <tr><td>MySQLで <code class="i">ERROR 1064</code></td><td>SQLの書き間違い。行末の <code class="i">;</code>、クォート <code class="i">'</code> の閉じ忘れを確認。</td></tr>
-      </tbody>
-    </table></div>
-  </section>
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td>手順4で <code class="i">Permission denied (publickey)</code></td><td>公開鍵が未登録か、権限が緩い。パスワードで入って <code class="i">chmod 700 ~/.ssh; chmod 600 ~/.ssh/authorized_keys</code>。</td></tr>
+      <tr><td><code class="i">Connection timed out</code></td><td>IPが変わった、または自分のPCが別のネットワーク（Wi-Fiなど）にいる。サーバで <code class="i">hostname -I</code>、PCで <code class="i">ipconfig</code>。</td></tr>
+      <tr><td>ブラウザでページが開かない</td><td>ufwで80番が開いていない（手順8）か、IPが違う。</td></tr>
+      <tr><td>PHPのコードがそのまま表示される／ダウンロードされる</td><td>/var/www/html なら <code class="i">libapache2-mod-php</code> が無い。<code class="i">~ユーザ名</code> なら手順13の <code class="i">engine On</code> が未設定。どちらも直したら <code class="i">sudo systemctl restart apache2</code>。</td></tr>
+      <tr><td><code class="i">~ユーザ名</code> で Forbidden</td><td>ホームの権限。<code class="i">chmod 711 ~</code> と <code class="i">chmod 755 ~/public_html</code>。</td></tr>
+      <tr><td>自分のPCからも phpMyAdmin が Forbidden</td><td>許可したIPと実際のIPが違う。<code class="i">sudo tail -n 3 /var/log/apache2/access.log</code> の行頭が実際の接続元。設定ファイルのIPを直して reload。</td></tr>
+      <tr><td>phpMyAdminでログインできない</td><td>rootでは入れない。手順10のユーザ名とDBのパスワードを使う。</td></tr>
+      <tr><td>データベース接続失敗。could not find driver</td><td><code class="i">php-mysql</code> が無い。入れてから Apache を再起動。</td></tr>
+      <tr><td>データベース接続失敗。Access denied</td><td>PHPファイルのユーザ名・パスワードがDBと違う。手順16の書き換えをやり直す。</td></tr>
+      <tr><td>Table … doesn't exist</td><td>自分のDBに clickedtable が無い。手順16の CREATE TABLE。</td></tr>
+      <tr><td>時刻が9時間ずれる</td><td>PHPがUTCのまま。手順15。</td></tr>
+      <tr><td>MariaDBのインストールで依存関係のエラー</td><td>MySQLが入っている。MySQLのまま進めてよい（コマンドは同じ）。</td></tr>
+    </tbody>
+  </table></div>
+</section>
 
-  <!-- report -->
-  <section class="step special" id="report" data-notoc>
-    <div class="step-head"><div class="num">話</div><div><h2>15:00の経過報告（2分）の例</h2><span class="slide">実験ガイダンス「4. 実験の流れ」</span></div></div>
-    <div class="report">
-      <p>まず、自分のPCで公開鍵ペアを作り、公開鍵をサーバの authorized_keys に登録して、パスワードを使わずに鍵だけでログインできることを確認しました。秘密鍵はサーバに送らずに済むよう、クライアント側で鍵を作りました。</p>
-      <p>次に、Apache・PHP・MySQLを導入し、ufwで80番ポートを許可しました。配布されたPHPを使い、ブラウザからのアクセス時刻とクライアントのIPアドレスをデータベースに記録し、一覧表示できることを確認しました。</p>
-      <p>詰まった点として、配布コードのコメントにあるGRANT文はMySQL 8では使えない書き方だったため、ユーザ作成と権限付与を分けて実行しました。また、PHPのタイムゾーンがUTCのままだと記録時刻が9時間ずれたため、php.iniでAsia/Tokyoに設定しました。</p>
-    </div>
-    <p class="why">実際にできたところ・詰まったところに合わせて変えてください。「詰まった点・原因・対処」の3つがそろうと伝わりやすくなります。</p>
-  </section>
+<section class="step special" id="report" data-notoc>
+  <div class="step-head"><div class="num">話</div><div><h2>15:00の経過報告（2分）の例</h2><span class="slide">実験ガイダンス「4. 実験の流れ」</span></div></div>
+  <div class="report">
+    <p>共通の目標として、Apache・PHP・MariaDBを導入し、ufwで80番ポートを許可しました。データベースには班員それぞれのユーザを作り、各自のテーブルにだけ権限を与えました。phpMyAdminは、自分のPCのIPからだけアクセスできるよう制限し、相方のPCからは403になることを確認しました。</p>
+    <p>個人の目標として、公開鍵でログインできるようにし、userdirで個人ページを公開してPHPが動くことを確認しました。個人のデータベースでサンプルプログラムを動かし、現在は（改良の内容）に取り組んでいます。</p>
+    <p>詰まった点は、（例：public_html の中ではPHPが無効になっていたため、php.conf の engine を On にした／ホームディレクトリの権限で Forbidden になったため 711 にした）です。</p>
+  </div>
+  <p class="why">括弧の部分を、実際にやったこと・詰まったことに合わせて変えてください。</p>
+</section>
+
 <nav class="pager" aria-label="ほかの回へ">
   <a class="pager-item" href="lab1.html"><span class="pager-k">前の回</span>第1回　OSのインストールとシステム構築</a>
   <a class="pager-home" href="./">一覧へ戻る</a>
@@ -397,5 +445,6 @@ exit</pre></div>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
 <script src="assets/app.js"></script>
+<script src="assets/cover.js"></script>
 </body>
 </html>

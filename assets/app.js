@@ -90,7 +90,8 @@
         var n = document.createElement('span'); n.className = 'tn'; n.textContent = String(i+1).padStart(2,'0');
         var t = document.createElement('span'); t.textContent = s.dataset.title;
         a.appendChild(n); a.appendChild(t);
-      } else { a.textContent = s.dataset.title; }
+        if(s.classList.contains('extra')){ var x=document.createElement('span'); x.className='tx'; x.textContent='補足'; t.appendChild(x); }
+      } else { a.textContent = s.dataset.title + (s.classList.contains('extra') ? '（補足）' : ''); }
       li.appendChild(a); ol.appendChild(li); return li;
     });
     var cb = s.querySelector('.done-toggle input');
