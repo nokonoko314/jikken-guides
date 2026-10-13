@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013h">
+<link rel="stylesheet" href="assets/style.css?v=20261013i">
 </head>
 <body data-lab="lab5" data-label-ssh="Pythonのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -126,7 +126,8 @@ cv2.imwrite("out.png", img)</pre><pre class="out">(366, 512, 3)                 
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 lower = np.array([H下限, S下限, V下限], np.uint8)
 upper = np.array([H上限, S上限, V上限], np.uint8)
-mask = cv2.inRange(hsv, lower, upper)   # 範囲内が白(255)になる</pre></div>
+mask = cv2.inRange(hsv, lower, upper)   # 範囲内が白(255)になる
+print(hsv[120, 200])                    # 画素(x=200, y=120)のHSVを見る</pre><pre class="out">[ 27 214 243]                     ← H・S・V の順。この例は黄色（Hが20〜35あたり）。何点か見て範囲を決める</pre></div>
   <p class="why">スライドの例はBGRのまま範囲を指定していますが、色で分けるときは<strong>HSV</strong>（色相・彩度・明度）に変換したほうが、影や明るさの違いに強くなります。OpenCVの色相Hは0〜179の範囲（360度の半分）なので、黄色はおよそ20〜35あたりです。実際の値は、画像の中の画素を <code class="i">hsv[y, x]</code> で何点か表示して決めるのが確実です。</p>
   <p class="why">白黒が逆になったときは <code class="i">THRESH_BINARY_INV</code> を使うか、<code class="i">cv2.bitwise_not</code> で反転します。次の輪郭抽出は「黒い背景の中の白い物」を探すので、物が白になっているかを必ず確認してください。</p>
 </section>
@@ -273,6 +274,6 @@ print(len(contours))</pre><pre class="out">57                                ←
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013h"></script>
+<script src="assets/app.js?v=20261013i"></script>
 </body>
 </html>

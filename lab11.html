@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013h">
+<link rel="stylesheet" href="assets/style.css?v=20261013i">
 </head>
 <body data-lab="lab11" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -146,6 +146,16 @@ System.out.println((end - start) + " ns");</pre><pre class="out">15300 ns       
       <tr><td><code class="i">TreeNodeWithParent</code></td><td>親へのつながりを持たせ、今いるノードまでの文字列を表示できる版。どの順にノードを調べたかが出力でわかる</td></tr>
     </tbody>
   </table></div>
+  <div class="code" data-where="ssh" data-label="配布サンプル（TreeMaking）をそのまま実行したときの出力"><pre class="out">true
+Serch:nullフ
+Serch:nullフシ
+Serch:nullフシギ
+Serch:nullフシギダ
+Serch:nullフシギソ
+Serch:nullフシギバ
+Serch:nullフシギバナ
+true</pre></div>
+  <p class="why">2つ目の木（<code class="i">TreeNodeWithParent</code>）は、調べたノードまでの文字列を表示します。「フシギバナ」を探すのに、先に「フシギダ」「フシギソ」の枝を見てから「フシギバ」に進んでいて、<strong>深さ優先探索で枝を順に試している</strong>ことがわかります。先頭の <code class="i">null</code> は、根のノードのキーが <code class="i">null</code> なのを、そのまま文字列につないでいるためです（表示を直すなら、根を飛ばしてつなぎます）。</p>
   <p class="why">終わりの目印を <code class="i">"E"</code> という文字で表しているので、英字の「E」を含む名前を入れると目印と区別がつきません。カタカナだけのデータなら問題になりませんが、自分の木を作るときは、目印を別の方法（真偽値の変数など）で持つほうが安全です。</p>
 </section>
 
@@ -209,6 +219,6 @@ System.out.println((end - start) + " ns");</pre><pre class="out">15300 ns       
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013h"></script>
+<script src="assets/app.js?v=20261013i"></script>
 </body>
 </html>

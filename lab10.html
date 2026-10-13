@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013h">
+<link rel="stylesheet" href="assets/style.css?v=20261013i">
 </head>
 <body data-lab="lab10" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -101,7 +101,16 @@
     </tbody>
   </table></div>
   <p class="why"><code class="i">new File("m3sd50.csv")</code> のようにフォルダを書かないと、Javaは「実行したときの作業フォルダ」からファイルを探します。NetBeansではそれがプロジェクトのフォルダなので、<code class="i">src</code> の中に置いても見つかりません。</p>
-</section>
+
+  <div class="code" data-where="ssh" data-label="CSVの置き場所が違うときの出力（NetBeansの「出力」）"><pre class="out">10月 13, 2026 5:50:54 午後 Clustering.Main view_plot
+重大: null
+java.io.FileNotFoundException: m3sd50.csv (指定されたファイルが見つかりません。)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	…
+	at Clustering.DataReader.ReadData(DataReader.java:18)
+	at Clustering.Main.view_plot(Main.java:75)
+	at Clustering.Main.main(Main.java:22)
+（正しく置けていれば、何も出力されずに点の描かれた窓が開く）</pre></div></section>
 
 <section class="step" id="s3" data-title="流れをつかむ">
   <div class="step-head"><div class="num">3</div><div><h2>階層的クラスタリングの流れをつかむ</h2><span class="slide">スライド「最短距離法」「最終的にどうなるの？」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
@@ -223,6 +232,6 @@
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013h"></script>
+<script src="assets/app.js?v=20261013i"></script>
 </body>
 </html>

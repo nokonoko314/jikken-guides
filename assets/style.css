@@ -309,3 +309,4 @@ details.pitfall:has(.pf-extra)[open]>summary{border-bottom-color:var(--tip-line)
 .step-foot .done-toggle:hover{border-color:var(--ok)}
 .step-foot .done-toggle span{display:inline}
 .step.done .step-foot .done-toggle{border-color:var(--ok);color:var(--ok)}
+.code.result-only .out-top{border-top:0}

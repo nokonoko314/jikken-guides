@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013h">
+<link rel="stylesheet" href="assets/style.css?v=20261013i">
 </head>
 <body data-lab="lab6" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -167,6 +167,12 @@ Button(root, text="検索", command=on_search)</pre></div>
       <tr><td><code class="i">JDialog</code> を自分で作る</td><td>スライドの画面のように、表（国語・数学・英語・専門）と「閉じる」ボタンを並べられる。<code class="i">JTable</code> を使うと表が作りやすい</td></tr>
     </tbody>
   </table></div>
+  <div class="code" data-where="ssh" data-label="JOptionPane.showMessageDialog で出したときの見た目の例"><pre class="out">窓のタイトル：メッセージ
+ (i)  Michael
+      国語 75 / 数学 86 / 英語 89 / 専門 31
+                                    [ OK ]
+（見つからないとき：「Mike は見つかりませんでした」のように出す。
+  表示の文字は自分で決める。数字は CSV の例の1行目）</pre></div>
   <p>まず <code class="i">JOptionPane</code> で「見つかった・見つからなかった」が正しく出ることを確かめてから、余裕があれば <code class="i">JDialog</code> で見た目を整える、という順番がおすすめです。</p>
   <p class="why">名前の前後に空白が入っていると見つかりません。入力を <code class="i">trim()</code> してから探すと安全です。大文字・小文字を区別しないで探したい場合は、キーを小文字にそろえて保存する方法があります。</p>
 </section>
@@ -212,6 +218,6 @@ Button(root, text="検索", command=on_search)</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013h"></script>
+<script src="assets/app.js?v=20261013i"></script>
 </body>
 </html>

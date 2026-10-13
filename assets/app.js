@@ -53,7 +53,7 @@
   var blocks = [].slice.call(document.querySelectorAll('.code'));
   blocks.forEach(function(b){
     var pre = b.querySelector('pre:not(.out)');
-    b._tpl = pre.textContent;
+    b._tpl = pre ? pre.textContent : '';
     /* 実行結果の例（pre.out）は、見出しを付けてコマンドの下に置く */
     b._outs = [].slice.call(b.querySelectorAll('pre.out'));
     b._outs.forEach(function(o){
@@ -63,6 +63,11 @@
       b.insertBefore(ot, o);
     });
     var w = WHERE[b.dataset.where] || WHERE.ssh;
+    if(!pre){ /* 結果だけのブロック（コピーするものはない） */
+      b.classList.add('result-only');
+      if(b._outs[0]) b._outs[0].previousSibling.textContent = b.dataset.label || b._outs[0].dataset.label || '実行結果の例';
+      return;
+    }
     var top = document.createElement('div'); top.className = 'code-top';
     var badge = document.createElement('span'); badge.className = 'where ' + w[0]; badge.textContent = b.dataset.label || w[1];
     var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'copy'; btn.textContent = 'コピー';
@@ -80,7 +85,7 @@
 
   function render(){
     var v = vals();
-    blocks.forEach(function(b){ b.querySelector('pre:not(.out)').innerHTML = fill(b._tpl, true); b._outs.forEach(function(o){ o.innerHTML = fill(o._tpl, true); }); });
+    blocks.forEach(function(b){ if(b._tpl){ b.querySelector('pre:not(.out)').innerHTML = fill(b._tpl, true); } b._outs.forEach(function(o){ o.innerHTML = fill(o._tpl, true); }); });
     document.querySelectorAll('.liveuser').forEach(function(s){ s.textContent = v.u; });
     document.querySelectorAll('.liveip').forEach(function(s){ s.textContent = v.ip; });
   }

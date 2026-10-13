@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013h">
+<link rel="stylesheet" href="assets/style.css?v=20261013i">
 </head>
 <body data-lab="lab9" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -95,6 +95,10 @@
         return number + " " + name;
     }
 }</pre></div>
+  <p>スライドでは、このクラスを main から次のように使っています。</p>
+  <div class="code" data-where="ssh" data-label="スライドの例（main の中）"><pre>Seiseki student1 = new Seiseki();
+student1.setID(1, "Michael");
+System.out.println(student1.getString());</pre><pre class="out">1 Michael          ← スライドの「何と表示されましたか？」の答え。getString が番号と名前を空白でつないだもの</pre></div>
   <p>同じように、4教科の点数を持つ変数と、それをまとめて設定するメソッドを、自分で足します。スライドの「まとめて4教科分データを渡せると良い」は、配列（<code class="i">int[]</code>）で受け取る形などが考えられます。</p>
   <p class="why">スライドの「メソッドが多すぎない？」のとおり、全部の変数に get と set を付けると、private にした意味が薄れます。「まとめて設定する」「設定するタイミングを決める」「出力の機能をクラスに持たせる」のどれで作ったか、その理由を説明できるようにしておくと良いです。</p>
 </section>
@@ -108,8 +112,11 @@
       <tr><td><code class="i">toString()</code></td><td><code class="i">System.out.println(オブジェクト)</code> で表示される文字列を決める。<code class="i">@Override</code> を付けて上書きする</td></tr>
     </tbody>
   </table></div>
-  <p class="why">toString を作る前に <code class="i">println(student1)</code> を実行すると、<code class="i">Seiseki@1b6d3586</code> のような文字が出ます。これは「クラス名＠識別番号」で、すべてのクラスが最初から持っている toString の表示です。スライドの「何と表示されましたか？」はこのことを確かめる問いです。</p>
-</section>
+  <p class="why">toString を作る前に、オブジェクトをそのまま <code class="i">println</code> すると、「クラス名＠識別番号」が出ます。これは、すべてのクラスが最初から持っている toString の表示です。</p>
+  <div class="code" data-where="ssh" data-label="System.out.println(student2) の表示（toString を作る前と後）"><pre class="out">$ （toString を作る前）
+Seiseki@4e50df2e          ← @ のあとは実行ごとに違う。パッケージに入れていると kadai.Seiseki@… のようになる
+$ （スライドの toString を足したあと）
+IDは2</pre></div></section>
 
 <section class="step" id="s4" data-title="複数の学生をまとめる">
   <div class="step-head"><div class="num">4</div><div><h2>複数の学生をまとめて扱う</h2><span class="slide">スライド「値を入れていこう」「値を取り出す機能」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
@@ -200,6 +207,6 @@
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013h"></script>
+<script src="assets/app.js?v=20261013i"></script>
 </body>
 </html>

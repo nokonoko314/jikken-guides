@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013h">
+<link rel="stylesheet" href="assets/style.css?v=20261013i">
 </head>
 <body data-lab="lab-hoko" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -114,6 +114,15 @@ OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, shari
       <tr><td>何と比べればよいか</td><td>表示する文は「評価『優』の教科数」。優は何点以上か、を考えて比較の記号を選ぶ</td></tr>
     </tbody>
   </table></div>
+  <div class="code" data-where="ssh" data-label="Sample1 をそのまま実行したとき（NetBeansの「出力」）"><pre class="out">Sample1.java:11: エラー: 不適合な型: intをbooleanに変換できません:
+            if(value = n){
+                     ^
+エラー1個
+ビルド失敗(合計時間: 0秒)
+（英語表示の環境では error: incompatible types: int cannot be converted to boolean）</pre></div>
+  <div class="code" data-where="ssh" data-label="正しく直して実行したとき"><pre class="out">評価「優」の教科数は3個でした。
+ビルド成功(合計時間: 0秒)
+（98・80・90 の3つ。1個と出たら、80点ちょうどの教科しか数えていない）</pre></div>
   <p>直したら「実行」（▶）で動かし、画面下の「出力」に結果が出ることを確かめます。次に、行番号をクリックしてブレークポイント（赤い四角）を置き、「デバッグ」で実行すると、その行で止まって変数の値を確認できます。</p>
   <p class="why">C言語の <code class="i">if (value = n)</code> はコンパイルが通ってしまい、気づきにくいバグになります。Javaは if に boolean しか書けないので、コンパイルの時点で気づけます。この違いは、Javaの「型がしっかりしている」という特徴の例です。</p>
 </section>
@@ -121,6 +130,9 @@ OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, shari
 <section class="step" id="s4" data-title="ArrayListを使ってみる">
   <div class="step-head"><div class="num">4</div><div><h2>ArrayList を使ってみる</h2><span class="slide">資料3「ArrayListクラスを使ってみよう」「どんなメソッドがあるのか？」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <p>スライドのリストのプログラムを打つと、1行目の <code class="i">ArrayList</code> が赤くなります。電球マークから「インポートを追加」を選ぶと、ファイルの先頭に <code class="i">import java.util.ArrayList;</code> が入って直ります（<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd> でまとめて追加もできます）。</p>
+  <div class="code" data-where="ssh" data-label="スライドのリストのプログラム（import を足したあと）の実行結果"><pre class="out">10
+30
+28</pre></div>
   <div class="tbl"><table>
     <thead><tr><th>メソッド</th><th>していること</th></tr></thead>
     <tbody>
@@ -141,6 +153,8 @@ OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, shari
     <li>結合用のリストを作り、2つの中身をまとめて入れる</li>
     <li>並べ替えて、表示する</li>
   </ol>
+  <div class="code" data-where="ssh" data-label="確認用：正しく結合して並べると（System.out.println(リスト) で表示した場合）"><pre class="out">[32, 39, 43, 55, 56, 56, 64, 64, 67, 78, 78, 78, 85, 92, 92, 100]
+（16個。表示の形は、表示のしかたによって変わる）</pre></div>
   <p class="why">結果は 9＋7＝16個になります。同じ点数（例：78、92）が両方にあっても、リストは重複をそのまま残します。重複をなくしたい場合に使う入れ物（Set）との違いを調べると、発展の話題になります。</p>
 </section>
 
@@ -155,6 +169,17 @@ OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, shari
       <tr><td>その順に得点を表示</td><td>拡張for文で名前を1つずつ取り出し、<code class="i">map.get(名前)</code></td></tr>
     </tbody>
   </table></div>
+  <div class="code" data-where="ssh" data-label="確認用：名前の順に得点を表示すると"><pre class="out">Akiyama 92
+Kirisima 78
+Matsuno 56
+Nagata 67
+Sakagami 55
+Sato 100
+Shinoda 64
+Tanaka 43
+Yamaguchi 92
+Yuba 85
+（大文字・小文字が混ざると、大文字が先に並ぶことにも注意）</pre></div>
   <p class="why">HashMapは、入れた順も名前順も覚えていません。そのため「名前を取り出して並べ替えてから探す」という手順が必要になります。最初から名前順で持つ <code class="i">TreeMap</code> もあり、両者の違いを調べると第11回（探索とデータ構造）の予習になります。</p>
 </section>
 
@@ -180,6 +205,6 @@ OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, shari
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013h"></script>
+<script src="assets/app.js?v=20261013i"></script>
 </body>
 </html>
