@@ -2,31 +2,54 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>実験手順書</title>
-<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#EDF1F5;--paper:#fff;--ink:#1C2A44;--sub:#56627A;--line:#CDD6E2;--cobalt:#2F5BD3;--amber:#F2B33D}
-@media (prefers-color-scheme: dark){:root{--bg:#121826;--paper:#1A2234;--ink:#E4E9F2;--sub:#9AA6BD;--line:#2D3850;--cobalt:#7C9CF0}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.8}
-main{max-width:640px;margin:0 auto;padding:48px 16px}
-h1{font-size:28px;margin:0 0 6px;padding-left:16px;border-left:8px solid var(--amber)}
-p{color:var(--sub);margin:0 0 28px}
-a.card{display:flex;gap:16px;align-items:center;background:var(--paper);border:1.5px solid var(--line);border-left:6px solid var(--cobalt);border-radius:6px;padding:16px 18px;margin-bottom:14px;color:var(--ink);text-decoration:none}
-a.card:hover,a.card:focus-visible{border-color:var(--cobalt)}
-.n{flex:none;width:44px;height:44px;display:grid;place-items:center;background:var(--ink);color:var(--paper);border-radius:4px;font-weight:700;font-size:20px}
-.files{margin:-6px 0 18px 66px;font-size:14px}.files a{color:var(--cobalt)}
-.t{font-weight:700;font-size:17px}.d{font-size:14px;color:var(--sub)}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>情報工学実験 手順書</title>
+<meta name="description" content="4EJ 情報工学実験の各回の作業手順。コマンドをそのままコピーして進められます。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
-<main>
-  <h1>情報工学実験 手順書</h1>
-  <p>4年 情報工学実験の作業手順。各回のページで、ユーザ名とIPを入れるとコマンドがそのままコピーできます。</p>
-  <a class="card" href="lab2.html"><span class="n">2</span><span><span class="t">サーバ構築とソフトウェアの設定</span><br><span class="d">10/13　公開鍵ログイン・Apache・PHP・MySQL</span></span></a>
-  <div class="files">配布ファイル：<a href="files/lab2/db_sample.zip" download>db_sample.zip</a></div>
-  <a class="card" href="lab1.html"><span class="n">1</span><span><span class="t">OSのインストールとシステム構築</span><br><span class="d">10/6　Ubuntu Server・SSH・Python</span></span></a>
+<body data-lab="home">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right"><button class="theme-btn" id="theme-btn" type="button">表示切替</button></div>
+</div></header>
+
+<main class="home" id="content">
+  <section class="tb" aria-label="この手順書について">
+    <div class="tb-no"><span class="tb-k">全</span><span class="tb-num">15<small>回</small></span></div>
+    <div class="tb-title"><span class="tb-k">科目</span><h1>4年 情報工学実験 手順書</h1></div>
+    <div class="tb-date"><span class="tb-k">最新</span><a href="lab2.html">第2回　サーバ構築とソフトウェアの設定</a></div>
+    <div class="tb-rep"><span class="tb-k">経過報告</span>毎回 15:00 から、1人2分</div>
+    <div class="tb-sum"><span class="tb-k">使い方</span>回を選んで手順書を開き、上のバーにサーバでのユーザ名とIPを入れると、コマンドがそのままコピーできる形に書き換わります。配布資料はそれぞれの回のページからダウンロードできます。</div>
+  </section>
+
+  <h2 class="sec">実験の予定</h2>
+  <div class="reg-head" aria-hidden="true"><span>回</span><span>実施日</span><span>題目</span><span>レポート提出</span><span></span></div>
+  <ol class="register">
+    <li><a class="reg-row" href="lab1.html"><span class="reg-no">01</span><span class="reg-date">10/6</span><span class="reg-title">OSのインストールとシステム構築<span class="reg-sub">Ubuntu Server・SSH・Python</span></span><span class="reg-rep">なし</span><span class="reg-go">手順書を開く</span></a></li>
+    <li><a class="reg-row" href="lab2.html"><span class="reg-no">02</span><span class="reg-date">10/13</span><span class="reg-title">サーバ構築とソフトウェアの設定<span class="reg-sub">公開鍵ログイン・Apache・PHP・MySQL</span></span><span class="reg-rep">なし</span><span class="reg-go">手順書を開く</span></a></li>
+    <li><div class="reg-row"><span class="reg-no">03</span><span class="reg-date">10/20</span><span class="reg-title">ヒューリスティックサーチの応用</span><span class="reg-rep">① 10/27(火) 9:00</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">04</span><span class="reg-date">10/27</span><span class="reg-title">Socket 通信</span><span class="reg-rep">② 11/17(火) 9:00</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">05</span><span class="reg-date">11/17</span><span class="reg-title">コンピュータグラフィックス</span><span class="reg-rep">③ 11/24(火) 9:00</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">06</span><span class="reg-date">11/24</span><span class="reg-title">サイバーセキュリティ演習 または GUIとイベント処理</span><span class="reg-rep">—</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">07</span><span class="reg-date">12/1</span><span class="reg-title">サイバーセキュリティ演習 または GUIとイベント処理</span><span class="reg-rep">—</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row off"><span class="reg-no">08</span><span class="reg-date">12/8</span><span class="reg-title">中間試験（実験なし）</span><span class="reg-rep">—</span><span class="reg-go soon"></span></div></li>
+    <li><div class="reg-row"><span class="reg-no">補</span><span class="reg-date">12/10</span><span class="reg-title">ガイダンス・IDEの導入・Javaの基礎</span><span class="reg-rep">—</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">09</span><span class="reg-date">12/15</span><span class="reg-title">クラスの作成・継承</span><span class="reg-rep">—</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">10</span><span class="reg-date">12/22</span><span class="reg-title">クラスタリングの基礎</span><span class="reg-rep">④ 1/12(火) 9:00</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">11</span><span class="reg-date">1/12</span><span class="reg-title">検索アルゴリズムとデータ構造</span><span class="reg-rep">⑤ 1/19(火) 9:00</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">12</span><span class="reg-date">1/19</span><span class="reg-title">選択テーマ型実習1</span><span class="reg-rep">—</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">13</span><span class="reg-date">1/26</span><span class="reg-title">選択テーマ型実習2</span><span class="reg-rep">—</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row"><span class="reg-no">14</span><span class="reg-date">2/2</span><span class="reg-title">選択テーマ型実習3</span><span class="reg-rep">⑦ 2/23(火) 9:00</span><span class="reg-go soon">準備中</span></div></li>
+    <li><div class="reg-row off"><span class="reg-no">15</span><span class="reg-date">3/2</span><span class="reg-title">実験の成績返却とまとめ</span><span class="reg-rep">—</span><span class="reg-go soon"></span></div></li>
+  </ol>
+  <p class="home-note">予定は第1回のガイダンス資料（第1回のページからダウンロードできます）にもとづいています。変更があった場合は、授業での連絡を優先してください。</p>
 </main>
+
+<footer class="site-foot"><div class="site-foot-in"><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js"></script>
 </body>
 </html>
