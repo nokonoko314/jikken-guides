@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第12〜14回 選択テーマ型実習｜情報工学実験 手順書</title>
+<meta name="description" content="6つのテーマから1つを選ぶ個人実験の、テーマごとの準備・配布データの中身・進め方のヒント。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013g">
+</head>
+<body data-lab="lab12" data-label-local="第2回で作ったサーバ" data-label-ssh="コードの書き方の例" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">テーマ一覧と提出物</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">レポートの組み立て方</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第12〜14回　選択テーマ型実習</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">12</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>選択テーマ型実習（第12〜14回）</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2027年1月19日・1月26日・2月2日（火）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>2/23（火）9:00 締切</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>画像の分類、ネットワークの性能測定、文字画像のWebデータベース、Minecraft Educationの教材、チャット、ボードゲームの6テーマから1つを選び、3回で作って第14回に動作を見せる。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライドとテーマ①③のデータはLMSから取得してください（スライドは前年度のもので、日付は2025年1月です）。このページは、その内容を自分用に解説したものです。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この解説の使い方</h2>
+  <ul>
+    <li>第12〜14回は、6つのテーマから1つを選んで3回かけて取り組む<strong>個人実験</strong>です。最終回（第14回）に、動いているところを教員に確認してもらいます。</li>
+    <li>レポートの対象です。テーマごとに、準備、配布データの中身、進め方の考え方、つまずきやすい点を書いています。作るもの自体はテーマの自由度が高いので、答えにあたるプログラムは書いていません。</li>
+    <li>手順1〜2は全員共通です。手順3〜8は<strong>自分が選んだテーマだけ</strong>読めば十分です。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-win">自分のPCのPowerShell</span>
+    <span class="where w-local">第2回で作ったサーバ</span>
+    <span class="where w-ssh">コードの書き方の例</span>
+  </div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">テーマ一覧と提出物</h2>
+  <p class="note">スライド「テーマ一覧」と各テーマの「提出物等」より。⑤⑥は、選ぶ前に教員への相談が必要です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>テーマ</th><th>基本課題</th><th>レポート以外の提出物</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>① 機械学習による画像の分類</td><td>食べ物の画像50枚を、特徴量をもとに5種類に分ける</td><td>分類用プログラム、分類結果（複数のアルゴリズムの精度比較）</td><td>3</td></tr>
+      <tr><td>② ネットワーク機器の性能測定</td><td>2台のPCでスループットを測るプログラムを作り、ハブ・スイッチ・パケットサイズ・TCP/UDPを変えて比べる</td><td>動作結果の提示</td><td>4</td></tr>
+      <tr><td>③ 文字画像のWebデータベース</td><td>2つの本の文字を、文字で検索して並べて比べられるWebサイトを作る</td><td>プログラム、データファイル、動作結果の提示</td><td>5</td></tr>
+      <tr><td>④ Minecraft Educationで教材作り</td><td>Hour of Code で仕組みを学び、アルゴリズムを教える副教材を作る</td><td>ワールドデータ、授業資料、動作結果の提示</td><td>6</td></tr>
+      <tr><td>⑤ サーバクライアント型システム（要相談）</td><td>3人以上が同時に使えるチャット（マルチスレッド・非同期通信）</td><td>チャットプログラム、動作結果の提示</td><td>7</td></tr>
+      <tr><td>⑥ 通信対戦ボードゲーム（要相談）</td><td>Board Game Arena で、ハーツのチュートリアルの後に七並べなどを作る</td><td>ゲームの内容、プログラム、動作結果の提示</td><td>8</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step" id="s1" data-title="3回の進め方を決める">
+  <div class="step-head"><div class="num">1</div><div><h2>3回の進め方を決める</h2><span class="slide">スライド「今後のスケジュール」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>回</th><th>予定（スライド）</th><th>この回の終わりに、できていたいこと</th></tr></thead>
+    <tbody>
+      <tr><td>第12回</td><td>選択テーマ型実習1</td><td>テーマを決め、環境が動き、配布データを読み込めた。何をどこまで作るかを書き出した</td></tr>
+      <tr><td>第13回</td><td>選択テーマ型実習2</td><td>基本課題が一通り動いた。比較や測定の結果が出始めた</td></tr>
+      <tr><td>第14回</td><td>実習3：発表・確認</td><td>教員に動作を見せた。レポート用の結果（表・画像・記録）がそろった</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">3回は短いので、第12回のうちに「最低限ここまでは見せる」という線を決めておくと、間に合わないときに削る場所がはっきりします。各回の終わりに、何をしたか・どんな値が出たかを1行ずつでもメモしておくと、レポートの「実験内容と結果」がほぼそのまま書けます。</p>
+  <p class="why">スライドは前年度のもの（日付は2025年1月）です。日程はガイダンスの予定表（1/19・1/26・2/2）を優先してください。</p>
+</section>
+
+<section class="step" id="s2" data-title="テーマを選ぶ">
+  <div class="step-head"><div class="num">2</div><div><h2>テーマを選ぶ</h2><span class="slide">スライド「テーマ一覧」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>テーマ</th><th>これまでの回とのつながり</th><th>注意</th></tr></thead>
+    <tbody>
+      <tr><td>①</td><td>第5回（OpenCV）、第10回（クラスタリング）</td><td>Pythonで進めるのが楽。応用課題は大きなデータセットのダウンロードが必要</td></tr>
+      <tr><td>②</td><td>第4回（ソケット通信）</td><td>PCが2台と、ハブ・スイッチ・LANケーブルが要る。<strong>班の相方と機材を融通し合う</strong>必要あり</td></tr>
+      <tr><td>③</td><td>第2回（Apache・PHP・MariaDB）、第5回（画像の切り出し）</td><td>第2回のサーバがそのまま使える</td></tr>
+      <tr><td>④</td><td>なし（新しい道具）</td><td><strong>演習室PCでは動かない</strong>。自分のPCとOffice365のアカウントが必要</td></tr>
+      <tr><td>⑤</td><td>第4回（ソケット通信）</td><td>要相談。3人以上で試すので、動作確認の相手が要る</td></tr>
+      <tr><td>⑥</td><td>第6・7回（イベント処理の考え方）</td><td>要相談。Board Game Arena の開発者アカウントが必要</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">個人実験なので、班の相方と同じテーマでもかまいませんが、プログラムやレポートは各自のものです。②⑤のように相手が要るテーマは、測定や確認の相手を先に決めておきます。</p>
+</section>
+
+<section class="step" id="s3" data-title="①画像の分類">
+  <div class="step-head"><div class="num">3</div><div><h2>① 機械学習による画像の分類</h2><span class="slide">スライド「機械学習による画像の分類」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p><strong>配布データ</strong>：LMSのzipに、食べ物の画像が50枚（5種類×10枚）入っています。ファイル名は番号だけで、どれが何の料理かは書かれていません。大きさは横512ピクセル前後で、そろっていません。</p>
+  <div class="code" data-where="win"><pre>py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install opencv-python numpy scikit-learn matplotlib</pre></div>
+  <div class="tbl"><table>
+    <thead><tr><th>段階</th><th>考え方・ヒント</th></tr></thead>
+    <tbody>
+      <tr><td>1. 正解を用意する</td><td>課題は「特徴量からクラスタを作る」ことで、答えは配られていません。精度を比べるために、<strong>自分で50枚を見て、何の料理かを書いた表（CSV）</strong>を先に作っておきます。これは評価のためだけに使い、分類には使いません</td></tr>
+      <tr><td>2. 大きさをそろえる</td><td>特徴量の長さをそろえるため、全部を同じ大きさに縮める（<code class="i">cv2.resize</code>）</td></tr>
+      <tr><td>3. 特徴量を作る</td><td>簡単な順に、色のヒストグラム（第5回の <code class="i">calcHist</code>）、HSVの色ヒストグラム、形や模様の特徴（HOGなど）、学習済みのCNNの中間出力、と試せる</td></tr>
+      <tr><td>4. クラスタを作る</td><td>K-means（<code class="i">sklearn.cluster.KMeans</code>）や階層的クラスタリング（第10回の方法。<code class="i">AgglomerativeClustering</code>）で5つに分ける</td></tr>
+      <tr><td>5. 精度を比べる</td><td>クラスタ番号は「何番が何の料理」と決まっていないので、そのまま正解率は出せない。クラスタごとに一番多い正解の料理を割り当てて正解率を出すか、番号の付け方によらない指標（<code class="i">adjusted_rand_score</code>）を使う。表（混同行列）にすると、どの料理どうしを取り違えたかが見える</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">「複数のアルゴリズムを試し精度を比較する」ことが提出物に入っています。特徴量（色だけ／形も）とクラスタリング手法（K-means／階層的）の組み合わせを表にして、どれが何％だったかを並べると、そのまま結果と考察の柱になります。K-meansは最初の中心がランダムなので、<code class="i">random_state</code> を変えて何回か試し、結果のばらつきも見ておきます。</p>
+  <p class="why">色のヒストグラムだけだと「赤っぽい料理どうし」が同じクラスタに入りがちです。間違えた画像を並べて、どんな特徴が足りなかったかを書くと、よい考察になります。</p>
+  <p><strong>応用課題（学習）</strong>：Kaggleの Food-101（スライドのfood41）から、同じ5種類の画像を学習に使い、学習に使っていない画像が何かを当てます。ここでは正解ラベルを使う<strong>教師あり学習</strong>（ロジスティック回帰、SVM、学習済みCNNの再学習など）になります。データセットは全体で数GBあるので、5種類のフォルダだけを取り出して使います。</p>
+  <p class="why">学習用と確認用の画像は必ず分けます。配布の50枚を確認用にすると、基本課題のクラスタリングとの比較もできます。</p>
+  <details class="pitfall" id="pf-t1">
+    <summary><span class="pf-tag">つまずいたとき</span>画像フォルダを読み込むとエラーになる</summary>
+    <p>配布のフォルダには、画像のほかに <code class="i">desktop.ini</code>（Windowsの設定ファイル）が入っています。フォルダの中身を全部読もうとすると、ここで <code class="i">imread</code> が <code class="i">None</code> を返します。拡張子が <code class="i">.jpg</code> のものだけを読むようにします。</p>
+  </details>
+</section>
+
+<section class="step" id="s4" data-title="②ネットワークの性能測定">
+  <div class="step-head"><div class="num">4</div><div><h2>② ネットワーク機器の性能測定</h2><span class="slide">スライド「通信プログラムを用いたネットワーク機器の性能測定」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>第4回のソケット通信の応用です。送る側は決まった量のデータを送り続け、受ける側は「受け取ったバイト数 ÷ かかった時間」でスループットを求めます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>考えること</th><th>ヒント</th></tr></thead>
+    <tbody>
+      <tr><td>どれだけ送るか</td><td>数KBだと接続の手間ばかりが測れてしまう。数十〜数百MBを送り、1回の測定が数秒以上かかるようにする</td></tr>
+      <tr><td>どこで時間を測るか</td><td>受ける側で、最初のデータが届いてから最後のデータが届くまでを測ると、送る側のバッファの影響を受けにくい</td></tr>
+      <tr><td>単位</td><td>ネットワークの速さはビット毎秒（Mbps）で表すのが普通。バイト数×8 で直す。1000BASE-Tなら上限は1000Mbps</td></tr>
+      <tr><td>パケットサイズ</td><td>1回の <code class="i">write</code>／<code class="i">send</code> で送る大きさを、64B〜64KBくらいで変えて比べる</td></tr>
+      <tr><td>TCPとUDP</td><td>UDPは届いたかどうかの確認がないので、送ったデータに通し番号を入れ、受ける側で欠けた数（損失率）も数える</td></tr>
+      <tr><td>機材の比較</td><td>直結（ケーブル1本）、ハブ1台、スイッチ1台、2台経由…と条件を1つずつ変え、同じ条件で5回ほど測って平均とばらつきを出す</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">発展課題の「既存の性能を測定するプログラム」には <code class="i">iperf3</code> があります（第2回のサーバなら <code class="i">sudo apt install iperf3</code>、Windows版もあります）。自分のプログラムの値と並べ、差がある場合はその理由（バッファの大きさ、Javaの処理の重さなど）を考えると考察になります。</p>
+  <p class="why">「ハブ」と「スイッチ」の違い（届いたデータを全部の口に流すか、宛先の口だけに流すか）は、PCを増やして同時に通信させたときに差として表れます。発展課題の「台数を増やす」は、この違いを確かめる実験になります。</p>
+  <details class="pitfall" id="pf-t2">
+    <summary><span class="pf-tag">つまずいたとき</span>もう1台のPCからつながらない</summary>
+    <p>Windowsのファイアウォールが、待ち受けているポートへの接続を止めています。初回に出る「アクセスを許可しますか」の画面で「プライベート」を許可するか、測定のあいだだけ許可の設定を追加します。2台のIPが同じネットワーク（例：192.168.1.x どうし）になっているかも、<code class="i">ipconfig</code> で確かめます。Wi‑Fiが有効だとそちらを通ることがあるので、測定中はWi‑Fiを切っておきます。</p>
+  </details>
+</section>
+
+<section class="step" id="s5" data-title="③文字画像のWebデータベース">
+  <div class="step-head"><div class="num">5</div><div><h2>③ 文字画像のWebデータベース</h2><span class="slide">スライド「文字画像のWebデータベースの構築」「配布画像について」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p><strong>配布データ</strong>（LMSのzip）：国立国語研究所の資料から、『尚書』巻6の冒頭5ページの画像が、第3種本と第4種本の2種類あります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>ファイル</th><th>中身</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">dai3syubon/sysy006-001〜005.jpg</code></td><td>第3種本の5ページ（縦長、約3000×4200ピクセル）。001が1オ、002が1ウ、003が2オ、004が2ウ、005が3オ</td></tr>
+      <tr><td><code class="i">dai3syubon_pickeddata.txt</code></td><td>第3種本の<strong>オ（表）のページ</strong>（001・003・005）の文字512字分。タブ区切りで、ID・文字・行の名前・割注の印2つ・左上x・左上y・右下x・右下y・幅・高さ</td></tr>
+      <tr><td><code class="i">dai4syubon/sys4006-001〜005.jpg</code></td><td>第4種本の5ページ。文字の位置のデータは<strong>ない</strong>（スライドの「全くの手つかず」）</td></tr>
+      <tr><td>文字化けした名前の <code class="i">.txt</code></td><td>『尚書』巻6の本文の書き起こし（文字化けは「尚書巻6」。zipの文字コードのため）。［ ］の中は割注（小さい文字で2行に書かれた注）</td></tr>
+      <tr><td><code class="i">datapicker/</code></td><td>上の pickeddata を元のデータから作ったときのPythonと、元のCSV（全巻分）</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">IDの <code class="i">6-F-01-02-01</code> は、左から「巻6・オ（F）・1行目・上から2字目・1丁目」です。座標は、そのページの画像そのままのピクセル位置なので、画像から切り出せばその文字が取れます（実際に「尚」の位置で切り出すと「尚」が出ます）。ウ（B）のページ（002・004）の文字は、このファイルには入っていません。</p>
+  <div class="code" data-where="ssh" data-label="Python：座標で切り出す書き方の例（Pillow）"><pre>from PIL import Image
+page = Image.open("dai3syubon/sysy006-001.jpg")
+x1, y1, x2, y2 = 2669, 518, 2832, 680      # pickeddata の1行目
+page.crop((x1, y1, x2, y2)).save("6-F-01-01-01.jpg")</pre></div>
+  <div class="tbl"><table>
+    <thead><tr><th>段階</th><th>考え方・ヒント</th></tr></thead>
+    <tbody>
+      <tr><td>1. 画像を分割して名前を付ける</td><td>pickeddata を1行ずつ読み、上の要領で全部切り出す。ファイル名をIDにすると、DBとの対応がとりやすい</td></tr>
+      <tr><td>2. DBに入れる</td><td>第2回のMariaDBに、ID・文字・ページ・行・字の位置・画像ファイル名・どの本か、を持つ表を作る。文字は <code class="i">utf8mb4</code> の列にする（古い漢字も入るように）。Pythonで <code class="i">INSERT</code> 文を作ってまとめて流すと楽</td></tr>
+      <tr><td>3. 検索ページ</td><td>第2回の個人ページ（<code class="i">public_html</code>）にPHPで作る。文字を入れると、その文字の画像を第3種本・第4種本で並べて表示する。SQLは第2回のサンプルと同じく、プレースホルダ（<code class="i">?</code>）で値を渡す</td></tr>
+      <tr><td>4. 本の順に見る</td><td>「本の見た目で順に比較」は、ページ→行→字の順に並べ替えて表示し、前後の文字へ移れるようにする（<code class="i">ORDER BY</code> でページ・行・字の位置の順）</td></tr>
+      <tr><td>5. 第4種本の文字</td><td>位置のデータがないので、自分で決める必要がある。本文は第3種本と同じはずなので、行と字の並びは対応させられる。画像の縦の列を明るさの合計（投影）で区切る、OpenCVで文字の輪郭を取る（第5回）、それでも難しい部分は手で座標を決める、などを組み合わせる</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">5ページ全部の第4種本を切り出すのは時間がかかります。まず1ページ分で検索と比較が動くところまで作り、残りは時間に応じて増やすのが安全です。どこまで自動で切り出せて、どこを手で直したかは、そのまま考察の材料になります。</p>
+  <p class="why">応用課題の「画像の比較（一致度）」は、2つの文字画像を同じ大きさにして二値化し、重なる画素の割合を出す、OpenCVの <code class="i">matchTemplate</code> を使う、などの方法があります。「余裕がある人は」にある唐代の写本との比較は、画像をWebで見られますが、使い方の条件を確認してから使ってください。</p>
+  <details class="pitfall" id="pf-t3a">
+    <summary><span class="pf-tag">つまずいたとき</span><code class="i">datapick.py</code> を動かすとエラーになる</summary>
+    <p><code class="i">datapick.py</code> は、同じフォルダの <code class="i">charac.csv</code> と <code class="i">char_url.csv</code> を読みます。<code class="i">datapicker</code> フォルダに移動してから <code class="i">python datapick.py</code> で実行します。出力は <code class="i">pickeddata.txt</code> です（配布の <code class="i">dai3syubon_pickeddata.txt</code> と同じもの）。</p>
+    <p class="why">ファイルの中の <code class="i">ItemID</code> クラスの <code class="i">__repr__</code> は、存在しない変数 <code class="i">midstring</code> を使っているので、<code class="i">print(elem)</code> のコメントを外すと <code class="i">AttributeError</code> になります。中身を表示したいときは、<code class="i">__init__</code> で <code class="i">self.idstring = raw</code> と覚えさせ、<code class="i">__repr__</code> でそれを使うように直します。ほかの巻やページを取り出したいときは、<code class="i">if elem.maki == 6 and elem.fb == "F" …</code> の条件を書き換えます。</p>
+  </details>
+  <details class="pitfall" id="pf-t3b">
+    <summary><span class="pf-tag">つまずいたとき</span>DBに入れた漢字が「?」になる／検索で見つからない</summary>
+    <p>表や列の文字コードが <code class="i">utf8mb4</code> になっていないと、一部の漢字が「?」で保存されます。表を作るときに <code class="i">DEFAULT CHARSET=utf8mb4</code> を付け、PHPの接続（PDOのDSN）にも <code class="i">charset=utf8mb4</code> を入れます。本文の <code class="i">.txt</code> は先頭にBOM（見えない印）が付いているので、Pythonでは <code class="i">encoding="utf-8-sig"</code> で読むと、1文字目が余計な文字になりません。</p>
+  </details>
+</section>
+
+<section class="step" id="s6" data-title="④Minecraft Educationで教材作り">
+  <div class="step-head"><div class="num">6</div><div><h2>④ Minecraft Educationでプログラミング教材を作る</h2><span class="slide">スライド「Minecraft Educationを用いたプログラミング教育システム」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <ol>
+    <li><strong>自分のPC</strong>に Minecraft Education を入れる（演習室PCでは動きません）。学校のOffice365（Microsoft）アカウントでサインインする</li>
+    <li>まず「Hour of Code」のレッスンを通して、ブロックでプログラムを組む流れ（Code Builder、エージェントの動かし方）をつかむ</li>
+    <li>教えたいアルゴリズムを1つ決める（ループ、条件分岐、ソートなど）</li>
+    <li>そのアルゴリズムが「目に見えて」わかるワールドと、使い方を説明する授業資料（スライドか配布資料）を作る</li>
+    <li>ワールドをエクスポート（<code class="i">.mcworld</code>）して提出する</li>
+  </ol>
+  <p class="why">ソートなら、高さの違うブロックの柱を並べ、エージェントが2本ずつ比べて入れ替えていく様子を見せる、といった形にすると、ゲームの中で手順が見えます。教材としての評価なので、「誰に」「何を」「どの順で」教えるかを先に決め、授業資料にはねらいと手順、つまずきそうな点を書きます。</p>
+  <p class="why">Code Builder では、ブロックのほかに JavaScript や Python でも書けます。ブロックで作ったものを文字のコードに切り替えて見せると、「ブロックとふつうのプログラムの対応」を教える材料になります。</p>
+</section>
+
+<section class="step" id="s7" data-title="⑤チャット（要相談）">
+  <div class="step-head"><div class="num">7</div><div><h2>⑤ 多人数で使えるチャット（要相談）</h2><span class="slide">スライド「サーバクライアント型プログラム」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>第4回のエコーサーバを、「1人が送った文を、つながっている全員に配る」形に広げます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>部分</th><th>考え方・ヒント</th></tr></thead>
+    <tbody>
+      <tr><td>サーバ</td><td><code class="i">accept()</code> で接続を受けるたびに、その人専用のスレッドを作って受信を任せる。メインのスレッドはすぐ次の <code class="i">accept()</code> に戻る</td></tr>
+      <tr><td>全員に配る</td><td>つながっている人の出力先をリストで持ち、受け取った文をそのリスト全員に書き出す。複数のスレッドが同時にリストを触るので、<code class="i">synchronized</code> や <code class="i">CopyOnWriteArrayList</code> で守る</td></tr>
+      <tr><td>クライアント</td><td>キーボード入力を待っている間も、ほかの人の発言が表示されないといけない。<strong>受信専用のスレッド</strong>を1本作る（これがスライドの「非同期通信」）</td></tr>
+      <tr><td>切断</td><td>相手が抜けたら、例外をつかまえてリストから外す。外さないと、次に配るときに毎回エラーになる</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">発展課題のファイル・音声の送受信では、「これは文なのか、ファイルなのか」「何バイト続くのか」を先頭で伝える決まり（プロトコル）が必要になります。第4回で計算サーバのプロトコルを決めたのと同じ考え方で、種類と長さを先に送る形にすると、受ける側が区切りを判断できます。</p>
+</section>
+
+<section class="step" id="s8" data-title="⑥ボードゲーム（要相談）">
+  <div class="step-head"><div class="num">8</div><div><h2>⑥ 通信対戦できるボードゲーム（要相談）</h2><span class="slide">スライド「Board Game Area を用いた七並べゲームの作成」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <ol>
+    <li>Board Game Arena Studio（スライドの参考URL）で開発者アカウントを作る</li>
+    <li><strong>ハーツのチュートリアルを必ず最後まで行う</strong>（スライドで必須とされています）。ゲームの状態の移り変わりを定義する仕組みと、サーバ側（PHP）と画面側（JavaScript）の分担をここでつかむ</li>
+    <li>ハーツを改良するか、七並べ（難しければUnoのような「順に出す」ゲーム）を新しく作る</li>
+  </ol>
+  <p class="why">七並べは、「出せるカードは、すでに並んでいるカードの隣だけ」「出せないときはパス（回数に上限）」というルールを、状態の移り変わりとして整理するのが中心になります。まずルールを状態の図（誰の番→カードを出す／パス→勝ち判定→次の人）に描いてから作ると、チュートリアルのハーツとの違いが見えやすく、そのままレポートの図になります。</p>
+</section>
+
+<section class="step" id="s9" data-title="発表・確認の準備">
+  <div class="step-head"><div class="num">9</div><div><h2>第14回の発表・確認に備える</h2><span class="slide">スライド「今後のスケジュール」実習3：発表・確認／各テーマ「動作結果の提示」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <ul>
+    <li>何を見せるかを、1〜2分で示せる順番に決めておく（例：①分類結果の表と、間違えた画像、③検索して2冊の文字が並ぶ画面）</li>
+    <li>当日に環境が動かないと困るので、前日までに一度、最初から動かしてみる。サーバ（第2回）を使うテーマは、IPが変わっていないかも確かめる</li>
+    <li>レポートに必要な画面や数値は、確認を受ける前に保存しておく</li>
+  </ul>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき（共通）</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td>zipの中のファイル名が文字化けしている</td><td>zipを作ったときの文字コードの違い。中身は正しいので、英数字の名前に変えて使う</td></tr>
+      <tr><td><code class="i">ModuleNotFoundError</code></td><td>仮想環境が有効になっていない。<code class="i">.\.venv\Scripts\Activate.ps1</code> をしてから実行</td></tr>
+      <tr><td>第2回のサーバにつながらない</td><td>IPが変わっている。サーバで <code class="i">hostname -I</code>（第2回の<a href="lab2.html#pf-3">つまずき</a>）</td></tr>
+      <tr><td>個人ページが Forbidden</td><td>第2回の<a href="lab2.html#pf-9">つまずき</a>と同じ。<code class="i">chmod 711</code> と置き場所を確認</td></tr>
+      <tr><td>もう1台のPCとつながらない</td><td>ファイアウォールか、IPのネットワークが違う（手順4の<a href="#pf-t2">つまずいたとき</a>）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="report" data-notoc>
+  <div class="step-head"><div class="num">書</div><div><h2>レポートの組み立て方</h2><span class="slide">「レポートの提出方法と内容について」6. 内容</span></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>章</th><th>この回で書くこと</th></tr></thead>
+    <tbody>
+      <tr><td>2. 課題・目的</td><td>選んだテーマと、自分で決めた到達目標（どこまでを作るか）</td></tr>
+      <tr><td>3. 原理・理論</td><td>①特徴量とクラスタリング・教師あり学習、②スループットとTCP/UDP、ハブとスイッチ、③Webとデータベースの仕組み、④教材で扱うアルゴリズム、⑤スレッドと非同期通信、⑥ゲームの状態遷移、など</td></tr>
+      <tr><td>4. 使用言語や環境</td><td>言語、ライブラリ、使った機材（②）やサーバ（③）、ソフトとアカウント（④⑥）。②は<strong>構築した環境をきちんと記録する</strong>ことがスライドで求められている</td></tr>
+      <tr><td>5. 実験内容と結果</td><td>作ったものの構成図、動いている画面、比較の表（①アルゴリズムごとの精度、②条件ごとのスループット）</td></tr>
+      <tr><td>6. 考察</td><td>結果の違いの理由、うまくいかなかった点とその原因、時間があれば何をするか</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">締切は2/23（火）9:00です（予定表より）。プログラムやデータファイルなど、レポート以外の提出物もテーマごとに決まっているので、上の「テーマ一覧と提出物」で確認してください。</p>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab11.html"><span class="pager-k">前の回</span>第11回　検索アルゴリズムとデータ構造</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <span class="pager-item empty"><span class="pager-k">次の回</span>準備中</span>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013g"></script>
+</body>
+</html>
