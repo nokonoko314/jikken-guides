@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第5回 コンピュータグラフィックス｜情報工学実験 手順書</title>
+<meta name="description" content="OpenCV（Python）で画像から数える・測る・判定する課題の、環境構築・考え方・ヒント。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013f">
+</head>
+<body data-lab="lab5" data-label-ssh="Pythonのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">レポートの組み立て方</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第5回　コンピュータグラフィックス</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">05</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>コンピュータグラフィックス</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2026年11月17日（火）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>レポート③　11/24（火）9:00 締切</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>OpenCVで、ひよこの数、錠剤のOK・NG、ギアの長さ、ノイズのある物の太さ、箱のラベルの有無を、画像から自動で求める。二値化・輪郭抽出・フィルタ・マスク処理を組み合わせる。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライドと課題の画像はLMSから取得してください（スライドはOpenCV 3.4.2 の書き方です。このページは今入る 4.x に合わせています）。このページは、その内容を自分用に解説したものです。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この解説の使い方</h2>
+  <ul>
+    <li>OpenCV（Python）で画像を処理し、「ひよこの数を数える」「錠剤がそろっているか判定する」など、画像から自動で数えたり判定したりする回です。</li>
+    <li>レポート③の対象です。ここでは環境構築、関数の使い方、課題ごとの考え方とヒントまでを書き、課題のプログラムそのものは書いていません。</li>
+    <li><strong>スライドは OpenCV 3.4.2 で書かれています。</strong>今 pip で入る 4.x では、一部の関数の戻り値が違います（手順4）。このページは 4.x に合わせて書いています。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-win">自分のPCのPowerShell</span>
+    <span class="where w-ssh">Pythonのコード（書き方の例）</span>
+  </div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">今回の課題</h2>
+  <p class="note">スライド「本日の課題」より。画像はLMSで配布されます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>内容</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>基本1</td><td>カタログ画像の中のひよこの数を数える</td><td>6</td></tr>
+      <tr><td>基本2</td><td>PTPシートの錠剤を数え、8個ならOK、それ以外はNGと判定する</td><td>7</td></tr>
+      <tr><td>基本3</td><td>ギアの長さ（ピクセル）を求める</td><td>8</td></tr>
+      <tr><td>基本4</td><td>ノイズのある画像で物体の太さを測り、決めた範囲に入っているか判定する</td><td>9</td></tr>
+      <tr><td>基本5</td><td>箱にラベルが貼られているかを判定する（箱の傾きの補正も）</td><td>10</td></tr>
+      <tr><td>発展</td><td>ラベルの文字の読み取り／コネクタの抜け／圧力計のOK・NG／自分で選んだ画像処理</td><td>11</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step extra" id="s1" data-title="PythonとOpenCVを入れる">
+  <div class="step-head"><div class="num">1</div><div><h2>PythonとOpenCVを入れる</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドに環境の指定はないので、自分のPCで動かす方法を書きます。作業用のフォルダを作り、その中に仮想環境（venv）を作って入れます。</p>
+  <div class="code" data-where="win"><pre>mkdir $HOME\cg; cd $HOME\cg
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install opencv-python numpy matplotlib
+python -c "import cv2; print(cv2.__version__)"</pre></div>
+  <p class="why">最後の行でバージョン（4.x）が出れば準備完了です。<code class="i">Activate.ps1</code> で「スクリプトの実行が無効」と出る場合は、<code class="i">Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> を1回実行してから、もう一度試してください。第1回のサーバで動かすこともできますが、画面に画像を出す <code class="i">cv2.imshow</code> がSSH越しでは使えないので、結果は <code class="i">cv2.imwrite</code> でファイルに保存して確認することになります。</p>
+</section>
+
+<section class="step" id="s2" data-title="画像を読み込んで保存する">
+  <div class="step-head"><div class="num">2</div><div><h2>画像を読み込んで、結果を保存する</h2><span class="slide">スライド「画像処理の基本」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>LMSの画像を作業用フォルダに置き、まず「読み込めたか」を確かめます。</p>
+  <div class="code" data-where="ssh" data-label="読み込み・確認・保存の書き方の例"><pre>import cv2
+img = cv2.imread("hiyoko.png")
+if img is None:
+    raise SystemExit("読み込めませんでした（ファイル名・場所を確認）")
+print(img.shape)          # (高さ, 幅, 3)
+cv2.imwrite("out.png", img)</pre></div>
+  <div class="tbl"><table>
+    <thead><tr><th>知っておくこと</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>失敗してもエラーにならない</td><td><code class="i">imread</code> は読めないとき <code class="i">None</code> を返すだけ。次の行で分かりにくいエラーになるので、上のように確かめる</td></tr>
+      <tr><td>日本語のパスは読めない</td><td>フォルダ名やファイル名に日本語が入っていると <code class="i">None</code> になる。英数字だけの場所に置く</td></tr>
+      <tr><td>色の順番はBGR</td><td>OpenCVは青・緑・赤の順。matplotlibで表示すると色が入れ替わって見えるので、<code class="i">cv2.cvtColor(img, cv2.COLOR_BGR2RGB)</code> してから表示する</td></tr>
+      <tr><td>座標は (x, y)、配列は [y, x]</td><td>関数に渡す座標は横・縦の順、<code class="i">img[y, x]</code> で画素を取り出すときは縦・横の順</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">処理の途中の画像（二値化した画像、マスク、輪郭を描いた画像）を毎回ファイルに保存しておくと、どこで思いどおりにならなかったかがすぐわかります。そのままレポートの図にも使えます。</p>
+</section>
+
+<section class="step" id="s3" data-title="二値化と色の抽出">
+  <div class="step-head"><div class="num">3</div><div><h2>二値化と、色で取り出す方法</h2><span class="slide">スライド「二値化」〜「OpenCVにおける画像の二値化」「二値化によるマスキング」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>ほとんどの課題は「調べたい物を白、それ以外を黒にした画像」を作るところから始まります。作り方は大きく3つです。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>方法</th><th>関数</th><th>向いている場面</th></tr></thead>
+    <tbody>
+      <tr><td>明るさで分ける</td><td><code class="i">cv2.threshold</code>（グレースケールにしてから）</td><td>背景と物の明るさがはっきり違う</td></tr>
+      <tr><td>閾値を自動で決める</td><td><code class="i">cv2.THRESH_BINARY + cv2.THRESH_OTSU</code>（閾値には0を渡す）</td><td>手で閾値を決めにくい。画像ごとに明るさが違う</td></tr>
+      <tr><td>色の範囲で分ける</td><td><code class="i">cv2.inRange(画像, 下限, 上限)</code></td><td>黄色いひよこ、青い背景など、色に特徴がある</td></tr>
+    </tbody>
+  </table></div>
+  <div class="code" data-where="ssh" data-label="色で取り出すときの書き方の例（HSVで指定）"><pre>import numpy as np
+hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+lower = np.array([H下限, S下限, V下限], np.uint8)
+upper = np.array([H上限, S上限, V上限], np.uint8)
+mask = cv2.inRange(hsv, lower, upper)   # 範囲内が白(255)になる</pre></div>
+  <p class="why">スライドの例はBGRのまま範囲を指定していますが、色で分けるときは<strong>HSV</strong>（色相・彩度・明度）に変換したほうが、影や明るさの違いに強くなります。OpenCVの色相Hは0〜179の範囲（360度の半分）なので、黄色はおよそ20〜35あたりです。実際の値は、画像の中の画素を <code class="i">hsv[y, x]</code> で何点か表示して決めるのが確実です。</p>
+  <p class="why">白黒が逆になったときは <code class="i">THRESH_BINARY_INV</code> を使うか、<code class="i">cv2.bitwise_not</code> で反転します。次の輪郭抽出は「黒い背景の中の白い物」を探すので、物が白になっているかを必ず確認してください。</p>
+</section>
+
+<section class="step" id="s4" data-title="輪郭を取り出して数える">
+  <div class="step-head"><div class="num">4</div><div><h2>輪郭を取り出して、数える・測る</h2><span class="slide">スライド「輪郭抽出」〜「OpenCVにおける外接矩形」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="ssh" data-label="OpenCV 4.x での書き方（戻り値は2つ）"><pre>contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+print(len(contours))</pre></div>
+  <p class="why"><strong>スライド（3.4.2）の書き方 <code class="i">img_cont, contours, hierarchy = …</code> のままだと、4.x では <code class="i">ValueError: not enough values to unpack (expected 3, got 2)</code> になります。</strong>4.x では最初の戻り値（輪郭画像）がなくなり、2つだけ返ります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>関数</th><th>わかること</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">cv2.contourArea(c)</code></td><td>輪郭の面積（画素数）。小さすぎるもの・大きすぎるものを除くのに使う</td></tr>
+      <tr><td><code class="i">cv2.boundingRect(c)</code></td><td>傾きを考えない外接矩形 <code class="i">x, y, w, h</code></td></tr>
+      <tr><td><code class="i">cv2.minAreaRect(c)</code></td><td>傾きを考えた外接矩形 <code class="i">((中心x, 中心y), (幅, 高さ), 角度)</code></td></tr>
+      <tr><td><code class="i">cv2.drawContours(img, contours, -1, (0,0,255), 2)</code></td><td>見つけた輪郭を赤で描く（-1は全部）。確認用</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why"><code class="i">len(contours)</code> をそのまま答えにすると、ゴミのような小さな点まで1個と数えてしまいます。面積の一覧を表示して、物1個ぶんの面積がどのくらいかを見てから、「面積がこれ以上のものだけ数える」という条件を付けるのが基本の形です。</p>
+</section>
+
+<section class="step" id="s5" data-title="ノイズを取る（フィルタ）">
+  <div class="step-head"><div class="num">5</div><div><h2>ノイズを取る（フィルタとモルフォロジー）</h2><span class="slide">スライド「フィルタリング」〜「OpenCVのフィルタ」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>処理</th><th>関数</th><th>効果</th></tr></thead>
+    <tbody>
+      <tr><td>平均化・ぼかし</td><td><code class="i">cv2.blur</code>、<code class="i">cv2.GaussianBlur</code>、スライドの <code class="i">filter2D</code></td><td>細かいざらつきを弱める。輪郭もぼける</td></tr>
+      <tr><td>メディアン</td><td><code class="i">cv2.medianBlur(img, 5)</code></td><td>点状のノイズ（ごま塩ノイズ）に特に強い。輪郭が比較的残る</td></tr>
+      <tr><td>オープニング</td><td><code class="i">cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)</code></td><td>二値画像の白い小さな点を消す</td></tr>
+      <tr><td>クロージング</td><td><code class="i">cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)</code></td><td>白い物の中の黒い穴を埋める</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">「二値化の前にぼかす」「二値化の後にオープニング」のどちらでも効果があります。どの順で何をしたかで結果が変わるので、試した組み合わせと結果を表にしておくと、考察で「なぜこの方法にしたか」を説明できます。カーネル（<code class="i">np.ones((5,5), np.uint8)</code> など）を大きくするほど強く効きますが、物そのものも削れます。</p>
+</section>
+
+<section class="step" id="s6" data-title="基本1：ひよこを数える">
+  <div class="step-head"><div class="num">6</div><div><h2>基本1：ひよこの数を数える</h2><span class="slide">スライド「基本課題1」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドのキーワードの順（色抽出 → 二値化／マスク → ノイズ除去 → 輪郭検出 → 輪郭描画で確認）が、そのまま処理の流れになります。</p>
+  <ol>
+    <li>ひよこの黄色をHSVの範囲で取り出す（手順3）</li>
+    <li>オープニングで小さな点を消し、クロージングで目やくちばしの穴を埋める（手順5）</li>
+    <li>輪郭を取り、面積で小さいものを除いて数える（手順4）</li>
+    <li>数えた輪郭を元の画像に描いて保存し、目で見て合っているか確かめる</li>
+  </ol>
+  <p class="why">スライドに「大きさや色の違いを認識」とあるように、ひよこには大きさや色の違うものが混ざっています。<strong>ひよこどうしがくっついていると、2羽が1つの輪郭になります。</strong>面積が「1羽ぶんの面積」の何倍かで数を推定する、くっついた部分を削ってから数える（収縮 <code class="i">cv2.erode</code> や距離変換 <code class="i">cv2.distanceTransform</code>）などの工夫が考えられます。どこで数え間違えたかを画像で示すと、よい考察になります。</p>
+</section>
+
+<section class="step" id="s7" data-title="基本2：錠剤のOK・NG">
+  <div class="step-head"><div class="num">7</div><div><h2>基本2：錠剤のOK・NGを判定する</h2><span class="slide">スライド「基本課題2」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>錠剤を数えて、8個ならOKと表示します。数え方は基本1と同じ考え方です。</p>
+  <ul>
+    <li>錠剤は白っぽく、シートの銀色とは明るさや彩度が違う。グレースケールの明るさで分けるか、HSVの彩度（S）で分けるかを、両方試して比べる</li>
+    <li>錠剤が抜けた穴（空のポケット）も明るく写ることがある。面積や形（円に近いか）で錠剤と区別する</li>
+    <li>OK画像とNG画像の<strong>両方</strong>で同じプログラムを動かし、どちらも正しく判定できることを確かめる</li>
+  </ul>
+  <p class="why">形が円に近いかは「円形度」＝ 4π×面積 ÷ 周囲長² で表せます（周囲長は <code class="i">cv2.arcLength(c, True)</code>）。円なら1に近く、細長いほど小さくなります。</p>
+</section>
+
+<section class="step" id="s8" data-title="基本3：ギアの長さ">
+  <div class="step-head"><div class="num">8</div><div><h2>基本3：ギアの長さを測る</h2><span class="slide">スライド「基本課題3」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>キーワードは「二値化、輪郭検出、外接矩形」です。ギアの輪郭を1つ取り出し、外接矩形の幅か高さ（スライドの矢印の向き）を出力します。</p>
+  <ul>
+    <li>ギアが斜めに置かれているなら、<code class="i">boundingRect</code> ではなく <code class="i">minAreaRect</code> を使う</li>
+    <li>いちばん大きい輪郭がギア、と決めると、ゴミを拾いにくい（<code class="i">max(contours, key=cv2.contourArea)</code>）</li>
+  </ul>
+  <p class="why">スライドの問い「実際の長さにするにはどうしたらいいか？」への答えは、<strong>長さのわかっている物（定規やマーカー）を同じ距離で一緒に写し、1ピクセルが何mmかを求める</strong>ことです。カメラと物の距離が変わると倍率が変わる、レンズのゆがみで端ほどずれる、といった誤差の原因も考察に書けます。</p>
+</section>
+
+<section class="step" id="s9" data-title="基本4：ノイズの中の太さ">
+  <div class="step-head"><div class="num">9</div><div><h2>基本4：ノイズのある画像で太さを判定する</h2><span class="slide">スライド「基本課題4」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <ol>
+    <li>まずノイズを取る（手順5のメディアンが効きやすい）</li>
+    <li>二値化して物の輪郭を取り、太さを測る</li>
+    <li>「何ピクセルから何ピクセルまでならOK」という範囲を自分で決め、その中かを判定する</li>
+  </ol>
+  <p class="why">太さの測り方はいくつかあります。<code class="i">minAreaRect</code> の幅と高さの<strong>短いほう</strong>を使う方法、物を横切る1列の白い画素を数える方法、面積 ÷ 長さで平均の太さを出す方法などです。物の太さが場所によって違う場合は、どの測り方が「太さ」として適切かを考えて、選んだ理由をレポートに書きます。OK画像とNG画像の値を並べて、その間に範囲を置いた根拠を示すと説得力が出ます。</p>
+</section>
+
+<section class="step" id="s10" data-title="基本5：ラベルの有無と傾き">
+  <div class="step-head"><div class="num">10</div><div><h2>基本5：箱のラベルの有無を判定する</h2><span class="slide">スライド「基本課題5」「マスク処理」〜「自動検出によるマスキング」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの手順（箱の範囲を検出 → 箱以外をマスク → 適切な場所にラベルがあるか判定 → 傾き補正）のとおりに進めます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>段階</th><th>ヒント</th></tr></thead>
+    <tbody>
+      <tr><td>箱の範囲</td><td>箱の色で二値化し、いちばん大きい輪郭を箱とする</td></tr>
+      <tr><td>マスク</td><td>黒い画像に箱の輪郭を白で塗りつぶし（<code class="i">drawContours</code> の太さに <code class="i">-1</code>）、<code class="i">cv2.bitwise_and</code> で箱だけを残す</td></tr>
+      <tr><td>ラベルの判定</td><td>箱の中でラベルがあるはずの場所（箱の大きさに対する割合で決める）を切り出し、ラベルの色の画素がどれだけあるかの割合で判定する</td></tr>
+      <tr><td>傾きの補正</td><td><code class="i">minAreaRect</code> の角度で、<code class="i">cv2.getRotationMatrix2D</code> と <code class="i">cv2.warpAffine</code> を使って回転させる</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">ラベルの場所を「左から100ピクセル」のように決めると、箱の位置や大きさが変わった画像で外れます。箱の外接矩形を基準に「箱の幅の何割の位置」と決めると、どの画像でも同じ考え方で使えます。</p>
+  <p class="why"><code class="i">minAreaRect</code> が返す角度の決まりは OpenCV のバージョンで変わっています（4.5.1 以降は 0〜90度の範囲）。角度を表示してみて、思った向きと90度ずれていたら、幅と高さを入れ替えて考えます。</p>
+</section>
+
+<section class="step" id="s11" data-title="発展課題の手がかり">
+  <div class="step-head"><div class="num">11</div><div><h2>発展課題の手がかり</h2><span class="slide">スライド「発展課題1〜3」「任意の発展課題」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>課題</th><th>手がかり</th></tr></thead>
+    <tbody>
+      <tr><td>ラベルの文字</td><td>文字認識（OCR）は Tesseract と <code class="i">pytesseract</code> で試せる（Tesseract本体を別に入れる必要がある）。読む範囲を切り出し、拡大・二値化してから渡すと精度が上がる。<code class="i">0</code> と <code class="i">O</code>、<code class="i">1</code> と <code class="i">l</code> の取り違えは、使う文字を英大文字と数字に絞ると減る</td></tr>
+      <tr><td>コネクタの抜け</td><td>上から3番目の位置を切り出し、コネクタの色の画素の割合で有無を判定。本数は基本1と同じく輪郭を数える</td></tr>
+      <tr><td>圧力計</td><td>文字盤の円は <code class="i">cv2.HoughCircles</code>、針の直線は <code class="i">cv2.HoughLinesP</code> で見つけられる。円の中心から見た針の角度を、目盛りの角度と比べて値に直す</td></tr>
+      <tr><td>任意</td><td>スライドの例（農産物のサイズ、部品の形状検査）のように、基本課題の組み合わせで「自動で判定する」ものが望ましい</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">ModuleNotFoundError: No module named 'cv2'</code></td><td>仮想環境が有効になっていない、または別のPythonで実行している。<code class="i">.\.venv\Scripts\Activate.ps1</code> をしてから実行。入れるパッケージ名は <code class="i">opencv-python</code></td></tr>
+      <tr><td><code class="i">'NoneType' object has no attribute 'shape'</code></td><td>画像が読めていない。ファイル名、置き場所、パスに日本語がないかを確認</td></tr>
+      <tr><td><code class="i">not enough values to unpack (expected 3, got 2)</code></td><td>スライド（3.4.2）の <code class="i">findContours</code> の書き方。4.x では戻り値は2つ</td></tr>
+      <tr><td>輪郭が1つ（画像全体）しか取れない</td><td>白黒が逆。物が白、背景が黒になるように反転する</td></tr>
+      <tr><td>数が多すぎる</td><td>小さなノイズまで数えている。面積で除くか、オープニングで消す</td></tr>
+      <tr><td>数が少なすぎる</td><td>物どうしがくっついて1つになっている。面積から推定するか、収縮で切り離す</td></tr>
+      <tr><td><code class="i">imshow</code> の窓がすぐ消える／固まる</td><td><code class="i">cv2.waitKey(0)</code> を後ろに書く。閉じるときは窓を選んでキーを押す</td></tr>
+      <tr><td>matplotlib で色がおかしい</td><td>BGRのまま表示している。RGBに変換してから表示する</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="report" data-notoc>
+  <div class="step-head"><div class="num">書</div><div><h2>レポート③の組み立て方</h2><span class="slide">「レポートの提出方法と内容について」6. 内容</span></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>章</th><th>この回で書くこと</th></tr></thead>
+    <tbody>
+      <tr><td>3. 原理・理論</td><td>二値化（大津の方法を含む）、色空間（BGRとHSV）、輪郭抽出、外接矩形、空間フィルタリング、マスク処理を、図を使って自分の言葉で</td></tr>
+      <tr><td>4. 使用言語や環境</td><td>Python と OpenCV のバージョン（4.x を使ったならスライドとの違いも）、使ったライブラリ</td></tr>
+      <tr><td>5. 実験内容と結果</td><td>課題ごとに、処理の流れ（図）、途中の画像（二値化・マスク・輪郭描画）、出力した数・長さ・判定</td></tr>
+      <tr><td>6. 考察</td><td>閾値やフィルタを変えると結果がどう変わったか、数え間違い・判定ミスの例とその理由、実際の長さに直す方法、別の画像でも通用するか</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">締切は11/24（火）9:00です。15:00の経過報告では、①基本課題のどこまでできたか、②二値化の方法と閾値をどう決めたか、③数え間違いがあればその原因、④詰まった点と対処、の順に話すとまとまります。</p>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab4.html"><span class="pager-k">前の回</span>第4回　ネットワーク通信</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <a class="pager-item" href="lab6.html"><span class="pager-k">次の回</span>第6・7回　GUIとイベント処理</a>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013f"></script>
+</body>
+</html>

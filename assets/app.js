@@ -124,3 +124,16 @@
     steps.forEach(function(s){ io.observe(s); });
   }
 })();
+(function(){
+  function openFromHash(){
+    var id = decodeURIComponent(location.hash.slice(1)); if(!id) return;
+    var t = document.getElementById(id);
+    if(t && t.tagName === 'DETAILS'){ t.open = true; setTimeout(function(){ t.scrollIntoView({block:'start'}); }, 0); }
+  }
+  window.addEventListener('hashchange', openFromHash);
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href^="#pf-"]');
+    if(a && location.hash === a.getAttribute('href')) openFromHash();
+  });
+  openFromHash();
+})();

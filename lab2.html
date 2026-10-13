@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#14202C">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=20261013d">
+<link rel="stylesheet" href="assets/style.css?v=20261013f">
 </head>
 <body data-lab="lab2" data-label-local="サーバ（直接ログインして）" data-label-ssh="サーバ（自分のPCからSSHで）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
@@ -28,7 +28,7 @@
     <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
     <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
     <ol id="toc"></ol>
-    <ul class="rail-extra"><li><a href="#files">配布資料</a></li><li><a href="#pitfalls">実際に起きたつまずき</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の例</a></li></ul>
+    <ul class="rail-extra"><li><a href="#files">配布資料</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の例</a></li></ul>
   </div></aside>
   <main id="content">
 <nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第2回　サーバ構築とソフトウェアの設定</span></nav>
@@ -110,11 +110,17 @@
 sudo systemctl restart ssh
 sudo sshd -T | grep -i passwordauthentication</pre></div>
   </details>
+  <details class="pitfall" id="pf-3">
+    <summary><span class="pf-tag">つまずいたとき</span>昨日のIPでつながらない（タイムアウト）</summary>
+  <p>サーバのIPはDHCPで決まるので、再起動やネットワークの設定変更で変わります。今回も、途中でサーバのIPが変わり、相方のPCが古いIPのまま接続して <code class="i">Connection timed out</code> になりました。</p>
+  <div class="code" data-where="local"><pre>hostname -I</pre></div>
+  <p>サーバの前でこれを実行して、今のIPを確かめます。上のバーの「サーバのIP」と、手順6で作った <code class="i">.ssh\config</code> の <code class="i">HostName</code> の両方を書き換えてください。</p>
+  </details>
 </section>
 
 <section class="step extra" id="s2" data-title="自分のPCで鍵ペアを作る">
   <div class="step-head"><div class="num">2</div><div><h2>自分のPCで鍵ペアを作る</h2><span class="xtag">補足</span> <span class="slide">スライド「証明書によるログインにする」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <p class="box warn"><strong>このコマンドは自分のPCのPowerShellで</strong>サーバの中で実行すると、変な名前の鍵がサーバにできてしまいます。プロンプトが <code class="i">PS C:\…&gt;</code> になっていることを確かめてから貼り付けてください（<a href="#pitfalls">実際に起きたつまずき</a>の1）。</p>
+  <p class="box warn"><strong>このコマンドは自分のPCのPowerShellで</strong>サーバの中で実行すると、変な名前の鍵がサーバにできてしまいます。プロンプトが <code class="i">PS C:\…&gt;</code> になっていることを確かめてから貼り付けてください（下の<a href="#pf-1">つまずいたとき</a>）。</p>
   <div class="code" data-where="win"><pre>mkdir $env:USERPROFILE\.ssh -Force
 ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_ed25519_{{USER}}</pre></div>
   <div class="tbl"><table>
@@ -129,6 +135,29 @@ ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\id_ed25519_{{USER}}</pre></div>
   <div class="code" data-where="win"><pre>dir $env:USERPROFILE\.ssh</pre></div>
   <p><code class="i">id_ed25519_<span class="liveuser">ユーザ名</span></code>（秘密鍵）と <code class="i">….pub</code>（公開鍵）の2つがあればOKです。</p>
   <p class="why">スライドの「サーバ上で鍵を作った場合はきちんとクライアントに転送」は、サーバで作る方法の注意です。自分のPCで作ればこの転送が要らず、秘密鍵がネットワークを通りません。</p>
+  <details class="pitfall" id="pf-1">
+    <summary><span class="pf-tag">つまずいたとき</span>PowerShell用のコマンドを、サーバの中で打ってしまった</summary>
+  <p>一番多かったつまずきです。SSHでサーバに入ったままの画面に、自分のPC用のコマンドを貼り付けると、次のようなエラーになります。</p>
+  <div class="code" data-where="ssh" data-label="出たエラーの例（サーバの画面）"><pre>-bash: cd: :USERPROFILEDownloads: No such file or directory
+Expand-Archive: command not found
+mkdir: invalid option -- 'F'
+Add-Content: command not found</pre></div>
+  <div class="tbl"><table>
+    <thead><tr><th>見分け方</th><th>プロンプトの例</th><th>そこで打つもの</th></tr></thead>
+    <tbody>
+      <tr><td>自分のPC（PowerShell）</td><td><code class="i">PS C:\Users\…&gt;</code></td><td><code class="i">$env:USERPROFILE</code>、<code class="i">ipconfig</code>、<code class="i">ssh</code>、<code class="i">scp</code>、<code class="i">Expand-Archive</code></td></tr>
+      <tr><td>サーバ（SSHで入った状態）</td><td><code class="i">ユーザ名@サーバ名:~$</code></td><td><code class="i">sudo</code>、<code class="i">apt</code>、<code class="i">mysql</code>、<code class="i">hostname -I</code>、<code class="i">chmod</code></td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>直し方</strong>：<code class="i">exit</code> でサーバから抜けて、プロンプトが <code class="i">PS C:\…&gt;</code> に戻ってから貼り直します。ターミナルの「＋」で新しいタブを開き、「PC用」と「サーバ用」のタブを分けておくと取り違えにくくなります。</p>
+  </details>
+  <details class="pitfall" id="pf-1-2">
+    <summary><span class="pf-tag">つまずいたとき</span>サーバの中で鍵を作ってしまった</summary>
+  <p>手順2の <code class="i">ssh-keygen</code> をサーバで実行すると、<code class="i">$env:USERPROFILE\</code> がLinuxでは正しく読めず、ホームフォルダに <code class="i">:USERPROFILE.sshid_ed25519_ユーザ名</code> という変な名前の鍵ができます。秘密鍵はサーバに置くものではないので、消してから自分のPCで作り直します。</p>
+  <div class="code" data-where="ssh" data-label="サーバで実行（変な名前の鍵を消す）"><pre>rm -i ~/:USERPROFILE.sshid_ed25519_*
+ls -a ~</pre></div>
+  <p class="why"><code class="i">rm -i</code> は1つずつ「消しますか？」と聞いてきます。<strong><kbd>y</kbd> を入力してから <kbd>Enter</kbd></strong> を押さないと消えません。何も入力せずに <kbd>Enter</kbd> だけ押すと「消さない」扱いになります。</p>
+  </details>
 </section>
 
 <section class="step extra" id="s3" data-title="公開鍵をサーバに登録する">
@@ -171,7 +200,7 @@ sudo sshd -T | grep -i passwordauthentication</pre></div>
 
 <section class="step extra" id="s6" data-title="接続コマンドを短くする">
   <div class="step-head"><div class="num">6</div><div><h2>接続コマンドを短くする（任意）</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <p class="box tip"><strong>この設定は、このPCだけのもの</strong>相方のPCで <code class="i">ssh lab</code> と打っても使えません（<a href="#pitfalls">実際に起きたつまずき</a>の4）。</p>
+  <p class="box tip"><strong>この設定は、このPCだけのもの</strong>相方のPCで <code class="i">ssh lab</code> と打っても使えません（下の<a href="#pf-4">つまずいたとき</a>）。</p>
   <div class="code" data-where="win"><pre>@"
 
 Host lab
@@ -180,6 +209,11 @@ Host lab
     IdentityFile ~/.ssh/id_ed25519_{{USER}}
 "@ | Add-Content -Encoding ascii $env:USERPROFILE\.ssh\config</pre></div>
   <p>これで <code class="i">ssh lab</code> だけで接続できます。IPが変わったら <code class="i">notepad $env:USERPROFILE\.ssh\config</code> で <code class="i">HostName</code> を書き換えます。以下の手順は、このステップを飛ばしても動くように書いています。</p>
+  <details class="pitfall" id="pf-4">
+    <summary><span class="pf-tag">つまずいたとき</span>相方のPCで <code class="i">ssh lab</code> が使えない</summary>
+  <div class="code" data-where="win" data-label="出たエラーの例"><pre>ssh: Could not resolve hostname lab: \202\273\202\314\202\346…</pre></div>
+  <p>後ろの記号は、日本語の「そのようなホストは不明です」が文字化けしたものです。<code class="i">lab</code> という名前は、手順6で<strong>自分のPCにだけ</strong>登録したものなので、相方のPCでは使えません。相方は、自分のユーザ名と鍵の場所で、自分のPCに同じ設定をするか、<code class="i">ssh 相方のユーザ名@サーバのIP</code> の形で直接つなぎます。</p>
+  </details>
 </section>
 
 <h2 class="part">共通　Webサーバ・PHP・データベースを用意する</h2>
@@ -190,6 +224,12 @@ Host lab
   <div class="step-head"><div class="num">7</div><div><h2>ソフトウェアのリストを更新する</h2><span class="slide">スライド「ソフトウェアのインストール」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <div class="code" data-where="ssh"><pre>sudo apt update</pre></div>
   <p class="why">「最新のパッケージ一覧を取ってくる」コマンドです。<code class="i">sudo</code> でパスワードを聞かれて弾かれる場合は、<code class="i">groups</code> の結果に <code class="i">sudo</code> があるか確認します。ない場合は、sudoが使える班員に <code class="i">sudo usermod -aG sudo <span class="liveuser">ユーザ名</span></code> を実行してもらい、入り直します。</p>
+  <details class="pitfall" id="pf-5">
+    <summary><span class="pf-tag">つまずいたとき</span>2人で同時に <code class="i">apt</code> を実行して止まった</summary>
+  <div class="code" data-where="ssh" data-label="出たエラーの例"><pre>E: Could not get lock /var/lib/dpkg/lock-frontend</pre></div>
+  <p>aptは同時に1つしか動けません。故障ではないので、相手のインストールが終わるのを待ってから実行し直します。インストール（手順7〜11）は、班で1人が担当すると安全です。</p>
+  <p class="why">ログイン時やインストール後に出る次の表示は、実験には関係ありません。<code class="i">New release '26.04.x LTS' available. Run 'do-release-upgrade'</code>（OSを丸ごと上げる案内。<strong>実行しない</strong>）、<code class="i">Service restarts being deferred: systemctl restart NetworkManager.service</code>（SSHが切れることがあるので<strong>実行しない</strong>）、<code class="i">*** System restart required ***</code>（作業が終わってから再起動すればよい）。</p>
+  </details>
 </section>
 
 <section class="step" id="s8" data-title="Apacheのインストール">
@@ -220,6 +260,11 @@ php -v</pre></div>
   <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/info.php</pre></div>
   <p>PHPの設定一覧が出れば動いています。ページ内を <kbd>Ctrl</kbd>+<kbd>F</kbd> で <code class="i">pdo_mysql</code> と検索して見つかれば、DB接続の準備もできています。</p>
   <div class="box warn"><strong>info.php は最後に消します（手順18）</strong>サーバの構成を誰にでも見せてしまうページです。</div>
+  <details class="pitfall" id="pf-2">
+    <summary><span class="pf-tag">つまずいたとき</span>URLをターミナルに打ってしまった</summary>
+  <div class="code" data-where="ssh" data-label="出たエラーの例"><pre>-bash: http://サーバのIP/info.php: No such file or directory</pre></div>
+  <p><code class="i">http://…</code> で始まるものは、すべて<strong>自分のPCのブラウザのURL欄</strong>に入れます。手順書で「自分のPCのブラウザで開く」と書かれたブロックがこれにあたります。</p>
+  </details>
 </section>
 
 <section class="step" id="s10" data-title="MariaDBのインストールとユーザ登録">
@@ -252,7 +297,7 @@ mysql -u {{USER}} -p -e "SHOW TABLES FROM team;"</pre></div>
 
 <section class="step" id="s11" data-title="phpMyAdminのインストール">
   <div class="step-head"><div class="num">11</div><div><h2>phpMyAdminをインストールする</h2><span class="slide">スライド「phpMyAdminのインストール」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <p class="box tip"><strong>ページが出ないとき</strong>インストール画面で apache2 に印を付け忘れた可能性があります。<a href="#pitfalls">実際に起きたつまずき</a>の6を見てください。</p>
+  <p class="box tip"><strong>ページが出ないとき</strong>インストール画面で apache2 に印を付け忘れた可能性があります。下の<a href="#pf-6">つまずいたとき</a>を見てください。</p>
   <div class="code" data-where="ssh"><pre>sudo apt install -y phpmyadmin</pre></div>
   <p>途中で設定画面が出ます。</p>
   <div class="tbl"><table>
@@ -266,11 +311,20 @@ mysql -u {{USER}} -p -e "SHOW TABLES FROM team;"</pre></div>
   <div class="code" data-where="win" data-label="自分のPCのブラウザで開く"><pre>http://{{IP}}/phpmyadmin</pre></div>
   <p>ログイン画面が出たら、手順10のユーザ名（<span class="liveuser">ユーザ名</span>）とDBのパスワードで入れます。<code class="i">team</code> の中に自分のテーブルが見えればOKです。</p>
   <p class="why">phpMyAdminに <code class="i">root</code> では入れません（Ubuntuのrootは、パスワードではなくLinuxの管理者権限で入る設定のため）。</p>
+  <details class="pitfall" id="pf-6">
+    <summary><span class="pf-tag">つまずいたとき</span>phpMyAdminのページが出ない</summary>
+  <p>手順11のインストール画面で、apache2 に <kbd>Space</kbd> で [*] を付け忘れると、Apacheに登録されません。</p>
+  <div class="code" data-where="ssh"><pre>ls /etc/apache2/conf-enabled/ | grep phpmyadmin</pre></div>
+  <p>何も表示されなければ、登録が漏れています。班で1人が、次を1回実行します（すでに登録済みだと <code class="i">File exists</code> と出ますが、問題ありません）。</p>
+  <div class="code" data-where="ssh"><pre>sudo ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf
+sudo a2enconf phpmyadmin
+sudo systemctl reload apache2</pre></div>
+  </details>
 </section>
 
 <section class="step" id="s12" data-title="phpMyAdminにアクセス制限をかける">
   <div class="step-head"><div class="num">12</div><div><h2>phpMyAdminを自分のPCのIPからだけ開けるようにする</h2><span class="slide">スライド「phpMyAdminのインストール」アクセス制限</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <p class="box warn"><strong>班員が2人以上いるとき</strong>このコマンドは設定ファイルを丸ごと書き直すので、班員がそれぞれ実行すると、最後に実行した人のIPしか残りません。班員全員のIPを1行にまとめる方法は、<a href="#pitfalls">実際に起きたつまずき</a>の7にあります。</p>
+  <p class="box warn"><strong>班員が2人以上いるとき</strong>このコマンドは設定ファイルを丸ごと書き直すので、班員がそれぞれ実行すると、最後に実行した人のIPしか残りません。班員全員のIPを1行にまとめる方法は、下の<a href="#pf-7">つまずいたとき</a>にあります。</p>
   <p>phpMyAdminは広く使われているぶん狙われやすいページです。許可するIPを、今SSHでつないでいる自分のPCのIPに限ります。SSHでつないでいると、接続元のIPが <code class="i">$SSH_CLIENT</code> に入っているので、それを使います。</p>
   <div class="code" data-where="ssh"><pre>MYIP=$(echo $SSH_CLIENT | cut -d' ' -f1); echo "許可するIP: $MYIP"</pre></div>
   <p>表示されたIPが自分のPCのもの（<code class="i">ipconfig</code> の結果と同じ）なら、設定ファイルを作って有効にします。</p>
@@ -283,6 +337,33 @@ sudo apache2ctl configtest &amp;&amp; sudo systemctl reload apache2</pre></div>
     <li>相方のPCで同じURL → <strong>Forbidden</strong>（403）になる</li>
   </ul>
   <p class="why">相方も使う場合は、<code class="i">sudo nano /etc/apache2/conf-available/zz-phpmyadmin-allow.conf</code> で <code class="i">Require ip</code> の後ろにスペース区切りで相方のIPを足し、<code class="i">sudo systemctl reload apache2</code>。名前を <code class="i">zz-</code> で始めているのは、phpMyAdmin本体の設定より後に読ませて、確実にこちらを効かせるためです。スライドの「httpd.conf」は、UbuntuのApacheでは <code class="i">/etc/apache2/</code> 以下の設定ファイルにあたります。</p>
+  <details class="pitfall" id="pf-7">
+    <summary><span class="pf-tag">つまずいたとき</span>IP制限をかけたら、自分も phpMyAdmin に入れなくなった</summary>
+  <p>手順12のコマンドは、設定ファイルを<strong>丸ごと書き直します</strong>。班員がそれぞれ自分のPCから実行すると、<strong>後に実行した人のIPだけ</strong>が残り、先に実行した人は Forbidden になります。</p>
+  <p>今許可されているIPと、実際にアクセスしてきたIPを見比べます。</p>
+  <div class="code" data-where="ssh"><pre>cat /etc/apache2/conf-available/zz-phpmyadmin-allow.conf
+sudo grep '" 403 ' /var/log/apache2/access.log | tail -n 3</pre></div>
+  <p>2行目の結果の行頭が、拒否されたPCのIPです。班員全員のIPを、スペースで区切って<strong>1行にまとめて</strong>書き直します。<code class="i">IP1</code> <code class="i">IP2</code> を、班員それぞれのPCのIPに書き換えてから、どちらか1人が1回だけ実行します。</p>
+  <div class="code" data-where="ssh"><pre>printf '&lt;Directory /usr/share/phpmyadmin&gt;\n    Require ip %s %s\n&lt;/Directory&gt;\n' IP1 IP2 | sudo tee /etc/apache2/conf-available/zz-phpmyadmin-allow.conf
+sudo apache2ctl configtest &amp;&amp; sudo systemctl reload apache2</pre></div>
+  <p class="why">自分のPCのIPは、PowerShellの <code class="i">ipconfig</code> の「IPv4 アドレス」で分かります。サーバにSSHしているなら <code class="i">echo $SSH_CLIENT</code> の最初の数字も同じです。<code class="i">ipconfig</code> はWindowsのコマンドなので、サーバで打つと <code class="i">command not found</code> になります。</p>
+  </details>
+  <details class="pitfall" id="pf-8">
+    <summary><span class="pf-tag pf-extra">補足</span>さらに厳しく：自分のアカウントは自分のPCからだけ（任意）</summary>
+  <p>Apacheの制限は「どのPCがページを開けるか」までです。phpMyAdmin自身の設定（AllowDeny）を足すと、「どのアカウントが、どのPCからログインできるか」まで決められます。<code class="i">DBユーザ1</code> <code class="i">IP1</code> などを書き換えて、班で1人が1回だけ実行します。</p>
+  <div class="code" data-where="ssh"><pre>sudo tee /etc/phpmyadmin/conf.d/allowdeny.php &gt; /dev/null &lt;&lt;'EOF'
+&lt;?php
+$cfg['Servers'][1]['AllowDeny']['order'] = 'deny,allow';
+$cfg['Servers'][1]['AllowDeny']['rules'] = [
+    'deny DBユーザ1 from all',
+    'allow DBユーザ1 from IP1',
+    'deny DBユーザ2 from all',
+    'allow DBユーザ2 from IP2',
+];
+EOF
+php -l /etc/phpmyadmin/conf.d/allowdeny.php</pre></div>
+  <p class="why">ほかのPCから他人のアカウントでログインすると、パスワードが正しくても「Access denied!」になります。名前は、手順10で作った<strong>DBのユーザ名</strong>と1文字も違わないようにします（今回は1文字の打ち間違いで効かなかった例がありました）。登録されている名前は <code class="i">sudo mysql -e "SELECT user, host FROM mysql.user;"</code> で確認できます。元に戻すときは <code class="i">sudo rm /etc/phpmyadmin/conf.d/allowdeny.php</code>。</p>
+  </details>
 </section>
 
 <h2 class="part">個人　自分のページとデータベースで動かす</h2>
@@ -290,7 +371,7 @@ sudo apache2ctl configtest &amp;&amp; sudo systemctl reload apache2</pre></div>
 
 <section class="step" id="s13" data-title="ユーザーごとのHPを作る">
   <div class="step-head"><div class="num">13</div><div><h2>自分のホームページを公開する</h2><span class="slide">スライド「ユーザーごとのHPを作る」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <p class="box tip"><strong>Forbidden や「Index of」が出たとき</strong><code class="i">chmod 711</code> はユーザごとに必要です。URLに入れるのはLinuxのユーザ名です。詳しくは<a href="#pitfalls">実際に起きたつまずき</a>の9を見てください。</p>
+  <p class="box tip"><strong>Forbidden や「Index of」が出たとき</strong><code class="i">chmod 711</code> はユーザごとに必要です。URLに入れるのはLinuxのユーザ名です。詳しくは下の<a href="#pf-9">つまずいたとき</a>を見てください。</p>
   <p>スライドの1つ目の方法「userdirモジュール」を使います。ホームの <code class="i">public_html</code> に置いたファイルが、<code class="i">http://IP/~ユーザ名/</code> で見られるようになります。</p>
   <h3>Apacheの設定（共通・1回だけ）</h3>
   <div class="code" data-where="ssh"><pre>sudo a2enmod userdir
@@ -311,6 +392,30 @@ echo '&lt;?php echo "Hello, " . get_current_user() . "! PHP " . phpversion();' &
     <div class="code" data-where="ssh"><pre>sudo ln -s /home/{{USER}}/public_html /var/www/html/{{USER}}</pre></div>
     <p><code class="i">http://<span class="liveip">IP</span>/<span class="liveuser">ユーザ名</span>/</code> でも同じページが開けます。</p>
   </details>
+  <details class="pitfall" id="pf-9">
+    <summary><span class="pf-tag">つまずいたとき</span>個人ページが Forbidden になる（<code class="i">/~ユーザ名/</code>）</summary>
+  <div class="code" data-where="ssh" data-label="error.log に出た例"><pre>AH00035: access to /~ユーザ名/ denied (filesystem path '/home/ユーザ名/public_html') because search permissions are missing on a component of the path</pre></div>
+  <p>ホームフォルダに <code class="i">chmod 711</code> がかかっていません。<strong>このchmodはユーザごとに必要</strong>です。自分のユーザで実行しても、相方のホームには効きません。原因を確かめるときは、次のコマンドが便利です。</p>
+  <div class="code" data-where="ssh"><pre>sudo tail -n 3 /var/log/apache2/error.log</pre></div>
+  </details>
+  <details class="pitfall" id="pf-9-2">
+    <summary><span class="pf-tag">つまずいたとき</span>URLに入れる名前を間違えた</summary>
+  <p><code class="i">http://サーバのIP/~○○/</code> の ○○ は、<strong>Linuxのユーザ名</strong>（ホームフォルダの持ち主）です。phpMyAdminのログインに使う<strong>DBのユーザ名</strong>とは別物です。両者を同じ名前にしておくと迷いません。</p>
+  </details>
+  <details class="pitfall" id="pf-9-3">
+    <summary><span class="pf-tag">つまずいたとき</span>「Index of /~ユーザ名」と表示された</summary>
+  <p>エラーではなく、<strong>フォルダの中身の一覧</strong>です。権限の問題は解決していて、まだ <code class="i">index.php</code> を置いていないので、中身がない一覧が出ています。<code class="i">index.php</code> を置けば、そのページが表示されます。</p>
+  </details>
+  <details class="pitfall" id="pf-9-4">
+    <summary><span class="pf-tag pf-extra">補足</span>相方のページを、自分のユーザから代わりに作る</summary>
+  <p>相方がその場でログインできないときは、sudoで作ってから持ち主を相方に変えます。<code class="i">相方</code> を相方のLinuxユーザ名に書き換えて実行します。</p>
+  <div class="code" data-where="ssh"><pre>sudo chmod 711 /home/相方
+sudo mkdir -p /home/相方/public_html
+echo '&lt;?php echo "Hello, " . get_current_user() . "! PHP " . phpversion();' | sudo tee /home/相方/public_html/index.php &gt; /dev/null
+sudo chown -R 相方:相方 /home/相方/public_html
+sudo chmod 755 /home/相方/public_html</pre></div>
+  <p class="why"><code class="i">chown</code> を忘れると、ファイルの持ち主が root のままになり、相方があとで編集できません。</p>
+  </details>
 </section>
 
 <section class="step" id="s14" data-title="個人のデータベースを作る">
@@ -328,11 +433,15 @@ mysql -u {{USER}} -p -e "SHOW DATABASES;"</pre></div>
 grep -n "^date.timezone" /etc/php/*/apache2/php.ini
 sudo systemctl restart apache2</pre></div>
   <p class="why">あえて飛ばして時刻のずれを確認してから直すと、報告で話せる「詰まった点・原因・対処」になります。</p>
+  <details class="pitfall" id="pf-12">
+    <summary><span class="pf-tag">つまずいたとき</span>記録した時刻が9時間ずれる</summary>
+  <p>PHPのタイムゾーン（手順15）を直しても、MariaDBの <code class="i">DEFAULT CURRENT_TIMESTAMP</code> で入れた時刻は、サーバの時計（世界標準時）のままです。PHP側で <code class="i">date('Y-m-d H:i:s')</code> を作って入れると日本時間になります。サーバ全体の時計を日本時間にする方法もあります（<code class="i">sudo timedatectl set-timezone Asia/Tokyo</code>）。</p>
+  </details>
 </section>
 
 <section class="step" id="s16" data-title="DBとPHPを連携させたプログラム">
   <div class="step-head"><div class="num">16</div><div><h2>サンプルプログラムを自分のページで動かす</h2><span class="slide">スライド「DBとPHPを連携させたプログラム」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <p class="box tip"><strong>「Access denied for user」が出たとき</strong>PHPとDBのパスワードがずれています。直し方は<a href="#pitfalls">実際に起きたつまずき</a>の11、サーバだけでサンプルを置く方法は10にあります。</p>
+  <p class="box tip"><strong>「Access denied for user」が出たとき</strong>PHPとDBのパスワードがずれています。直し方とサーバだけでサンプルを置く方法は、この手順の下の<a href="#pf-11">つまずいたとき</a>にあります。</p>
   <div class="dl"><a class="btn" href="files/lab2/db_sample.zip" download>db_sample.zip をダウンロード</a><span class="meta">LMSのものと同じです。ダウンロードフォルダに保存してください</span></div>
   <h3>自分の public_html に送る</h3>
   <div class="code" data-where="win"><pre>cd $env:USERPROFILE\Downloads
@@ -363,6 +472,25 @@ grep -c "dbname={{USER}}_db" dateadd.php dateprint.php</pre></div>
     </tbody>
   </table></div>
   <p class="why">サーバ側でも確かめられます：<code class="i">mysql -u <span class="liveuser">ユーザ名</span> -p <span class="liveuser">ユーザ名</span>_db -e "SELECT * FROM clickedtable;"</code>。phpMyAdminからも同じ表が見えます。</p>
+  <details class="pitfall" id="pf-10">
+    <summary><span class="pf-tag pf-extra">補足</span>サンプルを置くのに、サーバだけで済ませたい</summary>
+  <p>手順16の <code class="i">scp</code> はPC側の作業です。取り違えが続く場合は、サーバの中だけで完結する方法もあります（サーバはインターネットにつながっています）。<code class="i">ユーザ名</code> を置き場所の持ち主に書き換えて実行します。</p>
+  <div class="code" data-where="ssh"><pre>sudo apt install -y unzip
+cd /tmp
+wget -O db_sample.zip https://nokonoko314.github.io/jikken-guides/files/lab2/db_sample.zip
+sudo unzip -o db_sample.zip -d /home/ユーザ名/public_html/
+sudo chown -R ユーザ名:ユーザ名 /home/ユーザ名/public_html
+ls /home/ユーザ名/public_html/db_sample</pre></div>
+  </details>
+  <details class="pitfall" id="pf-11">
+    <summary><span class="pf-tag">つまずいたとき</span>「データベース接続失敗。Access denied for user …」</summary>
+  <p>PHPファイルに書いたパスワードと、DBユーザのパスワードが一致していません。DBユーザを作り忘れていた場合も同じ表示になります。<strong>パスワードを決め直して、DBとPHPの両方を同じものにそろえる</strong>のが確実です。<code class="i">ユーザ名</code> を書き換えてから実行し、1行目で新しいパスワードを入力します。</p>
+  <div class="code" data-where="ssh"><pre>read -s -p "新しいDBパスワード: " DBPASS; echo
+sudo mysql -e "CREATE USER IF NOT EXISTS 'ユーザ名'@'localhost' IDENTIFIED BY '$DBPASS'; ALTER USER 'ユーザ名'@'localhost' IDENTIFIED BY '$DBPASS'; GRANT ALL ON ユーザ名_db.* TO 'ユーザ名'@'localhost';"
+sudo sed -i "s|'ユーザ名','[^']*'|'ユーザ名','$DBPASS'|" /home/ユーザ名/public_html/db_sample/dateadd.php /home/ユーザ名/public_html/db_sample/dateprint.php
+mysql -u ユーザ名 -p ユーザ名_db -e "SHOW TABLES;"</pre></div>
+  <p class="why">手順16の <code class="i">sed</code> は「<code class="i">'ktajima','password'</code> を置き換える」命令なので、<strong>1回置き換えたあとに実行し直しても何も変わりません</strong>（もう ktajima の文字がないため）。上の3行目は「今入っているパスワードが何であっても置き換える」書き方にしてあるので、何度でも使えます。パスワードを変えたら、phpMyAdminのログインも新しいパスワードになります。</p>
+  </details>
 </section>
 
 <section class="step" id="s17" data-title="プログラムを改良する">
@@ -393,119 +521,6 @@ exit</pre></div>
   <p class="why">秘密鍵 <code class="i">id_ed25519_<span class="liveuser">ユーザ名</span></code> をなくすと鍵でログインできなくなります。USBメモリなどにバックアップしておくと安心です。</p>
 </section>
 
-<section class="step special" id="pitfalls" data-notoc>
-  <div class="step-head"><div class="num">例</div><div><h2>実際に起きたつまずきと、その直し方</h2><span class="slide">この回の作業中に実際に起きたもの</span></div></div>
-  <p>手順どおりに進めても、ここに挙げたところで止まることがよくあります。エラーの文面で探せるように、画面に出た表示をそのまま載せています。</p>
-
-  <h3>1. PowerShell用のコマンドを、サーバの中で打ってしまった</h3>
-  <p>一番多かったつまずきです。SSHでサーバに入ったままの画面に、自分のPC用のコマンドを貼り付けると、次のようなエラーになります。</p>
-  <div class="code" data-where="ssh" data-label="出たエラーの例（サーバの画面）"><pre>-bash: cd: :USERPROFILEDownloads: No such file or directory
-Expand-Archive: command not found
-mkdir: invalid option -- 'F'
-Add-Content: command not found</pre></div>
-  <div class="tbl"><table>
-    <thead><tr><th>見分け方</th><th>プロンプトの例</th><th>そこで打つもの</th></tr></thead>
-    <tbody>
-      <tr><td>自分のPC（PowerShell）</td><td><code class="i">PS C:\Users\…&gt;</code></td><td><code class="i">$env:USERPROFILE</code>、<code class="i">ipconfig</code>、<code class="i">ssh</code>、<code class="i">scp</code>、<code class="i">Expand-Archive</code></td></tr>
-      <tr><td>サーバ（SSHで入った状態）</td><td><code class="i">ユーザ名@サーバ名:~$</code></td><td><code class="i">sudo</code>、<code class="i">apt</code>、<code class="i">mysql</code>、<code class="i">hostname -I</code>、<code class="i">chmod</code></td></tr>
-    </tbody>
-  </table></div>
-  <p><strong>直し方</strong>：<code class="i">exit</code> でサーバから抜けて、プロンプトが <code class="i">PS C:\…&gt;</code> に戻ってから貼り直します。ターミナルの「＋」で新しいタブを開き、「PC用」と「サーバ用」のタブを分けておくと取り違えにくくなります。</p>
-  <h3>1-2. サーバの中で鍵を作ってしまった</h3>
-  <p>手順2の <code class="i">ssh-keygen</code> をサーバで実行すると、<code class="i">$env:USERPROFILE\</code> がLinuxでは正しく読めず、ホームフォルダに <code class="i">:USERPROFILE.sshid_ed25519_ユーザ名</code> という変な名前の鍵ができます。秘密鍵はサーバに置くものではないので、消してから自分のPCで作り直します。</p>
-  <div class="code" data-where="ssh" data-label="サーバで実行（変な名前の鍵を消す）"><pre>rm -i ~/:USERPROFILE.sshid_ed25519_*
-ls -a ~</pre></div>
-  <p class="why"><code class="i">rm -i</code> は1つずつ「消しますか？」と聞いてきます。<strong><kbd>y</kbd> を入力してから <kbd>Enter</kbd></strong> を押さないと消えません。何も入力せずに <kbd>Enter</kbd> だけ押すと「消さない」扱いになります。</p>
-
-  <h3>2. URLをターミナルに打ってしまった</h3>
-  <div class="code" data-where="ssh" data-label="出たエラーの例"><pre>-bash: http://サーバのIP/info.php: No such file or directory</pre></div>
-  <p><code class="i">http://…</code> で始まるものは、すべて<strong>自分のPCのブラウザのURL欄</strong>に入れます。手順書で「自分のPCのブラウザで開く」と書かれたブロックがこれにあたります。</p>
-
-  <h3>3. 昨日のIPでつながらない（タイムアウト）</h3>
-  <p>サーバのIPはDHCPで決まるので、再起動やネットワークの設定変更で変わります。今回も、途中でサーバのIPが変わり、相方のPCが古いIPのまま接続して <code class="i">Connection timed out</code> になりました。</p>
-  <div class="code" data-where="local"><pre>hostname -I</pre></div>
-  <p>サーバの前でこれを実行して、今のIPを確かめます。上のバーの「サーバのIP」と、手順6で作った <code class="i">.ssh\config</code> の <code class="i">HostName</code> の両方を書き換えてください。</p>
-
-  <h3>4. 相方のPCで <code class="i">ssh lab</code> が使えない</h3>
-  <div class="code" data-where="win" data-label="出たエラーの例"><pre>ssh: Could not resolve hostname lab: \202\273\202\314\202\346…</pre></div>
-  <p>後ろの記号は、日本語の「そのようなホストは不明です」が文字化けしたものです。<code class="i">lab</code> という名前は、手順6で<strong>自分のPCにだけ</strong>登録したものなので、相方のPCでは使えません。相方は、自分のユーザ名と鍵の場所で、自分のPCに同じ設定をするか、<code class="i">ssh 相方のユーザ名@サーバのIP</code> の形で直接つなぎます。</p>
-
-  <h3>5. 2人で同時に <code class="i">apt</code> を実行して止まった</h3>
-  <div class="code" data-where="ssh" data-label="出たエラーの例"><pre>E: Could not get lock /var/lib/dpkg/lock-frontend</pre></div>
-  <p>aptは同時に1つしか動けません。故障ではないので、相手のインストールが終わるのを待ってから実行し直します。インストール（手順7〜11）は、班で1人が担当すると安全です。</p>
-  <p class="why">ログイン時やインストール後に出る次の表示は、実験には関係ありません。<code class="i">New release '26.04.x LTS' available. Run 'do-release-upgrade'</code>（OSを丸ごと上げる案内。<strong>実行しない</strong>）、<code class="i">Service restarts being deferred: systemctl restart NetworkManager.service</code>（SSHが切れることがあるので<strong>実行しない</strong>）、<code class="i">*** System restart required ***</code>（作業が終わってから再起動すればよい）。</p>
-
-  <h3>6. phpMyAdminのページが出ない</h3>
-  <p>手順11のインストール画面で、apache2 に <kbd>Space</kbd> で [*] を付け忘れると、Apacheに登録されません。</p>
-  <div class="code" data-where="ssh"><pre>ls /etc/apache2/conf-enabled/ | grep phpmyadmin</pre></div>
-  <p>何も表示されなければ、登録が漏れています。班で1人が、次を1回実行します（すでに登録済みだと <code class="i">File exists</code> と出ますが、問題ありません）。</p>
-  <div class="code" data-where="ssh"><pre>sudo ln -s /etc/phpmyadmin/apache.conf /etc/apache2/conf-available/phpmyadmin.conf
-sudo a2enconf phpmyadmin
-sudo systemctl reload apache2</pre></div>
-
-  <h3>7. IP制限をかけたら、自分も phpMyAdmin に入れなくなった</h3>
-  <p>手順12のコマンドは、設定ファイルを<strong>丸ごと書き直します</strong>。班員がそれぞれ自分のPCから実行すると、<strong>後に実行した人のIPだけ</strong>が残り、先に実行した人は Forbidden になります。</p>
-  <p>今許可されているIPと、実際にアクセスしてきたIPを見比べます。</p>
-  <div class="code" data-where="ssh"><pre>cat /etc/apache2/conf-available/zz-phpmyadmin-allow.conf
-sudo grep '" 403 ' /var/log/apache2/access.log | tail -n 3</pre></div>
-  <p>2行目の結果の行頭が、拒否されたPCのIPです。班員全員のIPを、スペースで区切って<strong>1行にまとめて</strong>書き直します。<code class="i">IP1</code> <code class="i">IP2</code> を、班員それぞれのPCのIPに書き換えてから、どちらか1人が1回だけ実行します。</p>
-  <div class="code" data-where="ssh"><pre>printf '&lt;Directory /usr/share/phpmyadmin&gt;\n    Require ip %s %s\n&lt;/Directory&gt;\n' IP1 IP2 | sudo tee /etc/apache2/conf-available/zz-phpmyadmin-allow.conf
-sudo apache2ctl configtest &amp;&amp; sudo systemctl reload apache2</pre></div>
-  <p class="why">自分のPCのIPは、PowerShellの <code class="i">ipconfig</code> の「IPv4 アドレス」で分かります。サーバにSSHしているなら <code class="i">echo $SSH_CLIENT</code> の最初の数字も同じです。<code class="i">ipconfig</code> はWindowsのコマンドなので、サーバで打つと <code class="i">command not found</code> になります。</p>
-
-  <h3>8. さらに厳しく：自分のアカウントは自分のPCからだけ（任意）</h3>
-  <p>Apacheの制限は「どのPCがページを開けるか」までです。phpMyAdmin自身の設定（AllowDeny）を足すと、「どのアカウントが、どのPCからログインできるか」まで決められます。<code class="i">DBユーザ1</code> <code class="i">IP1</code> などを書き換えて、班で1人が1回だけ実行します。</p>
-  <div class="code" data-where="ssh"><pre>sudo tee /etc/phpmyadmin/conf.d/allowdeny.php &gt; /dev/null &lt;&lt;'EOF'
-&lt;?php
-$cfg['Servers'][1]['AllowDeny']['order'] = 'deny,allow';
-$cfg['Servers'][1]['AllowDeny']['rules'] = [
-    'deny DBユーザ1 from all',
-    'allow DBユーザ1 from IP1',
-    'deny DBユーザ2 from all',
-    'allow DBユーザ2 from IP2',
-];
-EOF
-php -l /etc/phpmyadmin/conf.d/allowdeny.php</pre></div>
-  <p class="why">ほかのPCから他人のアカウントでログインすると、パスワードが正しくても「Access denied!」になります。名前は、手順10で作った<strong>DBのユーザ名</strong>と1文字も違わないようにします（今回は1文字の打ち間違いで効かなかった例がありました）。登録されている名前は <code class="i">sudo mysql -e "SELECT user, host FROM mysql.user;"</code> で確認できます。元に戻すときは <code class="i">sudo rm /etc/phpmyadmin/conf.d/allowdeny.php</code>。</p>
-
-  <h3>9. 個人ページが Forbidden になる（<code class="i">/~ユーザ名/</code>）</h3>
-  <div class="code" data-where="ssh" data-label="error.log に出た例"><pre>AH00035: access to /~ユーザ名/ denied (filesystem path '/home/ユーザ名/public_html') because search permissions are missing on a component of the path</pre></div>
-  <p>ホームフォルダに <code class="i">chmod 711</code> がかかっていません。<strong>このchmodはユーザごとに必要</strong>です。自分のユーザで実行しても、相方のホームには効きません。原因を確かめるときは、次のコマンドが便利です。</p>
-  <div class="code" data-where="ssh"><pre>sudo tail -n 3 /var/log/apache2/error.log</pre></div>
-  <h3>9-2. URLに入れる名前を間違えた</h3>
-  <p><code class="i">http://サーバのIP/~○○/</code> の ○○ は、<strong>Linuxのユーザ名</strong>（ホームフォルダの持ち主）です。phpMyAdminのログインに使う<strong>DBのユーザ名</strong>とは別物です。両者を同じ名前にしておくと迷いません。</p>
-  <h3>9-3. 「Index of /~ユーザ名」と表示された</h3>
-  <p>エラーではなく、<strong>フォルダの中身の一覧</strong>です。権限の問題は解決していて、まだ <code class="i">index.php</code> を置いていないので、中身がない一覧が出ています。<code class="i">index.php</code> を置けば、そのページが表示されます。</p>
-  <h3>9-4. 相方のページを、自分のユーザから代わりに作る</h3>
-  <p>相方がその場でログインできないときは、sudoで作ってから持ち主を相方に変えます。<code class="i">相方</code> を相方のLinuxユーザ名に書き換えて実行します。</p>
-  <div class="code" data-where="ssh"><pre>sudo chmod 711 /home/相方
-sudo mkdir -p /home/相方/public_html
-echo '&lt;?php echo "Hello, " . get_current_user() . "! PHP " . phpversion();' | sudo tee /home/相方/public_html/index.php &gt; /dev/null
-sudo chown -R 相方:相方 /home/相方/public_html
-sudo chmod 755 /home/相方/public_html</pre></div>
-  <p class="why"><code class="i">chown</code> を忘れると、ファイルの持ち主が root のままになり、相方があとで編集できません。</p>
-
-  <h3>10. サンプルを置くのに、サーバだけで済ませたい</h3>
-  <p>手順16の <code class="i">scp</code> はPC側の作業です。取り違えが続く場合は、サーバの中だけで完結する方法もあります（サーバはインターネットにつながっています）。<code class="i">ユーザ名</code> を置き場所の持ち主に書き換えて実行します。</p>
-  <div class="code" data-where="ssh"><pre>sudo apt install -y unzip
-cd /tmp
-wget -O db_sample.zip https://nokonoko314.github.io/jikken-guides/files/lab2/db_sample.zip
-sudo unzip -o db_sample.zip -d /home/ユーザ名/public_html/
-sudo chown -R ユーザ名:ユーザ名 /home/ユーザ名/public_html
-ls /home/ユーザ名/public_html/db_sample</pre></div>
-
-  <h3>11. 「データベース接続失敗。Access denied for user …」</h3>
-  <p>PHPファイルに書いたパスワードと、DBユーザのパスワードが一致していません。DBユーザを作り忘れていた場合も同じ表示になります。<strong>パスワードを決め直して、DBとPHPの両方を同じものにそろえる</strong>のが確実です。<code class="i">ユーザ名</code> を書き換えてから実行し、1行目で新しいパスワードを入力します。</p>
-  <div class="code" data-where="ssh"><pre>read -s -p "新しいDBパスワード: " DBPASS; echo
-sudo mysql -e "CREATE USER IF NOT EXISTS 'ユーザ名'@'localhost' IDENTIFIED BY '$DBPASS'; ALTER USER 'ユーザ名'@'localhost' IDENTIFIED BY '$DBPASS'; GRANT ALL ON ユーザ名_db.* TO 'ユーザ名'@'localhost';"
-sudo sed -i "s|'ユーザ名','[^']*'|'ユーザ名','$DBPASS'|" /home/ユーザ名/public_html/db_sample/dateadd.php /home/ユーザ名/public_html/db_sample/dateprint.php
-mysql -u ユーザ名 -p ユーザ名_db -e "SHOW TABLES;"</pre></div>
-  <p class="why">手順16の <code class="i">sed</code> は「<code class="i">'ktajima','password'</code> を置き換える」命令なので、<strong>1回置き換えたあとに実行し直しても何も変わりません</strong>（もう ktajima の文字がないため）。上の3行目は「今入っているパスワードが何であっても置き換える」書き方にしてあるので、何度でも使えます。パスワードを変えたら、phpMyAdminのログインも新しいパスワードになります。</p>
-
-  <h3>12. 記録した時刻が9時間ずれる</h3>
-  <p>PHPのタイムゾーン（手順15）を直しても、MariaDBの <code class="i">DEFAULT CURRENT_TIMESTAMP</code> で入れた時刻は、サーバの時計（世界標準時）のままです。PHP側で <code class="i">date('Y-m-d H:i:s')</code> を作って入れると日本時間になります。サーバ全体の時計を日本時間にする方法もあります（<code class="i">sudo timedatectl set-timezone Asia/Tokyo</code>）。</p>
-</section>
-
 <section class="step special" id="trouble" data-notoc>
   <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
   <div class="tbl"><table>
@@ -518,9 +533,9 @@ mysql -u ユーザ名 -p ユーザ名_db -e "SHOW TABLES;"</pre></div>
       <tr><td><code class="i">~ユーザ名</code> で Forbidden</td><td>ホームの権限。<code class="i">chmod 711 ~</code> と <code class="i">chmod 755 ~/public_html</code>。</td></tr>
       <tr><td>自分のPCからも phpMyAdmin が Forbidden</td><td>許可したIPと実際のIPが違う。<code class="i">sudo tail -n 3 /var/log/apache2/access.log</code> の行頭が実際の接続元。設定ファイルのIPを直して reload。</td></tr>
       <tr><td>phpMyAdminでログインできない</td><td>rootでは入れない。手順10のユーザ名とDBのパスワードを使う。</td></tr>
-      <tr><td><code class="i">command not found</code>、<code class="i">mkdir: invalid option -- 'F'</code></td><td>PowerShell用のコマンドをサーバで打っている。<a href="#pitfalls">つまずき1</a></td></tr>
-      <tr><td><code class="i">Could not get lock /var/lib/dpkg/lock-frontend</code></td><td>2人同時に apt を実行している。少し待ってからやり直す。<a href="#pitfalls">つまずき5</a></td></tr>
-      <tr><td>phpMyAdminで「Access denied!」（パスワードは正しい）</td><td>AllowDenyで、そのPCからそのアカウントが禁止されている。<a href="#pitfalls">つまずき8</a></td></tr>
+      <tr><td><code class="i">command not found</code>、<code class="i">mkdir: invalid option -- 'F'</code></td><td>PowerShell用のコマンドをサーバで打っている。<a href="#pf-1">手順内の解説</a></td></tr>
+      <tr><td><code class="i">Could not get lock /var/lib/dpkg/lock-frontend</code></td><td>2人同時に apt を実行している。少し待ってからやり直す。<a href="#pf-5">手順内の解説</a></td></tr>
+      <tr><td>phpMyAdminで「Access denied!」（パスワードは正しい）</td><td>AllowDenyで、そのPCからそのアカウントが禁止されている。<a href="#pf-8">手順内の解説</a></td></tr>
       <tr><td>データベース接続失敗。could not find driver</td><td><code class="i">php-mysql</code> が無い。入れてから Apache を再起動。</td></tr>
       <tr><td>データベース接続失敗。Access denied</td><td>PHPファイルのユーザ名・パスワードがDBと違う。手順16の書き換えをやり直す。</td></tr>
       <tr><td>Table … doesn't exist</td><td>自分のDBに clickedtable が無い。手順16の CREATE TABLE。</td></tr>
@@ -548,6 +563,6 @@ mysql -u ユーザ名 -p ユーザ名_db -e "SHOW TABLES;"</pre></div>
   </main>
 </div>
 <footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
-<script src="assets/app.js?v=20261013d"></script>
+<script src="assets/app.js?v=20261013f"></script>
 </body>
 </html>
