@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第3回 ヒューリスティックサーチの応用｜情報工学実験 手順書</title>
+<meta name="description" content="迷路をグラフとして表し、OPEN/CLOSEDリストを使ったヒューリスティック検索で経路を求める課題の考え方とヒント。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013c">
+</head>
+<body data-lab="lab3" data-label-local="サーバで直接入力" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の組み立て方</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第3回　ヒューリスティックサーチの応用</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">03</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>ヒューリスティックサーチの応用</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2026年10月20日（火）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>レポート①　10/27（火）9:00 締切</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>迷路をグラフ（点と接続）としてデータにし、ゴールまでのマンハッタン距離が小さい点から調べるヒューリスティック検索で、SからGまでの経路を求める。OPEN・CLOSEDリストの推移と経路を表示する。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライドと「レポートの提出方法と内容について」はLMSから取得してください。この回の配布コードはありません。このページは、その内容を自分用に手順化したものです。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この手順書の使い方</h2>
+  <ul>
+    <li>この回はレポート①の対象です。<strong>プログラム本体は自分で書きます。</strong>この手順書は、環境の準備（コピペでOK）と、課題の考え方・ヒントをまとめたものです。</li>
+    <li>ガイダンスのとおり、他人のプログラムや文章をコピーしたと分かると、その回の評価は0点です。ヒントの断片は「書き方の例」として読み、自分の設計で書いてください。</li>
+    <li>言語はJavaです（スライドの並び替えの例がJavaのため）。<span class="xtag">補足</span>とある手順は、スライドにない準備です。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-win">自分のPCのPowerShell</span>
+    <span class="where w-ssh">Javaのコード（書き方の例）</span>
+  </div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">今回の課題</h2>
+  <p class="note">スライド「本日の課題」「本日の作業内容」より。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>内容</th><th>手順</th></tr></thead>
+    <tbody>
+      <tr><td>基本</td><td>迷路を定義する（点の座標・スタート・ゴール・接続情報）。データ構造を自分で設計する</td><td>2〜3</td></tr>
+      <tr><td>基本</td><td>ヒューリスティック検索（ゴールまでのマンハッタン距離が小さい順）で、SからGまでの経路を探す</td><td>4〜6</td></tr>
+      <tr><td>基本</td><td>得られた経路と、OPEN・CLOSEDリストの中身の推移を表示する</td><td>7</td></tr>
+      <tr><td>発展</td><td>最短経路にならない理由／探索方法を変えて探索ノード数を比較／迷路をファイルから読み込む／新しい迷路で検証</td><td>8</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step extra" id="s1" data-title="Javaの環境を確認する">
+  <div class="step-head"><div class="num">1</div><div><h2>Javaの環境を確認する</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="win"><pre>java -version
+javac -version</pre></div>
+  <p>両方ともバージョン（例：<code class="i">21.0.x</code>）が出れば準備完了です。<code class="i">'java' は認識されていません</code> と出たら、JDKを入れます。</p>
+  <div class="code" data-where="win"><pre>winget install EclipseAdoptium.Temurin.21.JDK</pre></div>
+  <p>インストール後、PowerShellを開き直してから、もう一度バージョンを確認します。配布コードを見るとこの授業はNetBeansを使っているので、IDEを使う場合は次も入れます。</p>
+  <div class="code" data-where="win"><pre>winget install Apache.NetBeans</pre></div>
+  <h3>1ファイルだけなら、そのまま実行できる</h3>
+  <p>Java 11以降は、<code class="i">javac</code> を使わずに、ソースファイルを直接実行できます。試しながら作るときに便利です。</p>
+  <div class="code" data-where="win"><pre>java Maze.java</pre></div>
+  <p class="why">1つのファイルの中に、複数のクラスを書いても動きます。ファイルを分けて作る場合や、提出用にまとめる場合はNetBeansのプロジェクトにしてください。</p>
+</section>
+
+<section class="step" id="s2" data-title="迷路をグラフとして読み取る">
+  <div class="step-head"><div class="num">2</div><div><h2>迷路をグラフとして読み取る</h2><span class="slide">スライド「迷路のグラフ化方法」「迷路のデータ」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>迷路の<strong>交差点・曲がり角・行き止まり</strong>を「点（ノード）」、点と点をつなぐ通路を「線（リンク）」として扱います。これで迷路が<strong>グラフ</strong>になり、探索の問題として解けるようになります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>点</th><th>座標</th><th>点</th><th>座標</th><th>点</th><th>座標</th></tr></thead>
+    <tbody>
+      <tr><td>S（スタート）</td><td>(0,0)</td><td>A</td><td>(2,0)</td><td>B</td><td>(5,0)</td></tr>
+      <tr><td>C</td><td>(0,2)</td><td>D</td><td>(2,2)</td><td>E</td><td>(7,2)</td></tr>
+      <tr><td>F</td><td>(0,4)</td><td>H</td><td>(2,4)</td><td>I</td><td>(4,4)</td></tr>
+      <tr><td>G（ゴール）</td><td>(7,4)</td><td>J</td><td>(2,6)</td><td>K</td><td>(6,6)</td></tr>
+      <tr><td>L</td><td>(0,7)</td><td>M</td><td>(2,7)</td><td>N</td><td>(7,7)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box tip"><strong>Fの座標に注意</strong>スライド4枚目では F(0,4)、9枚目では F(4,0) になっています。10枚目の木構造ではFがCの先にあるので、F(0,4) が正しいと考えられます。迷ったら先生に確認してください。</div>
+  <h3>やること：接続情報を書き出す</h3>
+  <p>スライドの迷路の図を見て、それぞれの点がどの点とつながっているかを、自分で表にします。スライドの木構造（10枚目）から、たとえば次のつながりが読み取れます。</p>
+  <ul>
+    <li>S は A と C につながっている</li>
+    <li>C の先に F と D、A の先に B、B の先に E がある</li>
+  </ul>
+  <p class="why">通路は両方向に通れるので、「S–A」と書いたら、A側にも S を入れておくと探索が書きやすくなります（無向グラフ）。表は紙に書いておくと、レポートの「実験内容」の図にもそのまま使えます。</p>
+</section>
+
+<section class="step" id="s3" data-title="データ構造を設計する">
+  <div class="step-head"><div class="num">3</div><div><h2>データ構造を設計する</h2><span class="slide">スライド「本日の作業内容」迷路を定義する</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドで「データ構造をどう設計するとよいか考えましょう」とされている部分です。最低限、次の情報を持てるようにします。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>持たせる情報</th><th>考え方</th></tr></thead>
+    <tbody>
+      <tr><td>点の名前・X座標・Y座標</td><td>1つの点を1つのオブジェクト（クラス）にまとめると扱いやすい</td></tr>
+      <tr><td>つながっている点の一覧</td><td>点ごとに「隣の点のリスト」を持たせる（隣接リスト）。点の数が少ないので、2次元配列（隣接行列）でもよい</td></tr>
+      <tr><td>スタートとゴール</td><td>どの点がスタート・ゴールかを、迷路全体を表すクラスで持つ</td></tr>
+      <tr><td>どこから来たか</td><td><strong>経路を表示するために必要</strong>。点をOPENに入れるとき「どの点から来たか（親）」を覚えておく</td></tr>
+    </tbody>
+  </table></div>
+  <p>点を表すクラスの「入れ物」だけを書くと、たとえば次のような形になります（中身の処理は自分で考えます）。</p>
+  <div class="code" data-where="ssh" data-label="Javaのコード（書き方の例）"><pre>class Node {
+    String name;                       // 点の名前（"S" など）
+    int x, y;                          // 座標
+    List&lt;Node&gt; links = new ArrayList&lt;&gt;(); // つながっている点
+    Node parent;                       // どの点から来たか（経路の復元用）
+}</pre></div>
+  <p class="why">名前から点を取り出したいときは <code class="i">Map&lt;String, Node&gt;</code> を使うと便利です。隣接リストと隣接行列のどちらを選んだか、その理由は、レポートの「実験内容」で説明できる設計のポイントになります。</p>
+</section>
+
+<section class="step" id="s4" data-title="評価関数（マンハッタン距離）">
+  <div class="step-head"><div class="num">4</div><div><h2>評価関数を決める（マンハッタン距離）</h2><span class="slide">スライド「本日の課題の実施方法」「マンハッタン距離とは」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>ヒューリスティックサーチでは、「この点はゴールに近そうか」を数値にして、良さそうな点から先に調べます。今回はその数値（評価関数）に、ゴールまでの<strong>マンハッタン距離</strong>を使います。</p>
+  <div class="box ok"><strong>マンハッタン距離</strong>点 (x1, y1) と (x2, y2) の距離 ＝ |x1 − x2| ＋ |y1 − y2|　（横に進む量＋縦に進む量）</div>
+  <p>スライドに載っている値で、自分の計算が合っているか確かめます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>点</th><th>座標</th><th>Gまでの距離</th></tr></thead>
+    <tbody>
+      <tr><td>S</td><td>(0,0)</td><td>|7−0|＋|4−0| ＝ 11</td></tr>
+      <tr><td>A</td><td>(2,0)</td><td>9</td></tr>
+      <tr><td>B</td><td>(5,0)</td><td>6</td></tr>
+      <tr><td>C</td><td>(0,2)</td><td>9</td></tr>
+      <tr><td>D</td><td>(2,2)</td><td>7</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">Javaでは絶対値を <code class="i">Math.abs()</code> で求めます。残りの点の距離は、自分で計算して表に足しておくと、手順5の手作業の確認に使えます。</p>
+</section>
+
+<section class="step" id="s5" data-title="アルゴリズムを手で追う">
+  <div class="step-head"><div class="num">5</div><div><h2>アルゴリズムを手で追ってみる</h2><span class="slide">スライド「ヒューリスティックサーチとは」「具体的な例」「アルゴリズム」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>いきなりコードを書く前に、紙の上でOPENとCLOSEDの変化を追うと、プログラムの完成形がはっきりします。答え合わせの材料にもなります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>用語</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td>OPEN</td><td>これから調べる予定の点の一覧。評価値（距離）が小さい順に並べておく</td></tr>
+      <tr><td>CLOSED</td><td>調べ終わった点の一覧。同じ点を二度調べないために使う</td></tr>
+      <tr><td>展開</td><td>点 u から行ける点を、すべて洗い出すこと</td></tr>
+    </tbody>
+  </table></div>
+  <h3>スライドのアルゴリズム（要約）</h3>
+  <ol>
+    <li>S を OPEN に入れる。CLOSED は空</li>
+    <li>OPEN が空なら終了（経路なし）</li>
+    <li>OPEN の先頭 u を取り出して CLOSED に入れる</li>
+    <li>u がゴールなら終了（経路あり）</li>
+    <li>u を展開して、行ける点の集合 Vu を求める</li>
+    <li>Vu が空なら 2 へ戻る</li>
+    <li>Vu から OPEN・CLOSED にすでにある点を除き、残りを OPEN に追加して、距離の小さい順に並べ直す</li>
+    <li>2 へ戻る</li>
+  </ol>
+  <h3>スライドの例（最初の3回）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>回</th><th>OPEN</th><th>CLOSED</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>S[11]</td><td>（空）</td></tr>
+      <tr><td>1</td><td>A[9], C[9]</td><td>S[11]</td></tr>
+      <tr><td>2</td><td>B[6], D[7], C[9]</td><td>A[9], S[11]</td></tr>
+      <tr><td>3〜</td><td colspan="2">ここから先を、手順2で作った接続表を見ながら自分で続ける</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">A[9] と C[9] のように評価値が同じ点が出たとき、どちらを先にするかで探索の順番が変わります。自分のプログラムではどうなるか（並べ直しのルール）を決めておくと、手作業とプログラムの結果を比べやすくなります。</p>
+</section>
+
+<section class="step" id="s6" data-title="Javaで書く">
+  <div class="step-head"><div class="num">6</div><div><h2>Javaで書く</h2><span class="slide">スライド「アルゴリズム」「補足 ラムダ式と並び替え」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>手順5のアルゴリズムの各行を、Javaのどの道具で書けるかの対応表です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>アルゴリズム</th><th>使えるもの</th></tr></thead>
+    <tbody>
+      <tr><td>OPEN・CLOSED</td><td><code class="i">ArrayList&lt;Node&gt;</code></td></tr>
+      <tr><td>OPEN の先頭を取り出す</td><td><code class="i">open.remove(0)</code></td></tr>
+      <tr><td>2〜8 の繰り返し</td><td><code class="i">while (!open.isEmpty()) { … }</code></td></tr>
+      <tr><td>すでに OPEN・CLOSED にあるか</td><td><code class="i">open.contains(v)</code>、<code class="i">closed.contains(v)</code></td></tr>
+      <tr><td>距離の小さい順に並べ直す</td><td><code class="i">open.sort(…)</code> または <code class="i">Collections.sort(open, …)</code></td></tr>
+    </tbody>
+  </table></div>
+  <h3>並び替えの書き方（スライドの補足）</h3>
+  <p>スライドにあるとおり、並べ方は3通りの書き方ができます。一番短いのはラムダ式です。点の距離を返すメソッド（ここでは仮に <code class="i">h()</code>）を用意しておくと、次のように書けます。</p>
+  <div class="code" data-where="ssh" data-label="Javaのコード（書き方の例）"><pre>open.sort((a, b) -&gt; a.h() - b.h());       // ラムダ式
+open.sort(Comparator.comparingInt(Node::h)); // さらに短い書き方</pre></div>
+  <p class="why">Comparatorクラスを別に作る「古風な方法」や、匿名クラスを使う方法でも、結果は同じです。どれを使ったか、なぜそれを選んだかは、レポートの「使用言語や環境」「原理」で触れられます。</p>
+  <h3>つまずきやすい点</h3>
+  <ul>
+    <li><strong>同じ点を何度も OPEN に入れてしまう</strong>：手順7の「OPEN・CLOSEDにある点は除く」を忘れると、行ったり来たりして終わらなくなります</li>
+    <li><strong>for文で回しているリストを、その中で変更する</strong>：<code class="i">ConcurrentModificationException</code> が出ます。追加する点を、いったん別のリストに集めてから OPEN に足すと安全です</li>
+    <li><strong>親（parent）の記録</strong>：点を OPEN に入れるときに、「u から来た」と記録しておかないと、手順7で経路を表示できません</li>
+  </ul>
+</section>
+
+<section class="step" id="s7" data-title="経路とOPEN/CLOSEDを表示する">
+  <div class="step-head"><div class="num">7</div><div><h2>経路とOPEN・CLOSEDの推移を表示する</h2><span class="slide">スライド「本日の作業内容」得られた経路／OPEN・CLOSEDの推移</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>基本課題では、次の2つを表示する必要があります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>表示するもの</th><th>ヒント</th></tr></thead>
+    <tbody>
+      <tr><td>OPEN・CLOSEDの推移</td><td>繰り返しの1回ごとに、OPEN と CLOSED の中身を「名前[距離]」の形で1行ずつ出力する。手順5の表と同じ形にすると、手作業の結果と見比べられる</td></tr>
+      <tr><td>得られた経路</td><td>ゴールに着いたら、ゴールから parent を順にたどってSまで戻り、その順番を逆にして表示する（<code class="i">Collections.reverse()</code>）</td></tr>
+    </tbody>
+  </table></div>
+  <p>表示はたとえば、次のような形にすると読みやすくなります（形式は自由です）。</p>
+  <div class="code" data-where="ssh" data-label="出力の形の例"><pre>OPEN: [S[11]]                  CLOSED: []
+OPEN: [A[9], C[9]]             CLOSED: [S[11]]
+OPEN: [B[6], D[7], C[9]]       CLOSED: [S[11], A[9]]
+…
+経路: S -&gt; … -&gt; G</pre></div>
+  <p class="why">Nodeクラスに <code class="i">toString()</code> を書いて「名前[距離]」を返すようにすると、<code class="i">System.out.println(open)</code> だけでリスト全体がこの形で表示されます。この出力は、そのままレポートの「実行結果」に載せられます。</p>
+</section>
+
+<section class="step" id="s8" data-title="発展課題の考え方">
+  <div class="step-head"><div class="num">8</div><div><h2>発展課題の考え方</h2><span class="slide">スライド「本日の作業内容」発展課題／「挑戦的課題における検討事項」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>採点基準では、発展課題に取り組んで考察すると「考察」の最高点（4点）に届きます。プログラムを作らなくても、分析して書くだけで評価されるものもあります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>発展課題</th><th>考え方の手がかり</th></tr></thead>
+    <tbody>
+      <tr><td>最短経路にならない理由</td><td>今の評価値は「ゴールまでの見込み」だけで、「ここまでに歩いた距離」を見ていません。ゴールに近く見えても、実際は遠回りになる道を選ぶことがあります。両方を足して評価する方法（A*探索）と比べると説明しやすいです</td></tr>
+      <tr><td>探索方法を変えて、調べた点の数を比べる</td><td>OPEN の扱い方を変えるだけで探索方法が変わります。並べ替えずに後ろから取る（スタック）と深さ優先、前から取る（キュー）と幅優先、展開した中で一番良い点だけを残すと山登り法です。CLOSED に入った点の数を数えて表にすると比較できます</td></tr>
+      <tr><td>迷路をファイルから読み込む</td><td>スライドの表（点の名前・X・Y・種類・接続数・接続先）をそのまま1行1点のテキストにすると簡単です。<code class="i">Files.readAllLines()</code> で行を読み、<code class="i">split("\t")</code> や <code class="i">split(",")</code> で分けます。点を全部作ってから、2周目で接続をつなぐと、まだ作っていない点を参照する問題を避けられます</td></tr>
+      <tr><td>新しい迷路で検証する</td><td>「最短経路にならない例」をわざと作れると、1つ目の発展課題の説明にそのまま使えます。行き止まりの多い迷路、ゴールが近くに見えて遠回りが必要な迷路などを試します</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">スライドの後半にあるオセロのAIの例も、「良さそうな手を数値で評価して選ぶ」という同じ考え方です。角に重みを付けるように、評価関数の工夫で結果が変わる点を考察に使えます。</p>
+</section>
+
+<section class="step" id="s9" data-title="レポートにまとめる">
+  <div class="step-head"><div class="num">9</div><div><h2>レポート①にまとめる</h2><span class="slide">配布資料「レポートの提出方法と内容について」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>章</th><th>この回で書くこと</th></tr></thead>
+    <tbody>
+      <tr><td>表紙</td><td>電子投函システムから取得したもの</td></tr>
+      <tr><td>1. 実験の日時など</td><td>2026年10月20日</td></tr>
+      <tr><td>2. 課題・目的</td><td>迷路をグラフとして表し、ヒューリスティック検索で経路を求める</td></tr>
+      <tr><td>3. 原理・理論</td><td>ヒューリスティックサーチと力まかせ探索の違い、グラフ、マンハッタン距離、最良優先探索、OPEN/CLOSED。<strong>自分で調べて、自分の言葉で</strong></td></tr>
+      <tr><td>4. 使用言語や環境</td><td>Javaのバージョン、IDE、使ったクラス（ArrayList、Comparator など）</td></tr>
+      <tr><td>5. 実験内容と結果</td><td>迷路のグラフ（図）、データ構造の設計、<strong>フローチャート</strong>、OPEN/CLOSEDの推移と経路の出力</td></tr>
+      <tr><td>6. 考察</td><td>手作業との比較、最短経路にならない理由、探索方法の比較など（手順8）</td></tr>
+      <tr><td>参考文献</td><td>著者・書名・出版社・年・ページ。Webはアクセス日も。参考にしなかったら「参考文献なし」</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>提出は表紙を含めた<strong>1つのPDF</strong>。ソースコードは<strong>1つのzip</strong>にして電子投函。期限はガイダンスの表で <strong>10/27（火）9:00</strong></li>
+    <li>ソースコードの全文はレポートに載せない（一部の引用はよい）。コードには、フローチャートのどの部分の処理かが分かるコメントを付ける</li>
+    <li>文字は黒のみ。図表の体裁を整える</li>
+  </ul>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">'java' は認識されていません</code></td><td>JDKが入っていない、またはPowerShellを開き直していない（手順1）</td></tr>
+      <tr><td>探索が終わらない</td><td>OPEN・CLOSEDにある点を除いていない。同じ点を行き来している</td></tr>
+      <tr><td><code class="i">ConcurrentModificationException</code></td><td>for文で回しているリストを、その中で追加・削除している。別のリストに集めてからまとめて足す</td></tr>
+      <tr><td>経路を表示すると <code class="i">NullPointerException</code></td><td>parent を記録していない点がある。OPENに入れるときに必ず記録する</td></tr>
+      <tr><td>並び順が手作業と違う</td><td>評価値が同じ点の順番のルールが違う。並べ替えの決まりを確認する</td></tr>
+      <tr><td>経路が見つからない</td><td>接続情報の書き漏れ。特に、片方向にしかつないでいないことが多い</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="report" data-notoc>
+  <div class="step-head"><div class="num">話</div><div><h2>15:00の経過報告（2分）の組み立て方</h2><span class="slide">実験ガイダンス「4. 実験の流れ」</span></div></div>
+  <div class="report">
+    <p>①迷路をどんなデータ構造で表したか（点のクラス、接続の持たせ方）、②探索がどこまで動いたか（OPEN/CLOSEDの推移が出たか、経路が出たか）、③詰まった点とその原因・対処、④発展課題で何を試す予定か、の順に話すとまとまります。</p>
+  </div>
+  <p class="why">実際にできたところ・詰まったところを、自分の言葉で話してください。</p>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab2.html"><span class="pager-k">前の回</span>第2回　サーバ構築とソフトウェアの設定</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <a class="pager-item" href="lab4.html"><span class="pager-k">次の回</span>第4回　ネットワーク通信</a>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013c"></script>
+</body>
+</html>

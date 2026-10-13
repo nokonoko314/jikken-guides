@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第4回 ネットワーク通信｜情報工学実験 手順書</title>
+<meta name="description" content="ソケット通信で計算サーバとクライアントを作る課題の、動作確認の方法と考え方・ヒント。">
+<meta name="theme-color" content="#14202C">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=20261013c">
+</head>
+<body data-lab="lab4" data-label-local="サーバ（hirox）" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<a class="skip" href="#content">本文へ移動</a>
+<header class="topbar"><div class="topbar-in">
+  <a class="back" href="./">一覧へ戻る</a>
+  <a class="brand brand-sub" href="./"><span class="brand-mark" aria-hidden="true"></span>情報工学実験 手順書</a>
+  <div class="fields">
+    <label>サーバのIP <input id="v-ip" placeholder="例: 192.168.0.142" autocomplete="off" spellcheck="false" inputmode="decimal"></label>
+  </div>
+  <div class="top-right">
+    <button class="theme-btn" id="theme-btn" type="button">表示切替</button>
+  </div>
+</div></header>
+<div class="layout">
+  <aside class="rail" aria-label="手順の目次"><div class="rail-in">
+    <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
+    <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <ol id="toc"></ol>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の組み立て方</a></li></ul>
+  </div></aside>
+  <main id="content">
+<nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第4回　ネットワーク通信</span></nav>
+<section class="tb" aria-label="この回の概要">
+  <div class="tb-no"><span class="tb-k">回</span><span class="tb-num">04</span></div>
+  <div class="tb-title"><span class="tb-k">題目</span><h1>ネットワーク通信</h1></div>
+  <div class="tb-date"><span class="tb-k">実施日</span>2026年10月27日（火）</div>
+  <div class="tb-rep"><span class="tb-k">レポート</span>レポート②　11/17（火）9:00 締切</div>
+  <div class="tb-sum"><span class="tb-k">この回でやること</span>キーボード入力 → 送信・受信 → エコーサーバと段階的に作り、最後に式を計算して履歴を記録するサーバと、それに式を送るクライアントを、ソケット通信で完成させる。</div>
+</section>
+<section class="files" id="files">
+  <h2 class="sec">配布資料</h2>
+  <p class="files-note">スライドはLMSから取得してください（スライドの日付は10/17ですが、ガイダンスの予定表では10/27です）。この回の配布コードはありません。このページは、その内容を自分用に手順化したものです。</p>
+</section>
+<details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
+
+<section class="panel" id="intro">
+  <h2 class="sec">この手順書の使い方</h2>
+  <ul>
+    <li>この回はレポート②の対象です。<strong>プログラム本体は自分で書きます。</strong>この手順書は、環境の準備と動作確認の方法（コピペでOK）、課題の考え方・ヒントをまとめたものです。</li>
+    <li>上のバーの「サーバのIP」に、<strong>サーバ役のプログラムを動かすPCのIP</strong>を入れると、接続確認のコマンドが書き換わります。</li>
+    <li>スライドに言語の指定はありませんが、第3回と同じくJavaを前提にしています。<span class="xtag">補足</span>とある手順は、スライドにない準備や確認です。</li>
+  </ul>
+  <div class="legend">
+    <span class="where w-win">自分のPCのPowerShell</span>
+    <span class="where w-ssh">Javaのコード（書き方の例）</span>
+    <span class="where w-local">サーバ（hirox）</span>
+  </div>
+</section>
+
+<section class="panel" id="mission">
+  <h2 class="sec">今回の課題</h2>
+  <p class="note">スライド「Today's Basic Task」「サーバの要件」「Advanced Task」より。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>基本</td><td>計算をするサーバと、キーボードから式を送るクライアントを、<strong>別々のプログラム</strong>としてソケット通信で作る</td></tr>
+      <tr><td>基本</td><td>式は「整数」「数は2つまで」「演算子と数の間にスペース」（例：<code class="i">45 + 84</code>）。通信はクライアントとサーバが交互に行う（マルチスレッドなし）</td></tr>
+      <tr><td>基本</td><td>サーバは起動中、送られた式と結果を記録し、特定のコマンド（例：<code class="i">HISTORY</code>）で一覧を返す。書式の誤りはクライアントに知らせる</td></tr>
+      <tr><td>基本</td><td>1つのクライアントが接続したまま、何度も送受信できる（複数クライアントの同時接続は不要）</td></tr>
+      <tr><td>発展</td><td>3つ以上の数の計算／かっこや前の結果を変数として使えるプロトコルと書式／データをファイルに保存し、再起動時に読み込む（どれか1つ。ほかの改良もOK）</td></tr>
+    </tbody>
+  </table></div>
+  <p>スライドの作業手順のとおり、<strong>キーボード入力 → 送信だけ・受信だけ → エコーサーバ → 計算サーバ</strong>の順に、小さく作って動かしながら広げていきます。</p>
+</section>
+
+<section class="step extra" id="s1" data-title="Javaとポートの準備">
+  <div class="step-head"><div class="num">1</div><div><h2>Javaと通信の準備</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="win"><pre>java -version
+ipconfig</pre></div>
+  <p>Javaのバージョンが出ない場合は、第3回の手順1でJDKを入れます。<code class="i">ipconfig</code> の「IPv4 アドレス」が、このPCのIPです。</p>
+  <p>サーバとクライアントは、<strong>PowerShellのウィンドウを2つ</strong>開いて、それぞれで動かします。最初は1台のPCの中で、接続先を <code class="i">localhost</code>（自分自身）にして試すのが簡単です。</p>
+  <p class="why">ポート番号はスライドの例と同じ <code class="i">1102</code> にしておくと、資料と見比べやすくなります。1024未満のポートは特別な権限が必要になることがあるので避けます。</p>
+</section>
+
+<section class="step" id="s2" data-title="キーボードから文字を読む">
+  <div class="step-head"><div class="num">2</div><div><h2>キーボードから文字を読み込む</h2><span class="slide">スライド「Step 1」標準入力を使うプログラム</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの実行イメージのように、入力した文字をそのまま表示し、また入力を待つプログラムを作ります。</p>
+  <div class="code" data-where="ssh" data-label="目標の動き（スライドより）"><pre>何か文字を入力してください。
+&gt;Hello World
+[入力結果] Hello World
+&gt;</pre></div>
+  <div class="tbl"><table>
+    <thead><tr><th>使えるもの</th><th>役割</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">Scanner sc = new Scanner(System.in);</code></td><td>キーボード（標準入力）から読む準備</td></tr>
+      <tr><td><code class="i">sc.nextLine()</code></td><td>Enterまでの1行を文字列で受け取る</td></tr>
+      <tr><td><code class="i">while (sc.hasNextLine()) { … }</code></td><td>入力がある間くり返す（<kbd>Ctrl</kbd>+<kbd>Z</kbd> → <kbd>Enter</kbd> で終わる）</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">「exit」と打ったら終わる、などの終了の決まりを自分で作っておくと、あとのクライアントにもそのまま使えます。<code class="i">BufferedReader</code> と <code class="i">InputStreamReader</code> を使う方法もあり、通信で使う読み方と同じ形になります。</p>
+</section>
+
+<section class="step" id="s3" data-title="送信だけ・受信だけのプログラム">
+  <div class="step-head"><div class="num">3</div><div><h2>送信だけ・受信だけのプログラムを作る</h2><span class="slide">スライド「Step 2」通信プログラムの基本</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>独立した2つのプログラムを作ります。サーバは接続を待って受信したものを表示し、クライアントは接続して1回送信します。この段階では、キーボード入力はなくてもかまいません（スライドより）。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>側</th><th>使うもの</th><th>していること</th></tr></thead>
+    <tbody>
+      <tr><td>サーバ</td><td><code class="i">new ServerSocket(1102)</code></td><td>ポート1102で待ち受けを始める</td></tr>
+      <tr><td>サーバ</td><td><code class="i">serverSocket.accept()</code></td><td>クライアントが来るまで待ち、来たらその相手との <code class="i">Socket</code> を返す</td></tr>
+      <tr><td>クライアント</td><td><code class="i">new Socket("localhost", 1102)</code></td><td>サーバに接続する。2台で試すときは "localhost" を相手のIPにする</td></tr>
+      <tr><td>両方</td><td><code class="i">socket.getInputStream()</code> を <code class="i">BufferedReader</code> で包む</td><td>相手から1行ずつ受け取る（<code class="i">readLine()</code>）</td></tr>
+      <tr><td>両方</td><td><code class="i">socket.getOutputStream()</code> を <code class="i">PrintWriter</code> で包む</td><td>相手に1行ずつ送る（<code class="i">println()</code>）</td></tr>
+      <tr><td>サーバ</td><td><code class="i">socket.getInetAddress()</code></td><td>接続してきた相手のIP（スライドの「クライアントが接続しました。IPアドレス …」の表示に使う）</td></tr>
+    </tbody>
+  </table></div>
+  <div class="box warn"><strong>一番多いつまずき：送ったのに届かない</strong><code class="i">PrintWriter</code> は、ためてから送る仕組みです。<code class="i">new PrintWriter(out, true)</code>（自動で送る設定）にするか、<code class="i">flush()</code> を呼ばないと、相手に届きません。また <code class="i">readLine()</code> は改行が来るまで待つので、送る側は <code class="i">print</code> ではなく <code class="i">println</code> を使います。</div>
+  <p class="why">日本語を送ると文字化けする場合は、包むときに文字コードを指定します（例：<code class="i">new InputStreamReader(in, StandardCharsets.UTF_8)</code>）。<code class="i">try (…) { }</code>（try-with-resources）で書くと、終わったときにソケットを自動で閉じられます。</p>
+  <h3>動かす順番</h3>
+  <ol>
+    <li>1つ目のPowerShellでサーバを起動する（「待ち受けを開始しました」が出て止まる）</li>
+    <li>2つ目のPowerShellでクライアントを起動する</li>
+    <li>サーバ側に <code class="i">[受信]Hello World</code> と出れば成功</li>
+  </ol>
+  <p class="why">先にクライアントを起動すると、待っている相手がいないので <code class="i">Connection refused</code> になります。</p>
+</section>
+
+<section class="step" id="s4" data-title="エコーサーバ">
+  <div class="step-head"><div class="num">4</div><div><h2>エコーサーバを作る（双方向通信）</h2><span class="slide">スライド「Step 3」双方向通信</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>受け取ったメッセージをそのまま送り返すサーバと、それを受け取れるクライアントにします。手順2のキーボード入力もクライアントに組み込みます。</p>
+  <div class="code" data-where="ssh" data-label="目標の動き（スライドより）"><pre>[サーバ側]
+待ち受けを開始しました。IPアドレス 172.20.21.2 ポート1102
+クライアントが接続しました。IPアドレス 172.20.21.10
+[受信]Hello World
+[送信]Hello World
+クライアントが切断しました。
+
+[クライアント側]
+サーバに接続しました。IPアドレス 172.20.21.2 ポート1102
+文字列を入力してください。
+&gt;Hello World
+[送信]Hello World
+[受信]Hello World
+切断しました。</pre></div>
+  <div class="tbl"><table>
+    <thead><tr><th>考えること</th><th>ヒント</th></tr></thead>
+    <tbody>
+      <tr><td>何度も送受信する</td><td>サーバは「1行受信 → 1行送信」を、クライアントは「入力 → 送信 → 受信 → 表示」をくり返す</td></tr>
+      <tr><td>交互に通信する</td><td>課題の条件「交互に通信（マルチスレッドなし）」のとおり、どちらかが送ったら、もう一方が受け取って返すまで待つ。両方が同時に <code class="i">readLine()</code> で待つと、止まったままになる（デッドロック）</td></tr>
+      <tr><td>切断に気づく</td><td>相手が切断すると、<code class="i">readLine()</code> が <code class="i">null</code> を返す。これをループの終わりの条件にする</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">スライドに「エコーサーバが全然作れないぞという場合は早めに呼んでください」とあります。ここで止まったら、早めに先生に相談するのが一番の近道です。</p>
+</section>
+
+<section class="step" id="s5" data-title="プロトコルを設計する">
+  <div class="step-head"><div class="num">5</div><div><h2>プロトコル（やり取りの決まり）を設計する</h2><span class="slide">スライド「プロトコルの設計；現状」「工夫したもの」「Why Design a Protocol?」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>計算サーバに改良する前に、クライアントとサーバが<strong>どんな形の文字列を送り合うか</strong>を決めます。これがプロトコルです。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>方式</th><th>スライドの例</th><th>特徴</th></tr></thead>
+    <tbody>
+      <tr><td>そのまま送る（現状）</td><td>入力 <code class="i">45 + 84</code> をそのまま送り、サーバが解釈して <code class="i">129</code> を返す</td><td>作るのは簡単。ただし、返事が答えなのかエラーなのか、クライアントには区別できない</td></tr>
+      <tr><td>構造を持たせる（工夫）</td><td><code class="i">TERM 3</code> → <code class="i">OK</code>、<code class="i">84 A 72 D 6</code> → <code class="i">OK</code> … → <code class="i">ANS 96</code></td><td>先頭に「種類」を付けるので、受け取った側が意味を判断できる。拡張しやすく、誤りや攻撃にも強い</td></tr>
+    </tbody>
+  </table></div>
+  <p>基本課題なら、たとえば「返事の先頭に種類を付ける」だけでも十分に工夫になります。自分の設計を表にしておくと、レポートの図にそのまま使えます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>クライアント → サーバ</th><th>サーバ → クライアント</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">（式）</code></td><td><code class="i">（例）ANS …</code></td><td>計算結果</td></tr>
+      <tr><td><code class="i">HISTORY</code></td><td>？</td><td>これまでの式と結果の一覧。複数行をどう送り、どこで終わりと分かるようにするか</td></tr>
+      <tr><td>書式の誤り</td><td>？</td><td>何が悪かったかを伝える</td></tr>
+      <tr><td>終了の合図</td><td>？</td><td>接続を閉じる</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">「？」の部分を自分で決めるのが、この課題の設計の中心です。スライドの「Why Design a Protocol?」は「議論しよう」と問いかけているので、拡張性、通信エラーへの強さ、意図的な攻撃への強さ、などの観点で自分の意見をまとめると、考察に使えます。</p>
+</section>
+
+<section class="step" id="s6" data-title="計算サーバに改良する">
+  <div class="step-head"><div class="num">6</div><div><h2>計算サーバに改良する</h2><span class="slide">スライド「作業手順」実際のサーバに改良／「サーバの要件」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>エコーサーバの「そのまま返す」部分を、「式を解釈して計算し、結果を返す」に置き換えます。スライドに「可能なら正規表現なども使うとよい」とあります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>やること</th><th>使えるもの・考え方</th></tr></thead>
+    <tbody>
+      <tr><td>式を分ける</td><td><code class="i">line.split(" ")</code> で「数・演算子・数」の3つに分かれるか確かめる</td></tr>
+      <tr><td>書式が正しいか調べる</td><td>正規表現 <code class="i">line.matches("-?\\d+ [+\\-*/] -?\\d+")</code> で「整数 演算子 整数」の形かを一度に判定できる</td></tr>
+      <tr><td>文字を数にする</td><td><code class="i">Integer.parseInt()</code>。大きすぎる数などで <code class="i">NumberFormatException</code> が出るので、<code class="i">try-catch</code> でエラーとして返す</td></tr>
+      <tr><td>計算する</td><td>演算子で <code class="i">switch</code> する。<strong>0で割る</strong>場合をエラーとして扱う。整数の割り算は小数点以下が切り捨てになる点も、仕様として決めておく</td></tr>
+      <tr><td>記録する</td><td>サーバに <code class="i">List&lt;String&gt;</code> を用意して「式 = 結果」を追加していく。サーバが起動している間だけ残る（課題の条件どおり）</td></tr>
+      <tr><td>HISTORYを返す</td><td>手順5で決めた形で、記録を送る。0件のときの返事も決めておく</td></tr>
+    </tbody>
+  </table></div>
+  <p>動作確認では、正しい式だけでなく、わざと間違った入力も試します。どれもエラーとして返れば、「入力エラーを適切に処理する」の要件を満たせます。</p>
+  <div class="code" data-where="ssh" data-label="試す入力の例"><pre>45 + 84
+100 / 0
+45+84
+3.5 * 2
+abc
+1 + 2 + 3
+HISTORY</pre></div>
+  <p class="why">「交互に通信」なので、サーバは必ず1回の受信に1回返事をする、という決まりにしておくと、クライアントが返事を待ち続けて固まる事故を防げます。</p>
+</section>
+
+<section class="step extra" id="s7" data-title="2台のPCで通信する">
+  <div class="step-head"><div class="num">7</div><div><h2>2台のPCで通信してみる</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <p>スライドの実行イメージのように、サーバとクライアントを別のPCで動かします。クライアントの接続先を、サーバを動かすPCのIPにします（上のバーに入れると、下のコマンドに反映されます）。</p>
+  <h3>Windowsでサーバを動かす場合</h3>
+  <p>初回の起動で「Windows セキュリティの重要な警告」が出たら、「アクセスを許可する」を押します。相手から届くかは、クライアント側のPCで確かめられます。</p>
+  <div class="code" data-where="win"><pre>Test-NetConnection {{IP}} -Port 1102</pre></div>
+  <p><code class="i">TcpTestSucceeded : True</code> なら、サーバまで通信が届いています。<code class="i">False</code> なら、サーバが起動していないか、ファイアウォールで止まっています。</p>
+  <h3>第1・2回のサーバ（hirox）でサーバを動かす場合</h3>
+  <p>Ubuntuにも Java を入れれば、サーバ役にできます。前回 ufw を有効にしたので、ポートを開ける必要があります。</p>
+  <div class="code" data-where="local" data-label="サーバ（hirox）"><pre>sudo apt install -y openjdk-21-jdk-headless
+sudo ufw allow 1102/tcp
+java CalcServer.java</pre></div>
+  <p class="why">ファイル名は自分のサーバのクラス名に合わせます。終わったら <code class="i">sudo ufw delete allow 1102/tcp</code> でポートを閉じておくと安全です。第1・2回で学んだ「ファイアウォールで必要なポートだけ開ける」を、自分のプログラムで体験できます。</p>
+</section>
+
+<section class="step" id="s8" data-title="発展課題の考え方">
+  <div class="step-head"><div class="num">8</div><div><h2>発展課題の考え方</h2><span class="slide">スライド「Advanced Task」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>発展課題</th><th>考え方の手がかり</th></tr></thead>
+    <tbody>
+      <tr><td>3つ以上の数の計算</td><td><code class="i">1 + 2 * 3</code> のように、掛け算・割り算を先にする必要がある。まず掛け算・割り算を処理してから足し算・引き算をする2段階の方法や、数と演算子のスタックを使う方法がある</td></tr>
+      <tr><td>かっこ・前の結果を変数に</td><td>「データ構造とアルゴリズム」で習う逆ポーランド記法（後置記法）に変換してから計算すると、かっこも扱える。前の結果は「<code class="i">ANS</code> と書いたら直前の答え」「<code class="i">$1</code> と書いたら1番目の答え」など、書式を自分で決める</td></tr>
+      <tr><td>ファイルに保存して再起動時に読み込む</td><td>計算のたびにファイルの末尾へ1行追記し（<code class="i">Files.writeString(…, StandardOpenOption.APPEND)</code> など）、起動時に <code class="i">Files.readAllLines()</code> で読み込んで記録リストに戻す。ファイルがまだないときの扱いも決める</td></tr>
+    </tbody>
+  </table></div>
+  <p class="why">どの発展課題も、手順5のプロトコルを広げる必要があります。「基本課題のプロトコルのままでは何が足りなかったか」を書くと、スライドの「なぜプロトコルを設計するのか」への自分なりの答えになり、考察が深くなります。</p>
+</section>
+
+<section class="step" id="s9" data-title="レポートにまとめる">
+  <div class="step-head"><div class="num">9</div><div><h2>レポート②にまとめる</h2><span class="slide">配布資料「レポートの提出方法と内容について」</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="tbl"><table>
+    <thead><tr><th>章</th><th>この回で書くこと</th></tr></thead>
+    <tbody>
+      <tr><td>2. 課題・目的</td><td>ソケット通信による計算サーバとクライアントの作成</td></tr>
+      <tr><td>3. 原理・理論</td><td>ソケット、TCP、IPアドレスとポート番号、クライアント・サーバ方式、プロトコル。<strong>自分で調べて、自分の言葉で</strong></td></tr>
+      <tr><td>4. 使用言語や環境</td><td>Javaのバージョン、使ったクラス（ServerSocket、Socket、BufferedReader、PrintWriter など）、動かしたPC</td></tr>
+      <tr><td>5. 実験内容と結果</td><td>設計したプロトコルの表、サーバとクライアントそれぞれの<strong>フローチャート</strong>、正しい入力とエラーの入力の実行結果</td></tr>
+      <tr><td>6. 考察</td><td>プロトコルを設計する意味、交互通信の制約とその影響、エラー処理で工夫した点、発展課題の結果</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>提出は表紙を含めた<strong>1つのPDF</strong>と、ソースコードの<strong>zip</strong>。期限はガイダンスの表で <strong>11/17（火）9:00</strong></li>
+    <li>サーバとクライアントの2つのプログラムがあるので、フローチャートも2つ（または、やり取りが分かる図）にすると伝わりやすい</li>
+    <li>実行結果は、サーバ側とクライアント側の画面を並べて示すと、交互に通信していることが分かる</li>
+  </ul>
+</section>
+
+<section class="step special" id="trouble" data-notoc>
+  <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">Connection refused</code></td><td>サーバがまだ起動していない、ポート番号が違う。サーバを先に起動する</td></tr>
+      <tr><td><code class="i">Connection timed out</code></td><td>IPが違う、別のネットワークにいる、ファイアウォールで止まっている（手順7）</td></tr>
+      <tr><td><code class="i">Address already in use</code></td><td>前に起動したサーバがまだ動いている。そのウィンドウで <kbd>Ctrl</kbd>+<kbd>C</kbd> で止める</td></tr>
+      <tr><td>送ったのに相手に何も出ない</td><td><code class="i">PrintWriter</code> の自動送信（autoFlush）がない、または <code class="i">println</code> ではなく <code class="i">print</code> を使っている</td></tr>
+      <tr><td>両方とも止まったまま動かない</td><td>サーバもクライアントも受信待ちになっている。どちらが先に送るかの決まりを見直す</td></tr>
+      <tr><td>日本語が文字化けする</td><td>読み書きの文字コードをそろえる（両方 <code class="i">StandardCharsets.UTF_8</code> を指定）</td></tr>
+      <tr><td>2回目の接続ができない</td><td>サーバが1回のやり取りで終了している。<code class="i">accept()</code> を外側のループに入れると、切断後に次の接続を待てる</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step special" id="report" data-notoc>
+  <div class="step-head"><div class="num">話</div><div><h2>15:00の経過報告（2分）の組み立て方</h2><span class="slide">実験ガイダンス「4. 実験の流れ」</span></div></div>
+  <div class="report">
+    <p>①Step1〜3（キーボード入力・送受信・エコーサーバ）のどこまでできたか、②計算サーバのプロトコルをどう設計したか、③エラー処理で何を想定したか、④詰まった点とその原因・対処、の順に話すとまとまります。</p>
+  </div>
+  <p class="why">実際にできたところ・詰まったところを、自分の言葉で話してください。</p>
+</section>
+
+<nav class="pager" aria-label="ほかの回へ">
+  <a class="pager-item" href="lab3.html"><span class="pager-k">前の回</span>第3回　ヒューリスティックサーチの応用</a>
+  <a class="pager-home" href="./">一覧へ戻る</a>
+  <span class="pager-item empty"><span class="pager-k">次の回</span>準備中</span>
+</nav>
+  </main>
+</div>
+<footer class="site-foot"><div class="site-foot-in"><a href="./">手順書の一覧へ</a><span>4EJ 情報工学実験の個人用まとめ。当日の指示がある場合はそちらを優先してください。</span></div></footer>
+<script src="assets/app.js?v=20261013c"></script>
+</body>
+</html>

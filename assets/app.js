@@ -23,12 +23,13 @@
     });
   }
 
+  if(!document.querySelector('.step')) return; // 一覧ページはここまで
+  // 入力欄は回によってない場合もある（ユーザ名だけ・IPだけ・どちらもなし）
   var uIn = document.getElementById('v-user'), ipIn = document.getElementById('v-ip');
-  if(!uIn || !ipIn) return; // 一覧ページはここまで
 
   /* 入力値はすべての回で共通にする */
-  uIn.value = store.get('jg-user') || '';
-  ipIn.value = store.get('jg-ip') || '';
+  if(uIn) uIn.value = store.get('jg-user') || '';
+  if(ipIn) ipIn.value = store.get('jg-ip') || '';
 
   var WHERE = {
     local: ['w-local', body.dataset.labelLocal || 'サーバで直接入力'],
@@ -36,7 +37,7 @@
     win:   ['w-win',   body.dataset.labelWin   || '自分のPCのPowerShell']
   };
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-  function vals(){return {u:uIn.value.trim()||'ユーザ名', ip:ipIn.value.trim()||'IPアドレス'}}
+  function vals(){return {u:(uIn && uIn.value.trim())||'ユーザ名', ip:(ipIn && ipIn.value.trim())||'IPアドレス'}}
   function fill(t, html){
     var v = vals();
     if(!html) return t.replace(/\{\{USER\}\}/g, v.u).replace(/\{\{IP\}\}/g, v.ip);
@@ -75,8 +76,8 @@
     document.querySelectorAll('.liveuser').forEach(function(s){ s.textContent = v.u; });
     document.querySelectorAll('.liveip').forEach(function(s){ s.textContent = v.ip; });
   }
-  uIn.addEventListener('input', function(){ store.set('jg-user', uIn.value); render(); });
-  ipIn.addEventListener('input', function(){ store.set('jg-ip', ipIn.value); render(); });
+  if(uIn) uIn.addEventListener('input', function(){ store.set('jg-user', uIn.value); render(); });
+  if(ipIn) ipIn.addEventListener('input', function(){ store.set('jg-ip', ipIn.value); render(); });
   render();
 
   /* 目次と完了チェック */
