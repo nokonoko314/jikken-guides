@@ -40,17 +40,21 @@
 </section>
 <section class="files" id="files">
   <h2 class="sec">配布資料</h2>
-  <p class="files-note">スライドはLMSから取得してください（スライドの日付は10/17ですが、ガイダンスの予定表では10/27です）。スライドの2〜4・6枚目は英語です。この回の配布コードはありません。このページは、その内容を自分用に手順化したものです。</p>
+  <ul class="file-list">
+    <li class="file"><span class="ftype zip" aria-hidden="true">ZIP</span><div><a class="fname" href="files/lab4/lab4_programs.zip" download>lab4_programs.zip</a><span class="fdesc">手本のプログラム7本と動かし方（README.txt）。Step 1〜3 と計算サーバ・クライアント。各手順の中にも同じコードを載せています</span></div><div class="factions"><span class="fsize">6 KB</span><a class="fbtn primary" href="files/lab4/lab4_programs.zip" download>ダウンロード</a></div></li>
+  </ul>
+  <p class="files-note">スライドはLMSから取得してください（スライドの日付は10/17ですが、ガイダンスの予定表では10/27です）。スライドの2〜4・6枚目は英語です。授業の配布コードはなく、上の zip はこのページ用に作った手本です。このページは、その内容を自分用に手順化したものです。</p>
 </section>
 <details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
 
 <section class="panel" id="intro">
   <h2 class="sec">この手順書の使い方</h2>
   <ul>
-    <li>この回はレポート②の対象です。<strong>プログラム本体は自分で書きます。</strong>この手順書は、環境の準備と動作確認の方法（コピペでOK）、課題の考え方・ヒントをまとめたものです。</li>
+    <li>この回はレポート②の対象です。この手順書は、環境の準備と動作確認の方法、課題の考え方・ヒントと、<strong>仕組みを理解するための手本のプログラム</strong>をまとめたものです。手本は説明しやすいように、できるだけ短く書いています。</li>
     <li>上のバーの「サーバのIP」に、<strong>サーバ役のプログラムを動かすPCのIP</strong>を入れると、接続確認のコマンドが書き換わります。</li>
     <li>スライドに言語の指定はないので、第3回と同じく<strong>Python</strong>（標準の <code class="i">socket</code> モジュール）を前提にしています。<span class="xtag">補足</span>とある手順は、スライドにない準備や確認です。</li>
   </ul>
+  <p class="box warn"><strong>手本はそのまま提出しない</strong>ガイダンスでは、他人のプログラムをコピーしたと判明すると、その回の評価は0点です。手本は動かして仕組みを確かめるために使い、提出するプログラムは自分で書いてください。</p>
   <div class="legend">
     <span class="where w-win">自分のPCのPowerShell</span>
     <span class="where w-ssh">Pythonのコード（書き方の例）</span>
@@ -134,6 +138,21 @@ Windows IP 構成
     </tbody>
   </table></div>
   <p class="why">「exit」と打ったら終わる、などの終了の決まりを自分で作っておくと、あとのクライアントにもそのまま使えます。</p>
+  <h3>手本</h3>
+  <div class="code" data-where="ssh" data-label="手本：step1_input.py"><pre># Step 1：キーボードから文字を読み込んで表示する
+print("何か文字を入力してください。exit で終わります。")
+
+while True:
+    line = input("&gt;")          # Enter が押されるまで，ここで止まって待つ
+    if line == "exit":
+        break
+    print("[入力結果]", line)</pre></div>
+  <p class="note"><a href="files/lab4/step1_input.py" download>step1_input.py をダウンロード</a></p>
+  <div class="code" data-where="win" data-label="実行結果（手元で動かしたもの）"><pre>$ python step1_input.py
+何か文字を入力してください。exit で終わります。
+&gt;Hello World
+[入力結果] Hello World
+&gt;exit</pre></div>
 </section>
 
 <section class="step" id="s3" data-title="送信だけ・受信だけのプログラム">
@@ -159,6 +178,56 @@ Windows IP 構成
     <li>サーバ側に <code class="i">[受信]Hello World</code> と出れば成功</li>
   </ol>
   <p class="why">先にクライアントを起動すると、待っている相手がいないので <code class="i">ConnectionRefusedError: [WinError 10061]</code> になります。</p>
+  <h3>手本</h3>
+  <div class="code" data-where="ssh" data-label="手本：step2_server.py"><pre># Step 2：受信だけをするサーバ（先に起動する）
+import socket
+
+PORT = 1102
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # IPv4・TCP のソケットを作る
+server.bind(("", PORT))     # このPCのポート1102を使う（"" はこのPCのどのIPでも受ける）
+server.listen()             # 待ち受けを始める
+ip = socket.gethostbyname(socket.gethostname())
+print("待ち受けを開始しました。IPアドレス", ip, "ポート" + str(PORT))
+
+conn, addr = server.accept()    # 接続が来るまで待つ。来たら相手専用のソケット conn ができる
+print("クライアントが接続しました。IPアドレス", addr[0])
+
+data = conn.recv(1024)          # 届いたデータ（バイト列）を受け取る
+print("[受信]" + data.decode("utf-8"))
+
+conn.close()
+server.close()</pre></div>
+  <p class="note"><a href="files/lab4/step2_server.py" download>step2_server.py をダウンロード</a></p>
+  <div class="code" data-where="ssh" data-label="手本：step2_client.py"><pre># Step 2：送信だけをするクライアント（サーバのあとに起動する）
+import socket
+
+HOST = "localhost"      # 2台で試すときはサーバのIPにする（例 "192.168.0.25"）
+PORT = 1102
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((HOST, PORT))    # サーバに接続する
+print("サーバに接続しました。IPアドレス", HOST, "ポート" + str(PORT))
+
+message = "Hello World"
+client.sendall(message.encode("utf-8"))     # 文字列をバイト列にして送る
+print("[送信]" + message)
+
+client.close()
+print("切断しました。")</pre></div>
+  <p class="note"><a href="files/lab4/step2_client.py" download>step2_client.py をダウンロード</a></p>
+  <div class="code" data-where="win" data-label="実行結果（手元で動かしたもの）"><pre>[サーバ側]
+$ python step2_server.py
+待ち受けを開始しました。IPアドレス 192.168.0.107 ポート1102
+クライアントが接続しました。IPアドレス 127.0.0.1
+[受信]Hello World
+
+[クライアント側]
+$ python step2_client.py
+サーバに接続しました。IPアドレス localhost ポート1102
+[送信]Hello World
+切断しました。</pre></div>
+  <p class="why">サーバの表示のIPアドレスは <code class="i">gethostbyname(gethostname())</code> で調べたもので、PCに複数のネットワークがあると、使っていない方のIPが出ることがあります。正しいIPは <code class="i">ipconfig</code> で確かめます。この段階では <code class="i">recv(1024)</code> で1回だけ受け取っています。</p>
 </section>
 
 <section class="step" id="s4" data-title="エコーサーバ">
@@ -187,6 +256,79 @@ Windows IP 構成
     </tbody>
   </table></div>
   <p class="why">スライドに「エコーサーバが全然作れないぞという場合は早めに呼んでください」とあります。ここで止まったら、早めに先生に相談するのが一番の近道です。</p>
+  <h3>手本</h3>
+  <div class="code" data-where="ssh" data-label="手本：step3_echo_server.py"><pre># Step 3：受け取った1行をそのまま送り返すエコーサーバ
+import socket
+
+PORT = 1102
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(("", PORT))
+server.listen()
+print("待ち受けを開始しました。ポート" + str(PORT))
+
+conn, addr = server.accept()
+print("クライアントが接続しました。IPアドレス", addr[0])
+reader = conn.makefile("r", encoding="utf-8")   # 1行ずつ読めるようにする
+
+while True:
+    line = reader.readline()        # 改行まで（1つのメッセージ）を受け取る
+    if line == "":                  # 空なら相手が切断した
+        break
+    text = line.rstrip("\n")
+    print("[受信]" + text)
+    conn.sendall((text + "\n").encode("utf-8"))     # 最後に改行を付けて送り返す
+    print("[送信]" + text)
+
+print("クライアントが切断しました。")
+conn.close()
+server.close()</pre></div>
+  <p class="note"><a href="files/lab4/step3_echo_server.py" download>step3_echo_server.py をダウンロード</a></p>
+  <div class="code" data-where="ssh" data-label="手本：step3_echo_client.py"><pre># Step 3：キーボードから入力した文字を送り，返事を受け取るクライアント
+import socket
+
+HOST = "localhost"
+PORT = 1102
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((HOST, PORT))
+print("サーバに接続しました。IPアドレス", HOST, "ポート" + str(PORT))
+reader = client.makefile("r", encoding="utf-8")
+
+print("文字列を入力してください。exit で終わります。")
+while True:
+    text = input("&gt;")
+    if text == "exit":
+        break
+    client.sendall((text + "\n").encode("utf-8"))   # 送る（改行が区切り）
+    print("[送信]" + text)
+    reply = reader.readline()                       # 返事が来るまで待つ
+    if reply == "":
+        print("サーバが切断しました。")
+        break
+    print("[受信]" + reply.rstrip("\n"))
+
+client.close()
+print("切断しました。")</pre></div>
+  <p class="note"><a href="files/lab4/step3_echo_client.py" download>step3_echo_client.py をダウンロード</a></p>
+  <div class="code" data-where="win" data-label="実行結果（手元で動かしたもの）"><pre>[クライアント側]
+$ python step3_echo_client.py
+サーバに接続しました。IPアドレス localhost ポート1102
+文字列を入力してください。exit で終わります。
+&gt;Hello World
+[送信]Hello World
+[受信]Hello World
+&gt;exit
+切断しました。
+
+[サーバ側]
+待ち受けを開始しました。ポート1102
+クライアントが接続しました。IPアドレス 127.0.0.1
+[受信]Hello World
+[送信]Hello World
+クライアントが切断しました。</pre></div>
+  <p class="why">Step 2 との違いは2つです。①<code class="i">makefile</code> の <code class="i">readline()</code> で「改行まで」を1つのメッセージとして受け取る。②送る文字の最後に <code class="i">"
+"</code> を付ける。受け取ったものが空 <code class="i">""</code> なら相手が切断した、と判断してループを抜けます。</p>
 </section>
 
 <section class="step" id="s5" data-title="プロトコルを設計する">
@@ -246,6 +388,186 @@ abc
 1 + 2 + 3
 HISTORY</pre></div>
   <p class="why">「交互に通信」なので、サーバは必ず1回の受信に1回返事をする、という決まりにしておくと、クライアントが返事を待ち続けて固まる事故を防げます。</p>
+  <h3>手本</h3>
+  <p>手本のプロトコルは次のとおりです。返事の先頭の語（<code class="i">ANS</code>・<code class="i">ERR</code>・<code class="i">HIST</code>）で、クライアントが返事の種類を見分けます。HISTORY は何件あるか分からないので、<strong>先に件数を送り</strong>、クライアントはその件数だけ続けて読みます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>クライアント → サーバ</th><th>サーバ → クライアント</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">45 + 84</code></td><td><code class="i">ANS 129</code></td><td>計算結果</td></tr>
+      <tr><td><code class="i">HISTORY</code></td><td><code class="i">HIST 2</code> のあとに <code class="i">45 + 84 = 129</code> などを2行</td><td>記録の一覧（件数が先）</td></tr>
+      <tr><td><code class="i">45+84</code>、<code class="i">100 / 0</code> など</td><td><code class="i">ERR 理由</code></td><td>書式の誤り・0で割った</td></tr>
+      <tr><td>（接続を閉じる）</td><td>—</td><td>サーバは受信が空になったことで切断に気づき、次の接続を待つ</td></tr>
+    </tbody>
+  </table></div>
+  <p>コメントの (1)〜(10) は、レポートに載せるサーバのフローチャートの番号に合わせています。割り算は <code class="i">//</code>（小さい方へ切り捨て）なので、<code class="i">-7 / 2</code> は -4 になります。</p>
+  <div class="code" data-where="ssh" data-label="手本：calc_server.py"><pre># 計算サーバ（基本課題）
+# コメントの (1)〜(10) はレポートの図1（サーバのフローチャート）の番号に対応する
+#
+# プロトコル（1行が1つのメッセージ。クライアントが1行送ると，サーバが返事をする）
+#   式（例 45 + 84）  → ANS 129
+#   HISTORY           → HIST 件数 の1行のあと，記録を件数ぶん1行ずつ
+#   書式の誤り・0除算 → ERR 理由
+import re
+import socket
+
+PORT = 1102
+PATTERN = r"-?\d+ [+\-*/] -?\d+"    # 整数 空白 演算子 空白 整数
+
+history = []    # 式と結果の記録（サーバが動いている間だけ残る）
+
+
+def send(conn, text):
+    """1行送る（最後に改行を付ける）"""
+    conn.sendall((text + "\n").encode("utf-8"))
+    print("[送信]" + text)
+
+
+def calc(expr):
+    """式を計算して，返事の1行を作る"""
+    # (7) 式の書式は正しい？
+    if not re.fullmatch(PATTERN, expr):
+        # (8) エラーを返す
+        return "ERR 書式が正しくありません（例: 45 + 84）"
+
+    # (9) 計算して記録に追加する
+    a, op, b = expr.split(" ")
+    a = int(a)
+    b = int(b)
+    if op == "+":
+        ans = a + b
+    elif op == "-":
+        ans = a - b
+    elif op == "*":
+        ans = a * b
+    else:
+        if b == 0:
+            return "ERR 0 で割ることはできません"
+        ans = a // b        # 整数の割り算（小数点以下は小さい方へ切り捨て）
+    history.append(expr + " = " + str(ans))
+    return "ANS " + str(ans)
+
+
+# (1) ポート1102で待ち受けを始める
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(("", PORT))
+server.listen()
+print("待ち受けを開始しました。ポート" + str(PORT))
+
+while True:
+    # (2) クライアントの接続を待つ
+    conn, addr = server.accept()
+    print("クライアントが接続しました。IPアドレス", addr[0])
+    reader = conn.makefile("r", encoding="utf-8")
+
+    while True:
+        # (3) 1行受信する
+        line = reader.readline()
+
+        # (4) 切断された？（受け取ったものが空）
+        if line == "":
+            break
+        expr = line.rstrip("\n")
+        print("[受信]" + expr)
+
+        # (5) HISTORY？
+        if expr == "HISTORY":
+            # (6) 記録の一覧を送る（はじめに件数，続けて1件ずつ）
+            send(conn, "HIST " + str(len(history)))
+            for h in history:
+                send(conn, h)
+        else:
+            # (7)〜(9) は calc の中
+            send(conn, calc(expr))
+
+    # (10) 接続を閉じて，次のクライアントを待つ
+    print("クライアントが切断しました。")
+    conn.close()</pre></div>
+  <p class="note"><a href="files/lab4/calc_server.py" download>calc_server.py をダウンロード</a></p>
+  <div class="code" data-where="ssh" data-label="手本：calc_client.py"><pre># 計算サーバのクライアント（基本課題）
+# コメントの (1)〜(6) はレポートの図2（クライアントのフローチャート）の番号に対応する
+import socket
+
+HOST = "localhost"      # 2台で試すときはサーバのIPにする
+PORT = 1102
+
+# (1) サーバに接続する
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((HOST, PORT))
+reader = client.makefile("r", encoding="utf-8")
+print("サーバに接続しました。")
+print("式を入力してください（例: 45 + 84）。HISTORY で記録，exit で終わります。")
+
+while True:
+    # (2) キーボードから1行入力する
+    text = input("&gt;")
+
+    # (3) 終了の合図？
+    if text == "exit":
+        break
+
+    # (4) サーバへ送る
+    client.sendall((text + "\n").encode("utf-8"))
+
+    # (5) 返事を受け取って表示する（先頭の語で種類を見分ける）
+    reply = reader.readline().rstrip("\n")
+    if reply == "":
+        print("サーバが切断しました。")
+        break
+    kind, body = reply.split(" ", 1)
+    if kind == "ANS":
+        print("答えは " + body + " です")
+    elif kind == "ERR":
+        print("エラー: " + body)
+    elif kind == "HIST":
+        count = int(body)
+        print("これまでの計算（" + str(count) + " 件）")
+        for i in range(count):
+            print("  " + reader.readline().rstrip("\n"))
+
+# (6) 接続を閉じる
+client.close()
+print("切断しました。")</pre></div>
+  <p class="note"><a href="files/lab4/calc_client.py" download>calc_client.py をダウンロード</a></p>
+  <div class="code" data-where="win" data-label="実行結果（手元で動かしたもの）"><pre>[クライアント側]
+$ python calc_client.py
+サーバに接続しました。
+式を入力してください（例: 45 + 84）。HISTORY で記録，exit で終わります。
+&gt;45 + 84
+答えは 129 です
+&gt;-7 / 2
+答えは -4 です
+&gt;100 / 0
+エラー: 0 で割ることはできません
+&gt;45+84
+エラー: 書式が正しくありません（例: 45 + 84）
+&gt;1 + 2 + 3
+エラー: 書式が正しくありません（例: 45 + 84）
+&gt;HISTORY
+これまでの計算（2 件）
+  45 + 84 = 129
+  -7 / 2 = -4
+&gt;exit
+切断しました。
+
+[サーバ側]
+待ち受けを開始しました。ポート1102
+クライアントが接続しました。IPアドレス 127.0.0.1
+[受信]45 + 84
+[送信]ANS 129
+[受信]-7 / 2
+[送信]ANS -4
+[受信]100 / 0
+[送信]ERR 0 で割ることはできません
+[受信]45+84
+[送信]ERR 書式が正しくありません（例: 45 + 84）
+[受信]1 + 2 + 3
+[送信]ERR 書式が正しくありません（例: 45 + 84）
+[受信]HISTORY
+[送信]HIST 2
+[送信]45 + 84 = 129
+[送信]-7 / 2 = -4
+クライアントが切断しました。</pre></div>
+  <p class="why">サーバは切断されても終わらず、次のクライアントを待ちます。もう一度クライアントを起動して HISTORY を送ると、前の記録が残っています（サーバを止めると消えます。これを残すのが発展課題③）。</p>
 </section>
 
 <section class="step extra" id="s7" data-title="2台のPCで通信する">
