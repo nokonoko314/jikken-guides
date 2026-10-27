@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css?v=20261013j">
 </head>
-<body data-lab="lab4" data-label-local="サーバ（hirox）" data-label-ssh="Javaのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
+<body data-lab="lab4" data-label-local="サーバ（hirox）" data-label-ssh="Pythonのコード（書き方の例）" data-label-win="自分のPCのPowerShell">
 <a class="skip" href="#content">本文へ移動</a>
 <header class="topbar"><div class="topbar-in">
   <a class="back" href="./">一覧へ戻る</a>
@@ -27,7 +27,7 @@
     <p class="rail-title">手順 <span class="rail-prog" id="prog-text" aria-live="polite"></span></p>
     <div class="prog-track rail-track"><div class="prog-fill" id="prog-fill"></div></div>
     <ol id="toc"></ol>
-    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の組み立て方</a></li></ul>
+    <ul class="rail-extra"><li><a href="#mission">今回の課題</a></li><li><a href="#understand">仕組みを理解する</a></li><li><a href="#qa">聞かれそうなこと</a></li><li><a href="#trouble">うまくいかないとき</a></li><li><a href="#report">報告の組み立て方</a></li></ul>
   </div></aside>
   <main id="content">
 <nav class="crumb" aria-label="現在の位置"><a href="./">手順書の一覧</a><span aria-hidden="true">／</span><span>第4回　ネットワーク通信</span></nav>
@@ -40,7 +40,7 @@
 </section>
 <section class="files" id="files">
   <h2 class="sec">配布資料</h2>
-  <p class="files-note">スライドはLMSから取得してください（スライドの日付は10/17ですが、ガイダンスの予定表では10/27です）。この回の配布コードはありません。このページは、その内容を自分用に手順化したものです。</p>
+  <p class="files-note">スライドはLMSから取得してください（スライドの日付は10/17ですが、ガイダンスの予定表では10/27です）。スライドの2〜4・6枚目は英語です。この回の配布コードはありません。このページは、その内容を自分用に手順化したものです。</p>
 </section>
 <details class="toc-inline"><summary>手順の一覧</summary><ol id="toc-inline"></ol></details>
 
@@ -49,18 +49,18 @@
   <ul>
     <li>この回はレポート②の対象です。<strong>プログラム本体は自分で書きます。</strong>この手順書は、環境の準備と動作確認の方法（コピペでOK）、課題の考え方・ヒントをまとめたものです。</li>
     <li>上のバーの「サーバのIP」に、<strong>サーバ役のプログラムを動かすPCのIP</strong>を入れると、接続確認のコマンドが書き換わります。</li>
-    <li>スライドに言語の指定はありませんが、第3回と同じくJavaを前提にしています。<span class="xtag">補足</span>とある手順は、スライドにない準備や確認です。</li>
+    <li>スライドに言語の指定はないので、第3回と同じく<strong>Python</strong>（標準の <code class="i">socket</code> モジュール）を前提にしています。<span class="xtag">補足</span>とある手順は、スライドにない準備や確認です。</li>
   </ul>
   <div class="legend">
     <span class="where w-win">自分のPCのPowerShell</span>
-    <span class="where w-ssh">Javaのコード（書き方の例）</span>
+    <span class="where w-ssh">Pythonのコード（書き方の例）</span>
     <span class="where w-local">サーバ（hirox）</span>
   </div>
 </section>
 
 <section class="panel" id="mission">
   <h2 class="sec">今回の課題</h2>
-  <p class="note">スライド「Today's Basic Task」「サーバの要件」「Advanced Task」より。</p>
+  <p class="note">スライド「Today's Basic Task」「サーバの要件」「Advanced Task」より（英語のスライドは日本語に直しています）。</p>
   <div class="tbl"><table>
     <thead><tr><th>区分</th><th>内容</th></tr></thead>
     <tbody>
@@ -74,13 +74,36 @@
   <p>スライドの作業手順のとおり、<strong>キーボード入力 → 送信だけ・受信だけ → エコーサーバ → 計算サーバ</strong>の順に、小さく作って動かしながら広げていきます。</p>
 </section>
 
-<section class="step extra" id="s1" data-title="Javaとポートの準備">
-  <div class="step-head"><div class="num">1</div><div><h2>Javaと通信の準備</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <div class="code" data-where="win"><pre>java -version
-ipconfig</pre><pre class="out">$ java -version
-openjdk version "21.0.8" 2025-07-15 LTS
-OpenJDK Runtime Environment Temurin-21.0.8+9 (build 21.0.8+9-LTS)
-OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, sharing)
+<section class="panel" id="understand">
+  <h2 class="sec">仕組みを理解する（自分で説明するために）</h2>
+  <p><span class="xtag">補足</span> 経過報告やレポートで、自分の言葉で説明できるようにするためのまとめです。</p>
+  <h3>通信の流れ（サーバとクライアントで何が起きるか）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>順</th><th>サーバ</th><th>クライアント</th><th>ひとことで</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><code class="i">socket()</code> → <code class="i">bind(("", 1102))</code> → <code class="i">listen()</code></td><td></td><td>ポート1102で待ち受けを始める</td></tr>
+      <tr><td>2</td><td><code class="i">accept()</code>（来るまで止まって待つ）</td><td><code class="i">socket()</code> → <code class="i">connect((IP, 1102))</code></td><td>接続ができると、<code class="i">accept()</code> が<strong>相手専用のソケット</strong>を返す</td></tr>
+      <tr><td>3</td><td>受信 → 計算 → 送信</td><td>入力 → 送信 → 受信 → 表示</td><td>この組を交互にくり返す</td></tr>
+      <tr><td>4</td><td>受信が空（<code class="i">b""</code>）になる → <code class="i">close()</code></td><td><code class="i">close()</code></td><td>相手が切断したことに気づいて終わる</td></tr>
+    </tbody>
+  </table></div>
+  <h3>押さえておく4つの考え方</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>考え方</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td>IPアドレスとポート番号</td><td>IPアドレスは「どのPCか」、ポート番号は「そのPCのどのプログラムか」を表す。住所と部屋番号の関係。2つそろって通信相手が1つに決まる</td></tr>
+      <tr><td>TCPは区切りのない流れ</td><td><code class="i">SOCK_STREAM</code> はTCPで、送った順に確実に届くが、<strong>メッセージの区切りは守られない</strong>。2回送ったものが1回の <code class="i">recv</code> でまとめて届くことがある。だから「改行までが1つのメッセージ」という決まりを自分で作る</td></tr>
+      <tr><td>受信は届くまで止まる</td><td><code class="i">recv</code> や <code class="i">readline</code> はデータが来るまで次の行へ進まない（ブロッキング）。両方が受信待ちになると止まったままになるので、「交互に通信」の約束が必要</td></tr>
+      <tr><td>文字列とバイト列</td><td>ソケットで送れるのはバイト列だけ。送る前に <code class="i">encode("utf-8")</code>、受けたら <code class="i">decode("utf-8")</code>。両方でそろえないと日本語が化ける</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="step extra" id="s1" data-title="Pythonとポートの準備">
+  <div class="step-head"><div class="num">1</div><div><h2>Pythonと通信の準備</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
+  <div class="code" data-where="win"><pre>python --version
+ipconfig</pre><pre class="out">$ python --version
+Python 3.14.3
 $ ipconfig
 Windows IP 構成
 
@@ -90,9 +113,9 @@ Windows IP 構成
    IPv4 アドレス . . . . . . . . . . . .: 192.168.0.25      ← これが自分のPCのIP
    サブネット マスク . . . . . . . . . .: 255.255.255.0
    デフォルト ゲートウェイ . . . . . . .: 192.168.0.1</pre></div>
-  <p>Javaのバージョンが出ない場合は、第3回の手順1でJDKを入れます。<code class="i">ipconfig</code> の「IPv4 アドレス」が、このPCのIPです。</p>
-  <p>サーバとクライアントは、<strong>PowerShellのウィンドウを2つ</strong>開いて、それぞれで動かします。最初は1台のPCの中で、接続先を <code class="i">localhost</code>（自分自身）にして試すのが簡単です。</p>
-  <p class="why">ポート番号はスライドの例と同じ <code class="i">1102</code> にしておくと、資料と見比べやすくなります。1024未満のポートは特別な権限が必要になることがあるので避けます。</p>
+  <p><code class="i">socket</code> と <code class="i">re</code> はPythonに最初から入っているので、追加のインストールはいりません。<code class="i">ipconfig</code> の「IPv4 アドレス」が、このPCのIPです。</p>
+  <p>サーバとクライアントは、<strong>PowerShellのウィンドウを2つ</strong>開いて、それぞれで動かします（例：<code class="i">python server.py</code> と <code class="i">python client.py</code>）。最初は1台のPCの中で、接続先を <code class="i">localhost</code>（自分自身）にして試すのが簡単です。</p>
+  <p class="why">ポート番号はスライドの例と同じ <code class="i">1102</code> にしておくと、資料と見比べやすくなります。ポート番号は0〜65535で、1024未満はよく使われるサービス用なので避けます。</p>
 </section>
 
 <section class="step" id="s2" data-title="キーボードから文字を読む">
@@ -105,37 +128,37 @@ Windows IP 構成
   <div class="tbl"><table>
     <thead><tr><th>使えるもの</th><th>役割</th></tr></thead>
     <tbody>
-      <tr><td><code class="i">Scanner sc = new Scanner(System.in);</code></td><td>キーボード（標準入力）から読む準備</td></tr>
-      <tr><td><code class="i">sc.nextLine()</code></td><td>Enterまでの1行を文字列で受け取る</td></tr>
-      <tr><td><code class="i">while (sc.hasNextLine()) { … }</code></td><td>入力がある間くり返す（<kbd>Ctrl</kbd>+<kbd>Z</kbd> → <kbd>Enter</kbd> で終わる）</td></tr>
+      <tr><td><code class="i">line = input("&gt;")</code></td><td>「&gt;」を出してEnterまでの1行を文字列で受け取る（最後の改行は含まれない）</td></tr>
+      <tr><td><code class="i">while True:</code> と <code class="i">break</code></td><td>入力をくり返し、終わりの合図（例：<code class="i">exit</code>）で抜ける</td></tr>
+      <tr><td><code class="i">EOFError</code></td><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> → <kbd>Enter</kbd> で入力を終えると <code class="i">input()</code> がこの例外を出す。<code class="i">try-except</code> で終わりとして扱える</td></tr>
     </tbody>
   </table></div>
-  <p class="why">「exit」と打ったら終わる、などの終了の決まりを自分で作っておくと、あとのクライアントにもそのまま使えます。<code class="i">BufferedReader</code> と <code class="i">InputStreamReader</code> を使う方法もあり、通信で使う読み方と同じ形になります。</p>
+  <p class="why">「exit」と打ったら終わる、などの終了の決まりを自分で作っておくと、あとのクライアントにもそのまま使えます。</p>
 </section>
 
 <section class="step" id="s3" data-title="送信だけ・受信だけのプログラム">
   <div class="step-head"><div class="num">3</div><div><h2>送信だけ・受信だけのプログラムを作る</h2><span class="slide">スライド「Step 2」通信プログラムの基本</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
-  <p>独立した2つのプログラムを作ります。サーバは接続を待って受信したものを表示し、クライアントは接続して1回送信します。この段階では、キーボード入力はなくてもかまいません（スライドより）。</p>
+  <p>独立した2つのプログラムを作ります。サーバは接続を待って受信したものを表示し、クライアントは接続して1回送信します。この段階では、キーボード入力はなくてもかまいません。クライアントの接続先は、プログラムに直接書いた固定の値でもよいです（スライドより）。</p>
   <div class="tbl"><table>
     <thead><tr><th>側</th><th>使うもの</th><th>していること</th></tr></thead>
     <tbody>
-      <tr><td>サーバ</td><td><code class="i">new ServerSocket(1102)</code></td><td>ポート1102で待ち受けを始める</td></tr>
-      <tr><td>サーバ</td><td><code class="i">serverSocket.accept()</code></td><td>クライアントが来るまで待ち、来たらその相手との <code class="i">Socket</code> を返す</td></tr>
-      <tr><td>クライアント</td><td><code class="i">new Socket("localhost", 1102)</code></td><td>サーバに接続する。2台で試すときは "localhost" を相手のIPにする</td></tr>
-      <tr><td>両方</td><td><code class="i">socket.getInputStream()</code> を <code class="i">BufferedReader</code> で包む</td><td>相手から1行ずつ受け取る（<code class="i">readLine()</code>）</td></tr>
-      <tr><td>両方</td><td><code class="i">socket.getOutputStream()</code> を <code class="i">PrintWriter</code> で包む</td><td>相手に1行ずつ送る（<code class="i">println()</code>）</td></tr>
-      <tr><td>サーバ</td><td><code class="i">socket.getInetAddress()</code></td><td>接続してきた相手のIP（スライドの「クライアントが接続しました。IPアドレス …」の表示に使う）</td></tr>
+      <tr><td>両方</td><td><code class="i">socket.socket(socket.AF_INET, socket.SOCK_STREAM)</code></td><td>IPv4・TCPのソケットを作る（引数を省いても同じ）</td></tr>
+      <tr><td>サーバ</td><td><code class="i">bind(("", 1102))</code> → <code class="i">listen()</code></td><td>このPCのポート1102を使うと決め、待ち受けを始める（<code class="i">""</code> はこのPCのどのIPでも受ける、という意味）</td></tr>
+      <tr><td>サーバ</td><td><code class="i">conn, addr = srv.accept()</code></td><td>クライアントが来るまで待ち、来たらその相手専用のソケット <code class="i">conn</code> と、相手の <code class="i">(IP, ポート)</code> を返す。<code class="i">addr[0]</code> がスライドの「クライアントが接続しました。IPアドレス …」に使える</td></tr>
+      <tr><td>クライアント</td><td><code class="i">connect(("localhost", 1102))</code></td><td>サーバに接続する。2台で試すときは "localhost" を相手のIPにする</td></tr>
+      <tr><td>送る側</td><td><code class="i">sendall((text + "\n").encode("utf-8"))</code></td><td>文字列をバイト列にして全部送る。最後に改行を付けて「ここで1つ」と分かるようにする</td></tr>
+      <tr><td>受ける側</td><td><code class="i">recv(1024)</code>、または <code class="i">conn.makefile("r", encoding="utf-8")</code> の <code class="i">readline()</code></td><td><code class="i">recv</code> は届いた分（最大1024バイト）をそのまま返す。<code class="i">makefile</code> で作ったファイルの <code class="i">readline()</code> なら、改行までの1行ずつ受け取れる</td></tr>
     </tbody>
   </table></div>
-  <div class="box warn"><strong>一番多いつまずき：送ったのに届かない</strong><code class="i">PrintWriter</code> は、ためてから送る仕組みです。<code class="i">new PrintWriter(out, true)</code>（自動で送る設定）にするか、<code class="i">flush()</code> を呼ばないと、相手に届きません。また <code class="i">readLine()</code> は改行が来るまで待つので、送る側は <code class="i">print</code> ではなく <code class="i">println</code> を使います。</div>
-  <p class="why">日本語を送ると文字化けする場合は、包むときに文字コードを指定します（例：<code class="i">new InputStreamReader(in, StandardCharsets.UTF_8)</code>）。<code class="i">try (…) { }</code>（try-with-resources）で書くと、終わったときにソケットを自動で閉じられます。</p>
+  <div class="box warn"><strong>一番多いつまずき：区切りがずれる</strong>TCPは送った回数どおりに区切って届けてはくれません。手元で試したところ、<code class="i">a\n</code> と <code class="i">b\n</code> を続けて2回送っても、受け手はまとめて受け取ることがありました。<code class="i">recv</code> の1回分を「1つのメッセージ」と思い込まず、改行で区切る決まりにして <code class="i">readline()</code> で読むのが確実です。</div>
+  <p class="why"><code class="i">with socket.socket() as s:</code> のように <code class="i">with</code> で書くと、終わったときにソケットが自動で閉じられます。</p>
   <h3>動かす順番</h3>
   <ol>
     <li>1つ目のPowerShellでサーバを起動する（「待ち受けを開始しました」が出て止まる）</li>
     <li>2つ目のPowerShellでクライアントを起動する</li>
     <li>サーバ側に <code class="i">[受信]Hello World</code> と出れば成功</li>
   </ol>
-  <p class="why">先にクライアントを起動すると、待っている相手がいないので <code class="i">Connection refused</code> になります。</p>
+  <p class="why">先にクライアントを起動すると、待っている相手がいないので <code class="i">ConnectionRefusedError: [WinError 10061]</code> になります。</p>
 </section>
 
 <section class="step" id="s4" data-title="エコーサーバ">
@@ -159,8 +182,8 @@ Windows IP 構成
     <thead><tr><th>考えること</th><th>ヒント</th></tr></thead>
     <tbody>
       <tr><td>何度も送受信する</td><td>サーバは「1行受信 → 1行送信」を、クライアントは「入力 → 送信 → 受信 → 表示」をくり返す</td></tr>
-      <tr><td>交互に通信する</td><td>課題の条件「交互に通信（マルチスレッドなし）」のとおり、どちらかが送ったら、もう一方が受け取って返すまで待つ。両方が同時に <code class="i">readLine()</code> で待つと、止まったままになる（デッドロック）</td></tr>
-      <tr><td>切断に気づく</td><td>相手が切断すると、<code class="i">readLine()</code> が <code class="i">null</code> を返す。これをループの終わりの条件にする</td></tr>
+      <tr><td>交互に通信する</td><td>課題の条件「交互に通信（マルチスレッドなし）」のとおり、どちらかが送ったら、もう一方が受け取って返すまで待つ。両方が同時に受信待ちになると、止まったままになる（デッドロック）</td></tr>
+      <tr><td>切断に気づく</td><td>相手が切断すると、<code class="i">recv</code> は <code class="i">b""</code>、<code class="i">readline()</code> は <code class="i">""</code>（空）を返す。これをループの終わりの条件にする（手元で確認済み）</td></tr>
     </tbody>
   </table></div>
   <p class="why">スライドに「エコーサーバが全然作れないぞという場合は早めに呼んでください」とあります。ここで止まったら、早めに先生に相談するのが一番の近道です。</p>
@@ -172,11 +195,20 @@ Windows IP 構成
   <div class="tbl"><table>
     <thead><tr><th>方式</th><th>スライドの例</th><th>特徴</th></tr></thead>
     <tbody>
-      <tr><td>そのまま送る（現状）</td><td>入力 <code class="i">45 + 84</code> をそのまま送り、サーバが解釈して <code class="i">129</code> を返す</td><td>作るのは簡単。ただし、返事が答えなのかエラーなのか、クライアントには区別できない</td></tr>
+      <tr><td>そのまま送る（現状）</td><td>入力 <code class="i">45 + 84</code> をそのまま送り、サーバが解釈して <code class="i">129</code> を返す</td><td>作るのは簡単。ただし、返事が答えなのかエラーなのか、クライアントには区別できない。HISTORYのような複数行の返事の終わりも分からない</td></tr>
       <tr><td>構造を持たせる（工夫）</td><td><code class="i">TERM 3</code> → <code class="i">OK</code>、<code class="i">84 A 72 D 6</code> → <code class="i">OK</code> … → <code class="i">ANS 96</code></td><td>先頭に「種類」を付けるので、受け取った側が意味を判断できる。拡張しやすく、誤りや攻撃にも強い</td></tr>
     </tbody>
   </table></div>
-  <p>基本課題なら、たとえば「返事の先頭に種類を付ける」だけでも十分に工夫になります。自分の設計を表にしておくと、レポートの図にそのまま使えます。</p>
+  <h3>「工夫したもの」の図の読み方</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>送るもの</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><code class="i">TERM 3</code> → <code class="i">OK</code></td><td>「これから数を3つ送る」と先に知らせる。サーバは受け取れるかを調べてOKを返す</td></tr>
+      <tr><td><code class="i">84 A 72 D 6</code> → <code class="i">OK</code></td><td>入力 <code class="i">84 + 72 / 6</code> の記号を英字に置き換えている。Aは足し算（Add）、Dは割り算（Divide）と読める</td></tr>
+      <tr><td><code class="i">ANS 96</code></td><td>データがそろったのでサーバが計算する。72 / 6 = 12 を先に計算し、84 + 12 = 96。クライアントはこれを「答えは96です」と人向けに表示する</td></tr>
+    </tbody>
+  </table></div>
+  <p>この例は数が3つあるので、発展課題（3つ以上の数）の例にもなっています。基本課題なら、たとえば「返事の先頭に種類を付ける」だけでも十分に工夫になります。自分の設計を表にしておくと、レポートの図にそのまま使えます。</p>
   <div class="tbl"><table>
     <thead><tr><th>クライアント → サーバ</th><th>サーバ → クライアント</th><th>意味</th></tr></thead>
     <tbody>
@@ -186,7 +218,7 @@ Windows IP 構成
       <tr><td>終了の合図</td><td>？</td><td>接続を閉じる</td></tr>
     </tbody>
   </table></div>
-  <p class="why">「？」の部分を自分で決めるのが、この課題の設計の中心です。スライドの「Why Design a Protocol?」は「議論しよう」と問いかけているので、拡張性、通信エラーへの強さ、意図的な攻撃への強さ、などの観点で自分の意見をまとめると、考察に使えます。</p>
+  <p class="why">「？」の部分を自分で決めるのが、この課題の設計の中心です。スライドの「Why Design a Protocol?」は「議論しよう」と問いかけているので、拡張性、通信エラーへの強さ、意図的な攻撃への強さ、別のプログラムとつながること（相互運用性）、表示とデータを分けられること、などの観点で自分の意見をまとめると、考察に使えます。</p>
 </section>
 
 <section class="step" id="s6" data-title="計算サーバに改良する">
@@ -195,16 +227,18 @@ Windows IP 構成
   <div class="tbl"><table>
     <thead><tr><th>やること</th><th>使えるもの・考え方</th></tr></thead>
     <tbody>
-      <tr><td>式を分ける</td><td><code class="i">line.split(" ")</code> で「数・演算子・数」の3つに分かれるか確かめる</td></tr>
-      <tr><td>書式が正しいか調べる</td><td>正規表現 <code class="i">line.matches("-?\\d+ [+\\-*/] -?\\d+")</code> で「整数 演算子 整数」の形かを一度に判定できる</td></tr>
-      <tr><td>文字を数にする</td><td><code class="i">Integer.parseInt()</code>。大きすぎる数などで <code class="i">NumberFormatException</code> が出るので、<code class="i">try-catch</code> でエラーとして返す</td></tr>
-      <tr><td>計算する</td><td>演算子で <code class="i">switch</code> する。<strong>0で割る</strong>場合をエラーとして扱う。整数の割り算は小数点以下が切り捨てになる点も、仕様として決めておく</td></tr>
-      <tr><td>記録する</td><td>サーバに <code class="i">List&lt;String&gt;</code> を用意して「式 = 結果」を追加していく。サーバが起動している間だけ残る（課題の条件どおり）</td></tr>
+      <tr><td>書式が正しいか調べる</td><td>正規表現 <code class="i">re.fullmatch(r"-?\d+ [+\-*/] -?\d+", line)</code> で「整数 空白 演算子 空白 整数」の形かを一度に判定できる。<code class="i">45+84</code>、<code class="i">3.5 * 2</code>、<code class="i">1 + 2 + 3</code> は一致しない（手元で確認済み）</td></tr>
+      <tr><td>式を分ける</td><td><code class="i">a, op, b = line.split(" ")</code> で「数・演算子・数」の3つに分ける</td></tr>
+      <tr><td>文字を数にする</td><td><code class="i">int()</code>。数でない文字だと <code class="i">ValueError</code> が出るので、<code class="i">try-except</code> でエラーとして返す</td></tr>
+      <tr><td>計算する</td><td>演算子で <code class="i">if</code> を分ける。<strong>0で割る</strong>と <code class="i">ZeroDivisionError</code> になるので、エラーとして扱う。<code class="i">/</code> は小数（7 / 2 = 3.5）、<code class="i">//</code> は小さい方へ切り捨て（-7 // 2 = -4）、<code class="i">int(-7 / 2)</code> は0の方へ切り捨て（-3）。どれにするかを仕様として決めておく</td></tr>
+      <tr><td>記録する</td><td>サーバに <code class="i">history = []</code> を用意して「式 = 結果」を <code class="i">append</code> していく。サーバが起動している間だけ残る（課題の条件どおり）</td></tr>
       <tr><td>HISTORYを返す</td><td>手順5で決めた形で、記録を送る。0件のときの返事も決めておく</td></tr>
     </tbody>
   </table></div>
+  <div class="box warn"><strong>eval() は使わない</strong>受け取った文字列を <code class="i">eval()</code> に渡すと計算は簡単にできますが、計算以外のPythonの命令も実行できてしまいます。「意図的な攻撃に強いプロトコル」（スライド）の反対の例なので、考察の材料にはなりますが、プログラムでは使わないようにします。</div>
   <p>動作確認では、正しい式だけでなく、わざと間違った入力も試します。どれもエラーとして返れば、「入力エラーを適切に処理する」の要件を満たせます。</p>
   <div class="code" data-where="ssh" data-label="試す入力の例"><pre>45 + 84
+-3 - -4
 100 / 0
 45+84
 3.5 * 2
@@ -218,7 +252,7 @@ HISTORY</pre></div>
   <div class="step-head"><div class="num">7</div><div><h2>2台のPCで通信してみる</h2><span class="xtag">補足</span></div><label class="done-toggle"><input type="checkbox"><span>完了</span></label></div>
   <p>スライドの実行イメージのように、サーバとクライアントを別のPCで動かします。クライアントの接続先を、サーバを動かすPCのIPにします（上のバーに入れると、下のコマンドに反映されます）。</p>
   <h3>Windowsでサーバを動かす場合</h3>
-  <p>初回の起動で「Windows セキュリティの重要な警告」が出たら、「アクセスを許可する」を押します。相手から届くかは、クライアント側のPCで確かめられます。</p>
+  <p>初回の起動で「Windows セキュリティの重要な警告」（Python）が出たら、「アクセスを許可する」を押します。相手から届くかは、クライアント側のPCで確かめられます。</p>
   <div class="code" data-where="win"><pre>Test-NetConnection {{IP}} -Port 1102</pre><pre class="out">ComputerName     : {{IP}}
 RemoteAddress    : {{IP}}
 RemotePort       : 1102
@@ -227,17 +261,16 @@ SourceAddress    : 192.168.0.25
 TcpTestSucceeded : True              ← True ならつながる。False ならサーバが動いていないか、ファイアウォール</pre></div>
   <p><code class="i">TcpTestSucceeded : True</code> なら、サーバまで通信が届いています。<code class="i">False</code> なら、サーバが起動していないか、ファイアウォールで止まっています。</p>
   <h3>第1・2回のサーバ（hirox）でサーバを動かす場合</h3>
-  <p>Ubuntuにも Java を入れれば、サーバ役にできます。前回 ufw を有効にしたので、ポートを開ける必要があります。</p>
-  <div class="code" data-where="local" data-label="サーバ（hirox）"><pre>sudo apt install -y openjdk-21-jdk-headless
+  <p>UbuntuにはPython 3が最初から入っているので、ファイルを送ればそのまま動きます。前回 ufw を有効にしたので、ポートを開ける必要があります。</p>
+  <div class="code" data-where="local" data-label="サーバ（hirox）"><pre>python3 --version
 sudo ufw allow 1102/tcp
-java CalcServer.java</pre><pre class="out">…
-Setting up openjdk-21-jdk-headless:amd64 (21.0.8+9~us1-0ubuntu1~24.04.1) ...
+python3 server.py</pre><pre class="out">Python 3.12.3
 $ sudo ufw allow 1102/tcp
 Rules updated
 Rules updated (v6)
-$ java CalcServer.java
+$ python3 server.py
 （自分で作ったサーバの表示。例：待ち受けを開始しました。ポート1102）</pre></div>
-  <p class="why">ファイル名は自分のサーバのクラス名に合わせます。終わったら <code class="i">sudo ufw delete allow 1102/tcp</code> でポートを閉じておくと安全です。第1・2回で学んだ「ファイアウォールで必要なポートだけ開ける」を、自分のプログラムで体験できます。</p>
+  <p class="why">ファイル名は自分のサーバのファイル名に合わせます。ファイルは第2回と同じく <code class="i">scp</code> で送れます。終わったら <code class="i">sudo ufw delete allow 1102/tcp</code> でポートを閉じておくと安全です。第1・2回で学んだ「ファイアウォールで必要なポートだけ開ける」を、自分のプログラムで体験できます。</p>
 </section>
 
 <section class="step" id="s8" data-title="発展課題の考え方">
@@ -245,9 +278,9 @@ $ java CalcServer.java
   <div class="tbl"><table>
     <thead><tr><th>発展課題</th><th>考え方の手がかり</th></tr></thead>
     <tbody>
-      <tr><td>3つ以上の数の計算</td><td><code class="i">1 + 2 * 3</code> のように、掛け算・割り算を先にする必要がある。まず掛け算・割り算を処理してから足し算・引き算をする2段階の方法や、数と演算子のスタックを使う方法がある</td></tr>
+      <tr><td>3つ以上の数の計算</td><td><code class="i">1 + 2 * 3</code> を左から順に計算すると9だが、正しくは7。掛け算・割り算を先にする必要がある。まず掛け算・割り算を処理してから足し算・引き算をする2段階の方法や、数と演算子のスタックを使う方法がある</td></tr>
       <tr><td>かっこ・前の結果を変数に</td><td>「データ構造とアルゴリズム」で習う逆ポーランド記法（後置記法）に変換してから計算すると、かっこも扱える。前の結果は「<code class="i">ANS</code> と書いたら直前の答え」「<code class="i">$1</code> と書いたら1番目の答え」など、書式を自分で決める</td></tr>
-      <tr><td>ファイルに保存して再起動時に読み込む</td><td>計算のたびにファイルの末尾へ1行追記し（<code class="i">Files.writeString(…, StandardOpenOption.APPEND)</code> など）、起動時に <code class="i">Files.readAllLines()</code> で読み込んで記録リストに戻す。ファイルがまだないときの扱いも決める</td></tr>
+      <tr><td>ファイルに保存して再起動時に読み込む</td><td>計算のたびに <code class="i">open("history.txt", "a", encoding="utf-8")</code> でファイルの末尾へ1行追記し、起動時に読み込んで記録リストに戻す。ファイルがまだないとき（<code class="i">FileNotFoundError</code>）の扱いも決める</td></tr>
     </tbody>
   </table></div>
   <p class="why">どの発展課題も、手順5のプロトコルを広げる必要があります。「基本課題のプロトコルのままでは何が足りなかったか」を書くと、スライドの「なぜプロトコルを設計するのか」への自分なりの答えになり、考察が深くなります。</p>
@@ -260,7 +293,7 @@ $ java CalcServer.java
     <tbody>
       <tr><td>2. 課題・目的</td><td>ソケット通信による計算サーバとクライアントの作成</td></tr>
       <tr><td>3. 原理・理論</td><td>ソケット、TCP、IPアドレスとポート番号、クライアント・サーバ方式、プロトコル。<strong>自分で調べて、自分の言葉で</strong></td></tr>
-      <tr><td>4. 使用言語や環境</td><td>Javaのバージョン、使ったクラス（ServerSocket、Socket、BufferedReader、PrintWriter など）、動かしたPC</td></tr>
+      <tr><td>4. 使用言語や環境</td><td>Pythonのバージョン、使ったモジュール（socket、re など）、動かしたPC</td></tr>
       <tr><td>5. 実験内容と結果</td><td>設計したプロトコルの表、サーバとクライアントそれぞれの<strong>フローチャート</strong>、正しい入力とエラーの入力の実行結果</td></tr>
       <tr><td>6. 考察</td><td>プロトコルを設計する意味、交互通信の制約とその影響、エラー処理で工夫した点、発展課題の結果</td></tr>
     </tbody>
@@ -272,17 +305,37 @@ $ java CalcServer.java
   </ul>
 </section>
 
+<section class="step special" id="qa" data-notoc>
+  <div class="step-head"><div class="num">?</div><div><h2>先生に聞かれそうなことと答え</h2><span class="xtag">補足</span></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>質問</th><th>答えの方向</th></tr></thead>
+    <tbody>
+      <tr><td>サーバを先に起動するのはなぜ？</td><td>クライアントの <code class="i">connect</code> は、相手が <code class="i">listen</code> で待っていないと断られる（ConnectionRefused）から</td></tr>
+      <tr><td><code class="i">accept()</code> は何を返す？</td><td>接続してきた相手専用のソケットと、相手のIP・ポート。待ち受け用のソケットとは別物で、送受信は専用の方で行う</td></tr>
+      <tr><td>なぜ最後に改行を付ける？</td><td>TCPはメッセージの区切りを守らないので、改行を「1つのメッセージの終わり」の目印にしている</td></tr>
+      <tr><td>なぜ交互に通信する必要がある？</td><td>受信は届くまで止まって待つので、両方が受信待ちになると動かなくなる。マルチスレッドを使わない条件では、順番を決める必要がある</td></tr>
+      <tr><td>切断はどう分かる？</td><td>相手が閉じると受信が空（<code class="i">b""</code> や <code class="i">""</code>）になる。それをループの終わりにしている</td></tr>
+      <tr><td>プロトコルを決めると何がよい？</td><td>返事の種類（答え・エラー・一覧）を区別でき、機能を足しやすく、決めた形以外をはじけるので誤りや攻撃に強い</td></tr>
+      <tr><td>HISTORYの終わりはどう判断する？</td><td>自分のプロトコルで決めた方法で答える（例：最初に件数を送る、最後に終わりの印を送る）</td></tr>
+      <tr><td>なぜ eval() を使わなかった？</td><td>計算以外の命令も実行できてしまい危険だから。決めた形の式だけを受け付けるようにした</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
 <section class="step special" id="trouble" data-notoc>
   <div class="step-head"><div class="num">!</div><div><h2>うまくいかないとき</h2></div></div>
+  <p class="note">Windows・Python 3.14 で、実際に出るエラーの文を確かめています。</p>
   <div class="tbl"><table>
     <thead><tr><th>症状</th><th>原因と対処</th></tr></thead>
     <tbody>
-      <tr><td><code class="i">Connection refused</code></td><td>サーバがまだ起動していない、ポート番号が違う。サーバを先に起動する</td></tr>
-      <tr><td><code class="i">Connection timed out</code></td><td>IPが違う、別のネットワークにいる、ファイアウォールで止まっている（手順7）</td></tr>
-      <tr><td><code class="i">Address already in use</code></td><td>前に起動したサーバがまだ動いている。そのウィンドウで <kbd>Ctrl</kbd>+<kbd>C</kbd> で止める</td></tr>
-      <tr><td>送ったのに相手に何も出ない</td><td><code class="i">PrintWriter</code> の自動送信（autoFlush）がない、または <code class="i">println</code> ではなく <code class="i">print</code> を使っている</td></tr>
+      <tr><td><code class="i">ConnectionRefusedError: [WinError 10061] 対象のコンピューターによって拒否されたため、接続できませんでした。</code></td><td>サーバがまだ起動していない、ポート番号が違う。サーバを先に起動する</td></tr>
+      <tr><td><code class="i">TimeoutError: [WinError 10060]</code></td><td>IPが違う、別のネットワークにいる、ファイアウォールで止まっている（手順7）</td></tr>
+      <tr><td><code class="i">OSError: [WinError 10048] 通常、各ソケット アドレスに対して…どれか 1 つのみを使用できます。</code></td><td>前に起動したサーバがまだ動いている。そのウィンドウで <kbd>Ctrl</kbd>+<kbd>C</kbd> で止める</td></tr>
+      <tr><td><code class="i">ConnectionResetError: [WinError 10054]</code></td><td>相手のプログラムが途中で強制終了した。受信の部分を <code class="i">try-except</code> で囲むと、落ちずに「切断しました」と出せる</td></tr>
+      <tr><td>2つの行が1つにくっついて届く／途中で切れる</td><td><code class="i">recv</code> の1回分を1つのメッセージとして扱っている。改行で区切って <code class="i">readline()</code> で読む（手順3）</td></tr>
+      <tr><td><code class="i">TypeError: a bytes-like object is required, not 'str'</code></td><td>文字列のまま <code class="i">sendall</code> している。<code class="i">.encode("utf-8")</code> を付ける</td></tr>
       <tr><td>両方とも止まったまま動かない</td><td>サーバもクライアントも受信待ちになっている。どちらが先に送るかの決まりを見直す</td></tr>
-      <tr><td>日本語が文字化けする</td><td>読み書きの文字コードをそろえる（両方 <code class="i">StandardCharsets.UTF_8</code> を指定）</td></tr>
+      <tr><td>日本語が文字化けする／<code class="i">UnicodeDecodeError</code></td><td>送る側と受ける側の文字コードをそろえる（両方 <code class="i">"utf-8"</code> を指定）</td></tr>
       <tr><td>2回目の接続ができない</td><td>サーバが1回のやり取りで終了している。<code class="i">accept()</code> を外側のループに入れると、切断後に次の接続を待てる</td></tr>
     </tbody>
   </table></div>
