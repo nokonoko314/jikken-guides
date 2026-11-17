@@ -94,13 +94,16 @@
     root.setAttribute('tabindex', '0');
     root.setAttribute('aria-label', t.title + '：1行ずつ解説');
 
+    /* 1画面に収める枠：流れ／（コード ｜ 画像・説明）／操作 */
+    var stage = el('div', 'sx-stage'); root.appendChild(stage);
+
     /* 処理の流れ */
     var flow = el('ol', 'sx-flow');
     ex.flow.forEach(function(name){ flow.appendChild(el('li', null, name)); });
-    root.appendChild(flow);
+    stage.appendChild(flow);
 
-    /* コード ｜ 画像 */
-    var top = el('div', 'sx-top');
+    /* コード ｜ 画像・説明（右側は中だけスクロール） */
+    var top = el('div', 'sx-top'), side = el('div', 'sx-side');
     var codebox = el('div', 'sx-codebox');
     var bar = el('div', 'sx-codebar');
     bar.appendChild(el('span', 'sx-fname', t.file));
@@ -117,27 +120,27 @@
     var viewbox = el('div', 'sx-viewbox');
     var view = el('div', 'sx-view'), cap = el('p', 'sx-cap');
     viewbox.appendChild(el('span', 'sx-label', '画像はこうなる')); viewbox.appendChild(view); viewbox.appendChild(cap);
-    top.appendChild(codebox); top.appendChild(viewbox); root.appendChild(top);
+    top.appendChild(codebox); side.appendChild(viewbox); top.appendChild(side); stage.appendChild(top);
 
     /* この行がしていること */
     var sayBox = el('div', 'sx-saybox');
     var sayL = el('span', 'sx-sayl'), say = el('p', 'sx-say'); say.setAttribute('aria-live', 'polite');
-    sayBox.appendChild(sayL); sayBox.appendChild(say); root.appendChild(sayBox);
+    sayBox.appendChild(sayL); sayBox.appendChild(say); side.appendChild(sayBox);
 
     /* 関数 */
     var fnBox = el('div', 'sx-fnbox');
     fnBox.appendChild(el('span', 'sx-label', 'この行で使っている関数・書き方'));
-    var fns = el('div', 'sx-fns'); fnBox.appendChild(fns); root.appendChild(fnBox);
+    var fns = el('div', 'sx-fns'); fnBox.appendChild(fns); side.appendChild(fnBox);
 
     /* 変数と表示 */
     var st = el('div', 'sx-state');
     var vb = el('div'); vb.appendChild(el('span', 'sx-label', '変数の中身')); var vars = el('dl', 'sx-vars'); vb.appendChild(vars);
     var cb = el('div'); cb.appendChild(el('span', 'sx-label', '画面に出る表示')); var con = el('pre', 'sx-console'); cb.appendChild(con);
-    st.appendChild(vb); st.appendChild(cb); root.appendChild(st);
+    st.appendChild(vb); st.appendChild(cb); side.appendChild(st);
 
     /* 深掘りの質問 */
     var ask = el('details', 'sx-ask'); ask.appendChild(el('summary', null, 'この行を深掘りする質問'));
-    var askBody = el('div', 'sx-askbody'); ask.appendChild(askBody); root.appendChild(ask);
+    var askBody = el('div', 'sx-askbody'); ask.appendChild(askBody); side.appendChild(ask);
 
     /* 操作 */
     var ctrl = el('div', 'sx-ctrl'); ctrl.setAttribute('role', 'group'); ctrl.setAttribute('aria-label', '進める・戻す');
@@ -146,7 +149,7 @@
     bAuto.setAttribute('aria-pressed', 'false');
     var seek = el('input'); seek.type = 'range'; seek.min = 0; seek.max = t.steps.length - 1; seek.value = 0; seek.id = 'seek-' + t.id; seek.setAttribute('aria-label', 'ステップの位置'); ctrl.appendChild(seek);
     var count = el('span', 'sx-count'); ctrl.appendChild(count);
-    root.appendChild(ctrl);
+    stage.appendChild(ctrl);
 
     /* 課題全体：本物の画像での結果と、深掘りプロンプト */
     var real = el('div', 'box tip'); real.appendChild(el('strong', null, 'スライドの画像で動かした結果')); real.appendChild(document.createTextNode(t.real)); root.appendChild(real);
@@ -214,10 +217,16 @@
         var snip = lines.slice(s.lines[0] - 1, s.lines[1]).join('\n');
         s.ask.forEach(function(q){ askBody.appendChild(qBox(q, promptFor(snip, q))); });
       }
+      side.scrollTop = 0; top.scrollTop = 0;
       seek.value = step; count.textContent = (step + 1) + ' / ' + t.steps.length;
       bPrev.disabled = step === 0; bFirst.disabled = step === 0; bNext.disabled = step === t.steps.length - 1;
     }
     function go(n){ step = Math.max(0, Math.min(t.steps.length - 1, n)); render(); }
+    /* 枠が画面からはみ出していたら、枠の上端まで動かして全体を見せる */
+    function fit(){
+      var r = stage.getBoundingClientRect(), off = parseFloat(getComputedStyle(stage).getPropertyValue('--sx-off')) || 0;
+      if(r.top < off - 4 || r.bottom > window.innerHeight + 4){ stage.scrollIntoView({ block: 'start' }); }
+    }
     function stop(){ if(timer){ clearInterval(timer); timer = null; } bAuto.setAttribute('aria-pressed', 'false'); bAuto.textContent = '自動で進める'; }
     function start(){
       if(step >= t.steps.length - 1){ step = -1; }
@@ -225,15 +234,15 @@
       go(step + 1);
       timer = setInterval(function(){ if(step >= t.steps.length - 1){ stop(); } else { go(step + 1); } }, 5000);
     }
-    bNext.addEventListener('click', function(){ stop(); go(step + 1); });
-    bPrev.addEventListener('click', function(){ stop(); go(step - 1); });
-    bFirst.addEventListener('click', function(){ stop(); go(0); });
-    bAuto.addEventListener('click', function(){ if(timer){ stop(); } else { start(); } });
+    bNext.addEventListener('click', function(){ stop(); go(step + 1); fit(); });
+    bPrev.addEventListener('click', function(){ stop(); go(step - 1); fit(); });
+    bFirst.addEventListener('click', function(){ stop(); go(0); fit(); });
+    bAuto.addEventListener('click', function(){ if(timer){ stop(); } else { start(); fit(); } });
     seek.addEventListener('input', function(){ stop(); go(+seek.value); });
     root.addEventListener('keydown', function(e){
       if(e.target === seek) return;
-      if(e.key === 'ArrowRight'){ stop(); go(step + 1); e.preventDefault(); }
-      if(e.key === 'ArrowLeft'){ stop(); go(step - 1); e.preventDefault(); }
+      if(e.key === 'ArrowRight'){ stop(); go(step + 1); fit(); e.preventDefault(); }
+      if(e.key === 'ArrowLeft'){ stop(); go(step - 1); fit(); e.preventDefault(); }
     });
     render();
   }

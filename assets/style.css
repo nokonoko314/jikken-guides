@@ -404,9 +404,38 @@ details.sx-ask[open]>summary{border-bottom:1.5px solid var(--accent)}
 .sx-ctrl input[type=range]{flex:1 1 120px;min-width:90px;accent-color:var(--accent)}
 .sx-count{font-family:var(--mono);font-size:13.5px;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap}
 
+/* 1画面に収める枠（ステッパー本体）。高さを画面に合わせ、はみ出す分は中でスクロールする */
+.sx-stage{--sx-off:96px;height:calc(100vh - var(--sx-off) - 8px);height:calc(100dvh - var(--sx-off) - 8px);min-height:420px;display:flex;flex-direction:column;gap:10px}
+.sx-stage .sx-top{flex:1 1 auto;min-height:0;align-items:stretch;grid-template-rows:minmax(0,1fr)}
+.sx-stage .sx-codebox{display:flex;flex-direction:column;min-height:0}
+.sx-stage .sx-code{flex:1 1 auto;max-height:none;min-height:0}
+.sx-side{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;overscroll-behavior:contain}
+.sx-side .sx-viewbox{flex:none}
+.sx-side .sx-view{max-width:calc((100dvh - var(--sx-off)) * .4 * 4 / 3);margin:0 auto}
+.sx-side .sx-view:has(.two){max-width:calc((100dvh - var(--sx-off)) * .4 * 8 / 3)}
+.sx-side .sx-cap{text-align:center;margin-top:4px}
+.sx-stage .sx-state{grid-template-columns:minmax(0,1fr)}
+.sx-stage .sx-ctrl{position:static;flex:none;padding:8px 0 calc(4px + env(safe-area-inset-bottom,0px))}
 @media (max-width:760px){
   .sx-top,.sx-state{grid-template-columns:minmax(0,1fr)}
   .sx-code{max-height:36vh;font-size:12.5px}
+  /* スマホ：画像 → 説明 → コード の順に縦に並べ、真ん中だけスクロール */
+  .sx-stage{--sx-off:20px}
+  .sx-stage .sx-top{display:flex;flex-direction:column;gap:10px;overflow:auto;overscroll-behavior:contain}
+  .sx-side{display:contents}
+  .sx-side .sx-viewbox{order:1}
+  .sx-side .sx-saybox{order:2}
+  .sx-stage .sx-codebox{order:3;flex:none}
+  .sx-stage .sx-code{max-height:24dvh}
+  .sx-side .sx-fnbox{order:4}
+  .sx-side .sx-state{order:5}
+  .sx-side details.sx-ask{order:6}
+  .sx-side .sx-view{max-width:calc(30dvh * 4 / 3)}
+  .sx-side .sx-view:has(.two){max-width:100%}
+  .sx-say{font-size:15.5px;line-height:1.75}
+  .step .sx-flow{flex-wrap:nowrap;overflow-x:auto;font-size:12px;padding-bottom:2px}
+  .sx-flow li{white-space:nowrap}
+  .sx-btn{padding:6px 10px;font-size:14px}
 }
 @media (prefers-reduced-motion:reduce){
   .sx-imgs img,.sx-vars .new,.sx-focus{animation:none}
